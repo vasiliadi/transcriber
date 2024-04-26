@@ -1,0 +1,16 @@
+**/LICENSE
+**/README.md
+model-comparison.png
+**/.gitignore
+**/.git
+**/Dockerfile
+**/.dockerignore
+**/compose.yml
+**/compose.yaml
+**/__pycache__/
+**/.DS_Store
+**/*.env
+.streamlit/**/*
+.streamlit/
+temp/**/*
+temp/

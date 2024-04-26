@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  streamlit:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: streamlit
+    env_file:
+      - path: ./.streamlit/secrets.toml
+        required: false
+    ports:
+      - 80:80
+    restart: always
