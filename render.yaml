@@ -1,0 +1,16 @@
+services:
+- type: web
+  name: transcriber
+  runtime: docker
+  repo: https://github.com/vasiliadi/transcriber
+  plan: free
+  envVars:
+  - key: REPLICATE_API_TOKEN
+    sync: false
+  - key: GEMINI_API_KEY
+    sync: false
+  region: oregon
+  healthCheckPath: /_stcore/health
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+version: "1"
