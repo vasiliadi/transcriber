@@ -12,6 +12,8 @@ model-comparison.png
 **/*.env
 .streamlit/**/*
 .streamlit/
+.github/
+.github/**/*
 temp/**/*
 temp/
 **/render.yaml
