@@ -172,8 +172,6 @@ def get_printable_results():
         with st.spinner("Transcribing..."):
             transcription = transcribe()
             names = identify_speakers(transcription)
-            with open("names.json", "w") as f:
-                f.write(json.dumps(names))
             if transcription["num_speakers"] == 1:
                 if target_language != None:
                     for segment in transcription["segments"]:
