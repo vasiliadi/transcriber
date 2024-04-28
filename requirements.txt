@@ -1,5 +1,5 @@
-streamlit
-google-generativeai
-pytube
-requests
-replicate
+streamlit==1.33.0
+google-generativeai==0.5.2
+pytube==15.0.0
+requests==2.31.0
+replicate==0.25.2
