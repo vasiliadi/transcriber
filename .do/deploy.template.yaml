@@ -1,33 +1,16 @@
-# alerts:
-# - rule: DEPLOYMENT_FAILED
-# - rule: DOMAIN_FAILED
-features:
-- buildpack-stack=ubuntu-22
-ingress:
-  rules:
-  - component:
-      name: vasiliadi-transcriber
-    match:
-      path:
-        prefix: /
-name: transcriber-app
-region: nyc
-services:
-- envs:
-  - key: GEMINI_API_KEY
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    # value: 
-  - key: REPLICATE_API_TOKEN
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    # value: 
-  http_port: 80
-  image:
-    registry: vasiliadi
-    registry_type: GHCR
-    repository: transcriber
-    tag: main
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  name: vasiliadi-transcriber
+spec:
+  name: transcriber-app
+  services:
+  - name: transcriber-web-app
+    git:
+      branch: do-deploy
+      repo_clone_url: https://github.com/vasiliadi/transcriber.git
+    envs:
+    - key: GEMINI_API_KEY
+      scope: RUN_AND_BUILD_TIME
+      type: SECRET
+      # value: 
+    - key: REPLICATE_API_TOKEN
+      scope: RUN_AND_BUILD_TIME
+      type: SECRET
+      # value: 
