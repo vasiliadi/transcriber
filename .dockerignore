@@ -17,6 +17,8 @@ screenshot.png
 .github/
 temp/**/*
 temp/
+.do/**/*
+.do/
 **/render.yaml
 .devcontainer/**/*
 .devcontainer/
