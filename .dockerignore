@@ -1,6 +1,7 @@
 **/LICENSE
 **/README.md
 model-comparison.png
+screenshot.png
 **/.gitignore
 **/.git
 **/Dockerfile
@@ -12,7 +13,12 @@ model-comparison.png
 **/*.env
 .streamlit/**/*
 .streamlit/
+.github/**/*
+.github/
 temp/**/*
 temp/
 .do/**/*
 .do/
+**/render.yaml
+.devcontainer/**/*
+.devcontainer/

@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: streamlit
+    # volumes:
+    #   - ./:/app
     env_file:
       - path: ./.streamlit/secrets.toml
         required: false

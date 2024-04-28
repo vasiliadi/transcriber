@@ -62,7 +62,7 @@ def download(mode=st.session_state.mode):
 
 def compress_audio(audio_file_name=audio_file_name):
     try:
-        convert_process = subprocess.run(
+        subprocess.run(
             [
                 "ffmpeg",
                 "-y",
@@ -74,24 +74,22 @@ def compress_audio(audio_file_name=audio_file_name):
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "12k",
+                "16k", # 12k works well too
                 converted_file_name,
             ],
             check=True,
             capture_output=True,
             text=True,
         )
-        if convert_process.returncode == 0:
-            os.remove(audio_file_name)
     except subprocess.CalledProcessError as e:
         st.error("Check uploaded file.", icon="🚨")
         st.write(e.stderr)
         st.stop()
 
 
-def summarize(converted_file_name=converted_file_name):
+def summarize(audio_file_name=audio_file_name):
     prompt = "Listen carefully to the following audio file. Provide a detailed summary."
-    audio_file = genai.upload_file(converted_file_name)
+    audio_file = genai.upload_file(audio_file_name)
     response = model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
     return response.text
@@ -151,15 +149,15 @@ def convert_to_minutes(seconds):
 def clean_up():
     if os.path.isfile(converted_file_name):
         os.remove(converted_file_name)
+    if os.path.isfile(audio_file_name):
+        os.remove(audio_file_name)
 
 
 def get_printable_results():
     with st.spinner("Uploading the file to the server..."):
         download()
-    with st.spinner("Compressing file..."):
-        compress_audio()
-    st.audio(converted_file_name)
     if summary:
+        st.audio(audio_file_name)
         with st.spinner("Summarizing..."):
             summary_results = summarize()
             if target_language != None:
@@ -168,19 +166,39 @@ def get_printable_results():
             else:
                 st.markdown(summary_results)
     else:
+        with st.spinner("Compressing file..."):
+            compress_audio()
+        st.audio(converted_file_name)
         with st.spinner("Transcribing..."):
             transcription = transcribe()
             names = identify_speakers(transcription)
-            if target_language != None:
-                for segment in transcription["segments"]:
-                    st.markdown(
-                        f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(segment['text'], chunks=True, sleep_time=30)}"
-                    )
+            if transcription["num_speakers"] == 1:
+                if target_language != None:
+                    for segment in transcription["segments"]:
+                        text = str(segment['text']).replace("$", "\$")
+                        st.markdown(
+                            f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=30)}"
+                        )
+                else:
+                    for segment in transcription["segments"]:
+                        text = str(segment['text']).replace("$", "\$")
+                        st.markdown(
+                            f"**{convert_to_minutes(segment['start'])}:** {text}"
+                        )
             else:
-                for segment in transcription["segments"]:
-                    st.markdown(
-                        f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {segment['text']}"
-                    )
+                names = identify_speakers(transcription)
+                if target_language != None:
+                    for segment in transcription["segments"]:
+                        text = str(segment['text']).replace("$", "\$")
+                        st.markdown(
+                            f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=30)}"
+                        )
+                else:
+                    for segment in transcription["segments"]:
+                        text = str(segment['text']).replace("$", "\$")
+                        st.markdown(
+                            f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {text}"
+                        )
     clean_up()
 
 
@@ -196,7 +214,7 @@ st.radio(
 if st.session_state.mode == "Uploaded file":
     uploaded_file = st.file_uploader(
         "Choose a file:",
-        type=["wav", "mp3", "aiff", "aac", "ogg", "flac", "mpga", "m4a"],
+        type=["wav", "mp3", "aiff", "aac", "ogg", "flac"],
     )
 elif st.session_state.mode == "YouTube link":
     yt_url = st.text_input(
