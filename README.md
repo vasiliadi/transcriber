@@ -20,7 +20,7 @@ And you pay as you go.
 [Gemini 1.5 Pro](https://ai.google.dev/pricing) till May 2, 2024 is free. Then TBA.
 
 **Hosting**:
-Free tires of [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Render](https://render.com/pricing), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
+Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
 
 ## Technical details
 
@@ -74,71 +74,35 @@ It still works well for summarization.
 [Languages support](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
 
 
-### Docs
-
-#### Config secrets
-
+### Config
 Example of `.env` file:
 ```
 GEMINI_API_KEY = your_api_key
 REPLICATE_API_TOKEN = your_api_key
 ```
 
-You need to replace the path to env_file in `compose.yaml`
+You need to replace the path to the env_file in `compose.yaml`
 
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API key](https://replicate.com/account/api-tokens)
 
+[Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
-#### Libraries
-
-[pytube](https://pytube.io/en/latest/)
-
-#### Streamlit
-
-[Develop locally with secrets](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management#develop-locally-with-secrets) \
-[Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
-
-#### Docker
-
-[Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)
-
-[Docker](https://docs.docker.com/language/python/) \
-[Dockerfile reference](https://docs.docker.com/reference/dockerfile/) \
-[Dockerfile Linter](https://hadolint.github.io/hadolint/) \
-[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)
-
-[Docker Compose](https://docs.docker.com/compose/) \
-[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/) \
-[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/) \
-[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
-
-#### GitHub Actions
-[Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
+### Docs
+|  | Links
+---|---
+Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>[pytube](https://pytube.io/en/latest/)<br>
+Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
+GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
 
 ### Deploy
 
-#### Render
-[Render Blueprints (IaC)](https://docs.render.com/infrastructure-as-code)
-[Deploy from GitHub / GitLab / Bitbucket](https://docs.render.com/web-services#deploy-from-github--gitlab--bitbucket)
-
-#### Google Cloud
-[Quickstart: Deploy to Cloud Run](https://cloud.google.com/run/docs/quickstarts/deploy-container) \
-[Continuous deployment from Git using Cloud Build](https://cloud.google.com/run/docs/continuous-deployment-with-cloud-build) \
-[Tutorial: Deploy your dockerized application on Google Cloud](https://community.intersystems.com/post/tutorial-deploy-your-dockerized-application-google-cloud)
-
-#### Oracle Cloud
-[Deploying an Application with Oracle Container Cloud Service](https://www.oracle.com/webfolder/technetwork/tutorials/obe/cloud/container_cloud/deploying_an_app_from_occs/occs-deploy-an-app-obe.html)
-
-#### AWS
-[Deploy Docker Containers on Amazon ECS](https://aws.amazon.com/getting-started/hands-on/deploy-docker-containers/)
-
-#### Azure
-[Deploy a custom container to Azure App Service with Azure Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-docker-webapp?view=azure-devops&tabs=python%2Cclassic) \
-[Deploy a containerized app to Azure](https://code.visualstudio.com/docs/containers/app-service)
-
-#### Digital Ocean
-
-[How to Deploy from Monorepos](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-monorepo/) \
-[How to Deploy from Container Images](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/) \
-[How to Use Environment Variables in App Platform](https://docs.digitalocean.com/products/app-platform/how-to/use-environment-variables/#using-bindable-variables-within-environment-variables)
+| Platform | Links
+---|---
+Render | [Deploy from GitHub / GitLab / Bitbucket](https://docs.render.com/web-services#deploy-from-github--gitlab--bitbucket)
+Google Cloud | [Quickstart: Deploy to Cloud Run](https://cloud.google.com/run/docs/quickstarts/deploy-container)<br>[Tutorial: Deploy your dockerized application on Google Cloud](https://community.intersystems.com/post/tutorial-deploy-your-dockerized-application-google-cloud)
+Oracle Cloud | [Container Instances](https://www.oracle.com/cloud/cloud-native/container-instances/)
+IBM Cloud | [IBM Cloud® Code Engine](https://www.ibm.com/products/code-engine)
+AWS | [AWS App Runner](https://aws.amazon.com/apprunner/)
+Azure | [Web App for Containers](https://learn.microsoft.com/en-us/azure/app-service/)<br>[Deploy a containerized app to Azure](https://code.visualstudio.com/docs/containers/app-service)
+Digital Ocean | [How to Deploy from Container Images](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/)
