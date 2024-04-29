@@ -6,11 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: streamlit
-    # volumes:
-    #   - ./:/app
+    volumes:
+      - ./:/app
     env_file:
       - path: ./.streamlit/secrets.toml
         required: false
     ports:
       - 80:80
+    entrypoint: ["streamlit", "run", "streamlit_app.py", "--server.port=80", "--server.address=0.0.0.0"]
     restart: always
