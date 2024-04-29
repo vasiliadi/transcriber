@@ -171,7 +171,6 @@ def get_printable_results():
         st.audio(converted_file_name)
         with st.spinner("Transcribing..."):
             transcription = transcribe()
-            names = identify_speakers(transcription)
             if transcription["num_speakers"] == 1:
                 if target_language != None:
                     for segment in transcription["segments"]:
