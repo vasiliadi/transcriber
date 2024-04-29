@@ -14,4 +14,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 HEALTHCHECK CMD curl --fail http://localhost:80/_stcore/health
-ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=80", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
