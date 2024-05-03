@@ -22,3 +22,5 @@ temp/
 **/render.yaml
 .devcontainer/**/*
 .devcontainer/
+.vscode/**/*
+.vscode/
