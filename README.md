@@ -25,7 +25,7 @@ Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](htt
 
 **Total**:
 Pay as you go for 10 hours audio.
-Replicate + free Gemini API + DigitalOcean = \$0.25 + \$0.00 + \$0.10 = **\$0.35**
+Replicate + free Gemini API + DigitalOcean = \$2.00 + \$0.00 + \$0.10 = **\$2.10**
 
 ## Technical details
 
