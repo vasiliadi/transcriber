@@ -164,7 +164,8 @@ cython_debug/
 .vscode/
 
 # Codespaces or Dev Container
-.devcontainer/
+# .devcontainer/
 
 # Local
 temp
+.DS_Store
