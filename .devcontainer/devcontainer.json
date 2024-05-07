@@ -1,42 +1,13 @@
 // With production enviroment
-{
-	"name": "transcriber prod env container",
-	"image": "python:3.11-slim",
-	"forwardPorts": [8501],
-	"onCreateCommand": {
-		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-0+deb12u1 git && apt-get clean && rm -rf /var/lib/apt/lists/*"
-	},
-	"updateContentCommand": {
-		"pip": "pip install --no-cache-dir -r requirements.txt"
-	},
-	"postStartCommand": ["streamlit", "run", "streamlit_app.py"],
-	"customizations": {
-		"vscode": {
-			// "settings": {},
-			"extensions": [
-				"ms-python.python", 
-				"ms-python.black-formatter", 
-				"ms-python.isort", 
-				"visualstudioexptteam.vscodeintellicode",
-				"ms-toolsai.jupyter", 
-				"davidanson.vscode-markdownlint", 
-				"ms-azuretools.vscode-docker"
-			]
-		}
-	}
-}
-
-// With Microsoft image and features
 // {
-// 	"name": "transcriber msdev container",	
-// 	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
-// 	"features": {
-// 		"ghcr.io/devcontainers/features/python:1": {},
-// 		"ghcr.io/devcontainers-contrib/features/ffmpeg-apt-get:1": {}
-// 	},
+// 	"name": "transcriber prod env container",
+// 	"image": "python:3.11-slim",
 // 	"forwardPorts": [8501],
-// 	"postCreateCommand": {
-// 		"packages": "pip install --no-cache-dir -r requirements.txt"
+// 	"onCreateCommand": {
+// 		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-0+deb12u1 git && apt-get clean && rm -rf /var/lib/apt/lists/*"
+// 	},
+// 	"updateContentCommand": {
+// 		"pip": "pip install --no-cache-dir -r requirements.txt"
 // 	},
 // 	"postStartCommand": ["streamlit", "run", "streamlit_app.py"],
 // 	"customizations": {
@@ -54,3 +25,32 @@
 // 		}
 // 	}
 // }
+
+// With Microsoft image and features
+{
+	"name": "transcriber msdev container",	
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/devcontainers-contrib/features/ffmpeg-apt-get:1": {}
+	},
+	"forwardPorts": [8501],
+	"postCreateCommand": {
+		"packages": "pip install --no-cache-dir -r requirements.txt"
+	},
+	"postStartCommand": ["streamlit", "run", "streamlit_app.py"],
+	"customizations": {
+		"vscode": {
+			// "settings": {},
+			"extensions": [
+				"ms-python.python", 
+				"ms-python.black-formatter", 
+				"ms-python.isort", 
+				"visualstudioexptteam.vscodeintellicode",
+				"ms-toolsai.jupyter", 
+				"davidanson.vscode-markdownlint", 
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	}
+}
