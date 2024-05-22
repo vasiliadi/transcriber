@@ -1,5 +1,6 @@
+// With Microsoft image and features
 {
-	"name": "transcriber dev container",	
+	"name": "transcriber msdev container",	
 	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {},
@@ -9,7 +10,7 @@
 	"postCreateCommand": {
 		"packages": "pip install --no-cache-dir -r requirements.txt"
 	},
-	"postStartCommand":["streamlit", "run", "streamlit_app.py"],
+	"postStartCommand": ["streamlit", "run", "streamlit_app.py"],
 	"customizations": {
 		"vscode": {
 			// "settings": {},
@@ -25,3 +26,31 @@
 		}
 	}
 }
+
+// With production enviroment
+// {
+// 	"name": "transcriber prod env container",
+// 	"image": "python:3.11-slim",
+// 	"forwardPorts": [8501],
+// 	"onCreateCommand": {
+// 		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-0+deb12u1 git && apt-get clean && rm -rf /var/lib/apt/lists/*"
+// 	},
+// 	"updateContentCommand": {
+// 		"pip": "pip install --no-cache-dir -r requirements.txt"
+// 	},
+// 	"postStartCommand": ["streamlit", "run", "streamlit_app.py"],
+// 	"customizations": {
+// 		"vscode": {
+// 			// "settings": {},
+// 			"extensions": [
+// 				"ms-python.python", 
+// 				"ms-python.black-formatter", 
+// 				"ms-python.isort", 
+// 				"visualstudioexptteam.vscodeintellicode",
+// 				"ms-toolsai.jupyter", 
+// 				"davidanson.vscode-markdownlint", 
+// 				"ms-azuretools.vscode-docker"
+// 			]
+// 		}
+// 	}
+// }
