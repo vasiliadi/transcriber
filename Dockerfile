@@ -10,7 +10,7 @@ WORKDIR /app
 COPY --from=builder /app/wheels /wheels
 COPY . .
 RUN pip install --no-cache /wheels/*
-RUN apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-0+deb12u1 \
+RUN apt-get update && apt-get install --no-install-recommends -y ffmpeg \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 HEALTHCHECK CMD curl --fail http://localhost:8080/_stcore/health
