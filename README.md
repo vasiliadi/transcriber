@@ -13,7 +13,7 @@ Where you get:
 ## The Transcriber app
 
 **Transcription**:
-[Replicate AI models cloud-hosting](https://replicate.com/pricing) with current prices and models used, 1200 minutes will cost approximately **\$5.50** \
+[Replicate AI models cloud-hosting](https://replicate.com/pricing) with current prices and models used, 1200 minutes will cost approximately **\$1.60 - \$5.50** \
 At least three times cheaper with the same or even better quality of transcription, in my opinion. \
 And you pay as you go.
 
@@ -24,8 +24,9 @@ And you pay as you go.
 Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
 
 **Total**:
-Pay as you go for 10 hours audio.
-Replicate + free Gemini API + DigitalOcean = \$2.00 + \$0.00 + \$0.10 = **\$2.10**
+Pay as you go for 10 hours audio. \
+Replicate with `whisper-diarization` + free Gemini API + DigitalOcean = \$2.00 + \$0.00 + \$0.10 = **\$2.10** \
+Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.70 + \$0.00 + \$0.10 = **\$0.80**
 
 ## Technical details
 
@@ -86,12 +87,14 @@ Example of `.env` file:
 ```text
 GEMINI_API_KEY = your_api_key
 REPLICATE_API_TOKEN = your_api_key
+HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model
 ```
 
 You need to replace the path to the env_file in `compose.yaml`
 
 [Get Gemini API key](https://ai.google.dev/) \
-[Get Replicate API key](https://replicate.com/account/api-tokens)
+[Get Replicate API token](https://replicate.com/account/api-tokens) \
+[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model.
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
@@ -102,6 +105,7 @@ You need to replace the path to the env_file in `compose.yaml`
 | Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>[pytube](https://pytube.io/en/latest/) |
 | Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
+| Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
 
 ### Deploy
 
