@@ -33,7 +33,7 @@
 // 	"image": "python:3.11-slim",
 // 	"forwardPorts": [8501],
 // 	"onCreateCommand": {
-// 		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg=7:5.1.4-0+deb12u1 git && apt-get clean && rm -rf /var/lib/apt/lists/*"
+// 		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg git && apt-get clean && rm -rf /var/lib/apt/lists/*"
 // 	},
 // 	"updateContentCommand": {
 // 		"pip": "pip install --no-cache-dir -r requirements.txt"
