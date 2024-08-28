@@ -1,5 +1,7 @@
 # The Transcriber
 
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+
 Transcriber &amp; translator for audio files. Like Otter.ai but open-source and almost free.
 
 ![Screenshot](screenshot.png)
