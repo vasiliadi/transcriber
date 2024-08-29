@@ -7,6 +7,7 @@ import google.generativeai as genai
 import replicate
 import requests
 from yt_dlp import YoutubeDL
+from bs4 import BeautifulSoup
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
@@ -335,6 +336,9 @@ if go:
 
         elif st.session_state.mode == "Audio file link":
             if len(audio_link.strip()) != 0:
+                if audio_link.startswith("https://castro.fm/episode/"):
+                    soup = BeautifulSoup(requests.get(audio_link).content, 'html.parser')
+                    audio_link = soup.source.get("src")
                 get_printable_results()
             else:
                 st.error("Enter an audio file link.", icon="🚨")
