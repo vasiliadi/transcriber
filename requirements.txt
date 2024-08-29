@@ -1,5 +1,5 @@
 streamlit==1.37.1
 google-generativeai==0.7.2
-pytube==15.0.0
 requests==2.32.3
 replicate==0.32.0
+yt-dlp==2024.8.6
