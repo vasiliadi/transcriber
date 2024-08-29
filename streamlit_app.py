@@ -6,7 +6,7 @@ import json
 import google.generativeai as genai
 import replicate
 import requests
-from pytube import YouTube
+from yt_dlp import YoutubeDL
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
@@ -54,9 +54,18 @@ def download(mode=st.session_state.mode):
             with open(audio_file_name, "wb") as f:
                 f.write(uploaded_file.getbuffer())
         case "YouTube link":
-            YouTube(yt_url).streams.filter(only_audio=True).order_by(
-                "abr"
-            ).asc().first().download(filename=audio_file_name)
+            ydl_opts = {
+                "format": "worstaudio",
+                "outtmpl": "audio",
+                "postprocessors": [
+                    {  # Extract audio using ffmpeg
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": "mp3",
+                    }
+                ],
+            }
+            with YoutubeDL(ydl_opts) as ydl:
+                ydl.download(yt_url)
         case "Audio file link":
             downloaded_file = requests.get(audio_link)
             with open(audio_file_name, "wb") as f:
@@ -101,7 +110,11 @@ def summarize(audio_file_name=audio_file_name):
 def transcribe(model_name=st.session_state.model_name):
     match model_name:
         case "whisper-diarization":
-            latest_model_version = replicate_client.models.get("thomasmol/whisper-diarization").versions.list()[0].id
+            latest_model_version = (
+                replicate_client.models.get("thomasmol/whisper-diarization")
+                .versions.list()[0]
+                .id
+            )
             with open(converted_file_name, "rb") as audio:
                 transcription = replicate_client.run(
                     f"thomasmol/whisper-diarization:{latest_model_version}",
@@ -109,7 +122,11 @@ def transcribe(model_name=st.session_state.model_name):
                 )
                 return transcription
         case "incredibly-fast-whisper":
-            latest_model_version = replicate_client.models.get("vaibhavs10/incredibly-fast-whisper").versions.list()[0].id
+            latest_model_version = (
+                replicate_client.models.get("vaibhavs10/incredibly-fast-whisper")
+                .versions.list()[0]
+                .id
+            )
             with open(converted_file_name, "rb") as audio:
                 try:
                     transcription = replicate.run(
@@ -123,7 +140,6 @@ def transcribe(model_name=st.session_state.model_name):
                 except:
                     st.error("Model error 😫 Try to switch model 👍", icon="🚨")
                     st.stop()
-
 
                 def detected_num_speakers(transcription):
                     speakers = [i["speaker"] for i in transcription[0:-1]]
