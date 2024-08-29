@@ -33,6 +33,9 @@ model = genai.GenerativeModel(
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 replicate_client = replicate.Client(api_token=replicate_api_token)
 
+# HuggingFace.co config
+hf_access_token = os.environ["HF_ACCESS_TOKEN"]
+
 # File names
 audio_file_name = "audio.mp3"
 converted_file_name = "audio.ogg"
@@ -41,7 +44,7 @@ converted_file_name = "audio.ogg"
 if "mode" not in st.session_state:
     st.session_state.mode = "Uploaded file"
     st.session_state.language = None
-    st.session_state.model_name = "Balanced"
+    st.session_state.model_name = "whisper-diarization"
 
 
 # Functions
@@ -74,7 +77,7 @@ def compress_audio(audio_file_name=audio_file_name):
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "16k", # 12k works well too
+                "16k",  # 12k works well too
                 converted_file_name,
             ],
             check=True,
@@ -82,7 +85,7 @@ def compress_audio(audio_file_name=audio_file_name):
             text=True,
         )
     except subprocess.CalledProcessError as e:
-        st.error("Check uploaded file.", icon="🚨")
+        st.error("Check uploaded file 👀", icon="🚨")
         st.write(e.stderr)
         st.stop()
 
@@ -97,15 +100,74 @@ def summarize(audio_file_name=audio_file_name):
 
 def transcribe(model_name=st.session_state.model_name):
     match model_name:
-        case "Balanced":
+        case "whisper-diarization":
+            latest_model_version = replicate_client.models.get("thomasmol/whisper-diarization").versions.list()[0].id
             with open(converted_file_name, "rb") as audio:
                 transcription = replicate_client.run(
-                    "thomasmol/whisper-diarization:3ff22700b10e9c888e72235131e10c0a8427cd79e750bc42e4c035be2121796b",
+                    f"thomasmol/whisper-diarization:{latest_model_version}",
                     input={"file": audio, "transcript_output_format": "segments_only"},
                 )
                 return transcription
+        case "incredibly-fast-whisper":
+            latest_model_version = replicate_client.models.get("vaibhavs10/incredibly-fast-whisper").versions.list()[0].id
+            with open(converted_file_name, "rb") as audio:
+                try:
+                    transcription = replicate.run(
+                        f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
+                        input={
+                            "audio": audio,
+                            "hf_token": hf_access_token,
+                            "diarise_audio": True,
+                        },
+                    )
+                except:
+                    st.error("Model error 😫 Try to switch model 👍", icon="🚨")
+                    st.stop()
+
+
+                def detected_num_speakers(transcription):
+                    speakers = [i["speaker"] for i in transcription[0:-1]]
+                    return len(set(speakers))
+
+                output = []
+                current_group = {
+                    "start": str(transcription[0]["timestamp"][0]),
+                    "end": str(transcription[0]["timestamp"][1]),
+                    "speaker": transcription[0]["speaker"],
+                    "text": transcription[0]["text"],
+                }
+
+                for i in range(1, len(transcription[0:-1])):
+                    time_gap = (
+                        transcription[i]["timestamp"][0]
+                        - transcription[i - 1]["timestamp"][1]
+                    )
+                    if (
+                        transcription[i]["speaker"] == transcription[i - 1]["speaker"]
+                        and time_gap <= 2
+                    ):
+                        current_group["end"] = str(transcription[i]["timestamp"][1])
+                        current_group["text"] += " " + transcription[i]["text"]
+                    else:
+                        output.append(current_group)
+
+                        current_group = {
+                            "start": str(transcription[i]["timestamp"][0]),
+                            "end": str(transcription[i]["timestamp"][1]),
+                            "speaker": transcription[i]["speaker"],
+                            "text": transcription[i]["text"],
+                        }
+
+                output.append(current_group)
+
+                transcription = {
+                    "num_speakers": detected_num_speakers(transcription),
+                    "segments": output,
+                }
+
+                return transcription
         case _:
-            st.error("Model not found")
+            st.error("Model not found 🫴")
             st.stop()
 
 
@@ -174,13 +236,13 @@ def get_printable_results():
             if transcription["num_speakers"] == 1:
                 if target_language != None:
                     for segment in transcription["segments"]:
-                        text = str(segment['text']).replace("$", "\$")
+                        text = str(segment["text"]).replace("$", "\$")
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=30)}"
                         )
                 else:
                     for segment in transcription["segments"]:
-                        text = str(segment['text']).replace("$", "\$")
+                        text = str(segment["text"]).replace("$", "\$")
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])}:** {text}"
                         )
@@ -188,13 +250,13 @@ def get_printable_results():
                 names = identify_speakers(transcription)
                 if target_language != None:
                     for segment in transcription["segments"]:
-                        text = str(segment['text']).replace("$", "\$")
+                        text = str(segment["text"]).replace("$", "\$")
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=30)}"
                         )
                 else:
                     for segment in transcription["segments"]:
-                        text = str(segment['text']).replace("$", "\$")
+                        text = str(segment["text"]).replace("$", "\$")
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {text}"
                         )
@@ -202,6 +264,7 @@ def get_printable_results():
 
 
 # Frontend
+st.set_page_config(page_title="Transcriber")
 st.title("Transcribe & Translate Audio Files")
 
 st.radio(
