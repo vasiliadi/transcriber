@@ -276,7 +276,6 @@ def get_printable_results():
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {text}"
                         )
-    clean_up()
 
 
 # Frontend
@@ -321,20 +320,26 @@ go = st.button("Go")
 
 # Data processing
 if go:
-    if st.session_state.mode == "Uploaded file":
-        if uploaded_file is not None:
-            get_printable_results()
-        else:
-            st.error("Upload an audio file.", icon="🚨")
+    try:
+        if st.session_state.mode == "Uploaded file":
+            if uploaded_file is not None:
+                get_printable_results()
+            else:
+                st.error("Upload an audio file.", icon="🚨")
 
-    elif st.session_state.mode == "YouTube link":
-        if len(yt_url.strip()) != 0:
-            get_printable_results()
-        else:
-            st.error("Enter a YouTube link.", icon="🚨")
+        elif st.session_state.mode == "YouTube link":
+            if len(yt_url.strip()) != 0:
+                get_printable_results()
+            else:
+                st.error("Enter a YouTube link.", icon="🚨")
 
-    elif st.session_state.mode == "Audio file link":
-        if len(audio_link.strip()) != 0:
-            get_printable_results()
-        else:
-            st.error("Enter an audio file link.", icon="🚨")
+        elif st.session_state.mode == "Audio file link":
+            if len(audio_link.strip()) != 0:
+                get_printable_results()
+            else:
+                st.error("Enter an audio file link.", icon="🚨")
+    except Exception as e:
+        st.error("Repeat attempt! An error has occurred.", icon="🚨")
+        st.write(e)
+    finally:
+        clean_up()
