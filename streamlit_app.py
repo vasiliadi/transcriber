@@ -287,7 +287,10 @@ def get_printable_results():
                             f"**{convert_to_minutes(segment['start'])}:** {text}"
                         )
             elif transcription["num_speakers"] == 0:  # for openai/whisper
-                st.markdown(transcription["segments"])
+                if target_language != None:
+                    st.markdown(translate(transcription["segments"]))
+                else:
+                    st.markdown(transcription["segments"])
             else:
                 names = identify_speakers(transcription)
                 if target_language != None:
