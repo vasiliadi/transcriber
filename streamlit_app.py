@@ -45,7 +45,7 @@ converted_file_name = "audio.ogg"
 if "mode" not in st.session_state:
     st.session_state.mode = "Uploaded file"
     st.session_state.language = None
-    st.session_state.model_name = "incredibly-fast-whisper"
+    st.session_state.model_name = "whisper-diarization"
 
 
 # Functions
