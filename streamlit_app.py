@@ -105,7 +105,8 @@ def summarize(audio_file_name=audio_file_name):
     audio_file = genai.upload_file(audio_file_name)
     response = model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
-    return response.text
+    summary = response.text.replace("$", "\$")
+    return summary
 
 
 def transcribe(model_name=st.session_state.model_name):
