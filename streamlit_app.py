@@ -45,7 +45,7 @@ converted_file_name = "audio.ogg"
 if "mode" not in st.session_state:
     st.session_state.mode = "Uploaded file"
     st.session_state.language = None
-    st.session_state.model_name = "whisper-diarization"
+    st.session_state.model_name = "incredibly-fast-whisper"
 
 
 # Functions
@@ -183,6 +183,28 @@ def transcribe(model_name=st.session_state.model_name):
                 }
 
                 return transcription
+        case "whisper":
+            latest_model_version = (
+                replicate_client.models.get("openai/whisper").versions.list()[0].id
+            )
+            with open(converted_file_name, "rb") as audio:
+                transcription = replicate_client.run(
+                    f"openai/whisper:{latest_model_version}",
+                    input={"audio": audio},
+                )
+                transcription = transcription["transcription"]
+
+                def correct_transcription(transcription):
+                    prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
+                    corrected_transcription = model.generate_content(prompt)
+                    return corrected_transcription.text
+
+                transcription = {
+                    "num_speakers": 0,
+                    "segments": correct_transcription(transcription),
+                }
+
+                return transcription
         case _:
             st.error("Model not found 🫴")
             st.stop()
@@ -263,6 +285,8 @@ def get_printable_results():
                         st.markdown(
                             f"**{convert_to_minutes(segment['start'])}:** {text}"
                         )
+            elif transcription["num_speakers"] == 0:  # for openai/whisper
+                st.markdown(transcription["segments"])
             else:
                 names = identify_speakers(transcription)
                 if target_language != None:
@@ -337,7 +361,9 @@ if go:
         elif st.session_state.mode == "Audio file link":
             if len(audio_link.strip()) != 0:
                 if audio_link.startswith("https://castro.fm/episode/"):
-                    soup = BeautifulSoup(requests.get(audio_link).content, 'html.parser')
+                    soup = BeautifulSoup(
+                        requests.get(audio_link).content, "html.parser"
+                    )
                     audio_link = soup.source.get("src")
                 get_printable_results()
             else:
