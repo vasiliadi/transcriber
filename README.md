@@ -25,11 +25,11 @@ And you pay as you go.
 **Hosting**:
 Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
 
-**Total**:[^1]
+**Total[^1]**:
 Pay as you go for 10 hours audio. \
 Replicate with `whisper-diarization` + free Gemini API + DigitalOcean = \$2.00 + \$0.00 + \$0.10 = **\$2.10** \
 Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.70 + \$0.00 + \$0.10 = **\$0.80** \
-[^1]: For August 2024
+[^1]: prices are subject to change without notice \
 > [!NOTE]
 > Prices are subject to change without notice
 
