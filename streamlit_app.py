@@ -4,6 +4,7 @@ import subprocess
 import time
 import json
 import google.generativeai as genai
+from google.api_core import retry
 import replicate
 import requests
 from yt_dlp import YoutubeDL
@@ -105,6 +106,7 @@ def compress_audio(audio_file_name=audio_file_name):
         st.stop()
 
 
+@retry.Retry(predicate=retry.if_transient_error)
 def summarize(audio_file_name=audio_file_name):
     prompt = "Listen carefully to the following audio file. Provide a detailed summary."
     audio_file = genai.upload_file(audio_file_name)
@@ -200,6 +202,7 @@ def transcribe(model_name=st.session_state.model_name):
                 )
                 transcription = transcription["transcription"]
 
+                @retry.Retry(predicate=retry.if_transient_error)
                 def correct_transcription(transcription):
                     prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
                     corrected_transcription = flash_model.generate_content(prompt)
@@ -216,6 +219,7 @@ def transcribe(model_name=st.session_state.model_name):
             st.stop()
 
 
+@retry.Retry(predicate=retry.if_transient_error)
 def translate(
     text, target_language=st.session_state.language, chunks=False, sleep_time=30
 ):
@@ -238,12 +242,13 @@ def translate(
         st.stop()
 
 
+@retry.Retry(predicate=retry.if_transient_error)
 def identify_speakers(transcription):
     prompt = (
         'Identify speakers names and replace "speaker" with identified name. For exmple <example_json>{"avg_logprob": -0.1729651133334914, "end": "238.19", "speaker": "SPEAKER_00", "start": "15.34", "text": "About six years ago."}</example_json>, return only json as example <example_return>{"SPEAKER_00":"Dave"}</example_return>. If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>'
         + f"Do it with this json <transcribed_json>{transcription}</transcribed_json>"
     )
-    names = flash_model.generate_content(prompt)
+    names = model.generate_content(prompt)
     names_json = json.loads(names.text.split("```json")[1].split("```")[0])
     return names_json
 
