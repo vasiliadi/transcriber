@@ -29,6 +29,11 @@ model = genai.GenerativeModel(
     generation_config=generation_config,
     safety_settings=gemini_safety_settings,
 )
+flash_model = genai.GenerativeModel(
+    "models/gemini-1.5-flash-latest",
+    generation_config=generation_config,
+    safety_settings=gemini_safety_settings,
+)
 
 # Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
@@ -197,7 +202,7 @@ def transcribe(model_name=st.session_state.model_name):
 
                 def correct_transcription(transcription):
                     prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
-                    corrected_transcription = model.generate_content(prompt)
+                    corrected_transcription = flash_model.generate_content(prompt)
                     return corrected_transcription.text
 
                 transcription = {
@@ -217,13 +222,13 @@ def translate(
     prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
     try:
         if chunks:
-            translation = model.generate_content(prompt)
+            translation = flash_model.generate_content(prompt)
             time.sleep(
                 sleep_time
             )  # 2 queries per minute https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
             return translation.text
         else:
-            translation = model.generate_content(prompt)
+            translation = flash_model.generate_content(prompt)
             return translation.text
     except ValueError:
         st.error(
@@ -238,7 +243,7 @@ def identify_speakers(transcription):
         'Identify speakers names and replace "speaker" with identified name. For exmple <example_json>{"avg_logprob": -0.1729651133334914, "end": "238.19", "speaker": "SPEAKER_00", "start": "15.34", "text": "About six years ago."}</example_json>, return only json as example <example_return>{"SPEAKER_00":"Dave"}</example_return>. If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>'
         + f"Do it with this json <transcribed_json>{transcription}</transcribed_json>"
     )
-    names = model.generate_content(prompt)
+    names = flash_model.generate_content(prompt)
     names_json = json.loads(names.text.split("```json")[1].split("```")[0])
     return names_json
 
