@@ -45,7 +45,7 @@ converted_file_name = "audio.ogg"
 if "mode" not in st.session_state:
     st.session_state.mode = "Uploaded file"
     st.session_state.language = None
-    st.session_state.model_name = "incredibly-fast-whisper"
+    st.session_state.model_name = "whisper-diarization"
 
 
 # Functions
@@ -105,7 +105,8 @@ def summarize(audio_file_name=audio_file_name):
     audio_file = genai.upload_file(audio_file_name)
     response = model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
-    return response.text
+    summary = response.text.replace("$", "\$")
+    return summary
 
 
 def transcribe(model_name=st.session_state.model_name):
@@ -286,7 +287,10 @@ def get_printable_results():
                             f"**{convert_to_minutes(segment['start'])}:** {text}"
                         )
             elif transcription["num_speakers"] == 0:  # for openai/whisper
-                st.markdown(transcription["segments"])
+                if target_language != None:
+                    st.markdown(translate(transcription["segments"]))
+                else:
+                    st.markdown(transcription["segments"])
             else:
                 names = identify_speakers(transcription)
                 if target_language != None:
