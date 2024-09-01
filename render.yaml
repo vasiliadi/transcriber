@@ -9,6 +9,8 @@ services:
     sync: false
   - key: GEMINI_API_KEY
     sync: false
+  - key: HF_ACCESS_TOKEN
+    sync: false
   region: oregon
   healthCheckPath: /_stcore/health
   dockerContext: .
