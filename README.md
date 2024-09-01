@@ -28,7 +28,7 @@ Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](htt
 **Total**:[^1] \
 Pay as you go for 10 hours audio. \
 Replicate with `whisper-diarization` + free Gemini API + DigitalOcean = \$2.00 + \$0.00 + \$0.10 = **\$2.10** \
-Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.70 + \$0.00 + \$0.10 = **\$0.80** \
+Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.70 + \$0.00 + \$0.10 = **\$0.80**
 
 > [!NOTE]
 > Prices are subject to change without notice
