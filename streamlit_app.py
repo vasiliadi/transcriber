@@ -41,24 +41,30 @@ replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 replicate_client = replicate.Client(api_token=replicate_api_token)
 
 # HuggingFace.co config
-hf_access_token = os.environ["HF_ACCESS_TOKEN"]
+try:
+    hf_access_token = os.environ["HF_ACCESS_TOKEN"]
+except KeyError:
+    pass
 
 # File names
-audio_file_name = "audio.mp3"
-converted_file_name = "audio.ogg"
+AUDIO_FILE_NAME = "audio.mp3"
+CONVERTED_FILE_NAME = "audio.ogg"
 
 # Initialization
 if "mode" not in st.session_state:
     st.session_state.mode = "Uploaded file"
     st.session_state.language = None
-    st.session_state.model_name = "whisper-diarization"
+    st.session_state.model_name = "incredibly-fast-whisper"
+    st.session_state.summary_prompt = (
+        "Listen carefully to the following audio file. Provide a detailed summary."
+    )
 
 
 # Functions
 def download(mode=st.session_state.mode):
     match mode:
         case "Uploaded file":
-            with open(audio_file_name, "wb") as f:
+            with open(AUDIO_FILE_NAME, "wb") as f:
                 f.write(uploaded_file.getbuffer())
         case "YouTube link":
             ydl_opts = {
@@ -75,11 +81,11 @@ def download(mode=st.session_state.mode):
                 ydl.download(yt_url)
         case "Audio file link":
             downloaded_file = requests.get(audio_link)
-            with open(audio_file_name, "wb") as f:
+            with open(AUDIO_FILE_NAME, "wb") as f:
                 f.write(downloaded_file.content)
 
 
-def compress_audio(audio_file_name=audio_file_name):
+def compress_audio(audio_file_name=AUDIO_FILE_NAME):
     try:
         subprocess.run(
             [
@@ -94,7 +100,7 @@ def compress_audio(audio_file_name=audio_file_name):
                 "libopus",
                 "-b:a",
                 "16k",  # 12k works well too
-                converted_file_name,
+                CONVERTED_FILE_NAME,
             ],
             check=True,
             capture_output=True,
@@ -107,8 +113,7 @@ def compress_audio(audio_file_name=audio_file_name):
 
 
 @retry.Retry(predicate=retry.if_transient_error)
-def summarize(audio_file_name=audio_file_name):
-    prompt = "Listen carefully to the following audio file. Provide a detailed summary."
+def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_prompt):
     audio_file = genai.upload_file(audio_file_name)
     response = model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
@@ -124,7 +129,7 @@ def transcribe(model_name=st.session_state.model_name):
                 .versions.list()[0]
                 .id
             )
-            with open(converted_file_name, "rb") as audio:
+            with open(CONVERTED_FILE_NAME, "rb") as audio:
                 transcription = replicate_client.run(
                     f"thomasmol/whisper-diarization:{latest_model_version}",
                     input={"file": audio, "transcript_output_format": "segments_only"},
@@ -136,7 +141,15 @@ def transcribe(model_name=st.session_state.model_name):
                 .versions.list()[0]
                 .id
             )
-            with open(converted_file_name, "rb") as audio:
+            try:
+                hf_access_token
+            except NameError:
+                st.error(
+                    "HF_ACCESS_TOKEN is not provided. Switch model or provide HF_ACCESS_TOKEN.",
+                    icon="🚨",
+                )
+                st.stop()
+            with open(CONVERTED_FILE_NAME, "rb") as audio:
                 try:
                     transcription = replicate.run(
                         f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
@@ -195,7 +208,7 @@ def transcribe(model_name=st.session_state.model_name):
             latest_model_version = (
                 replicate_client.models.get("openai/whisper").versions.list()[0].id
             )
-            with open(converted_file_name, "rb") as audio:
+            with open(CONVERTED_FILE_NAME, "rb") as audio:
                 transcription = replicate_client.run(
                     f"openai/whisper:{latest_model_version}",
                     input={"audio": audio},
@@ -259,17 +272,17 @@ def convert_to_minutes(seconds):
 
 
 def clean_up():
-    if os.path.isfile(converted_file_name):
-        os.remove(converted_file_name)
-    if os.path.isfile(audio_file_name):
-        os.remove(audio_file_name)
+    if os.path.isfile(CONVERTED_FILE_NAME):
+        os.remove(CONVERTED_FILE_NAME)
+    if os.path.isfile(AUDIO_FILE_NAME):
+        os.remove(AUDIO_FILE_NAME)
 
 
 def get_printable_results():
     with st.spinner("Uploading the file to the server..."):
         download()
     if summary:
-        st.audio(audio_file_name)
+        st.audio(AUDIO_FILE_NAME)
         with st.spinner("Summarizing..."):
             summary_results = summarize()
             if target_language != None:
@@ -280,7 +293,7 @@ def get_printable_results():
     else:
         with st.spinner("Compressing file..."):
             compress_audio()
-        st.audio(converted_file_name)
+        st.audio(CONVERTED_FILE_NAME)
         with st.spinner("Transcribing..."):
             transcription = transcribe()
             if transcription["num_speakers"] == 1:
@@ -354,6 +367,52 @@ target_language = st.selectbox(
 )
 
 summary = st.checkbox("Generate summary (without transcription)")
+
+advanced = st.toggle("Advanced settings")
+
+if advanced:
+    st.text("Model settings")
+    col1_model_selection, col2_model_settings = st.columns(2)
+    with col1_model_selection:
+        st.radio(
+            label="Select option",
+            label_visibility="collapsed",
+            options=["whisper-diarization", "incredibly-fast-whisper", "whisper"],
+            captions=["best for dialogs", "best for speed", "best in accuracy"],
+            index=1,  # change if default value (st.session_state.model_name) has changed
+            key="model_name",
+            horizontal=False,
+        )
+    with col2_model_settings:
+        if st.session_state.model_name == "whisper-diarization":
+            st.checkbox("Disable speaker identification", disabled=True)
+        if st.session_state.model_name == "incredibly-fast-whisper":
+            st.checkbox("Disable diarization", disabled=True)
+            st.checkbox("Disable speaker identification", disabled=True)
+        if st.session_state.model_name == "whisper":
+            st.checkbox("Disable post-processing", disabled=True)
+    st.divider()
+    st.text("Summarization settings")
+    summarization_style = st.radio(
+        label="Select prompt",
+        label_visibility="collapsed",
+        options=["Detailed", "Short", "Action points", "Explain like I am 5"],
+        index=0, # change if default value (st.session_state.summary_prompt) has changed
+        disabled=False,
+    )
+    if summarization_style == "Detailed":
+        st.session_state.summary_prompt = (
+            "Listen carefully to the following audio file. Provide a detailed summary."
+        )
+    if summarization_style == "Short":
+        st.session_state.summary_prompt = (
+            "Listen carefully to the following audio file. Provide a short summary."
+        )
+    if summarization_style == "Action points":
+        st.session_state.summary_prompt = "Listen carefully to the following audio file. Provide a bullet-point summary"
+    if summarization_style == "Explain like I am 5":
+        st.session_state.summary_prompt = "Listen carefully to the following audio file. Explain like I am 5 years old."
+    st.text("")
 
 go = st.button("Go")
 
