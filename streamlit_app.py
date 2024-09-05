@@ -9,7 +9,6 @@ import replicate
 import requests
 from yt_dlp import YoutubeDL
 from bs4 import BeautifulSoup
-from urllib.parse import quote
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
@@ -528,7 +527,8 @@ if go:
             if len(audio_link.strip()) != 0:
                 if audio_link.startswith("https://castro.fm/episode/"):
                     soup = BeautifulSoup(
-                        requests.get(requests.utils.requote_uri(audio_link)).content, "html.parser"
+                        requests.get(requests.utils.requote_uri(audio_link)).content,
+                        "html.parser",
                     )
                     audio_link = soup.source.get("src")
                 get_printable_results()
