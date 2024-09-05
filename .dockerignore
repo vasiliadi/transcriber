@@ -11,8 +11,7 @@ screenshot.png
 **/__pycache__/
 **/.DS_Store
 **/*.env
-.streamlit/**/*
-.streamlit/
+.streamlit/secrets.toml
 .github/**/*
 .github/
 temp/**/*
