@@ -26,12 +26,12 @@ gemini_safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 pro_model = genai.GenerativeModel(
-    "models/gemini-1.5-pro-latest",
+    "models/gemini-1.5-pro",
     generation_config=generation_config,
     safety_settings=gemini_safety_settings,
 )
 flash_model = genai.GenerativeModel(
-    "models/gemini-1.5-flash-latest",
+    "models/gemini-1.5-flash",
     generation_config=generation_config,
     safety_settings=gemini_safety_settings,
 )
