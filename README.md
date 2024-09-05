@@ -20,7 +20,7 @@ At least three times cheaper with the same or even better quality of transcripti
 And you pay as you go.
 
 **Translation and summerization**:
-[Gemini 1.5 Pro](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
+[Gemini 1.5 Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
 
 **Hosting**:
 Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
@@ -37,10 +37,11 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 
 [Run Whisper model on Replicate](https://replicate.com/openai/whisper) much cheaper than using [OpenAI API for Whisper](https://openai.com/pricing).
 
-I use two models:
+I use three models:
 
 [vaibhavs10/incredibly-fast-whisper](https://replicate.com/vaibhavs10/incredibly-fast-whisper) best for speed \
-[thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs
+[thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs \
+[openai/whisper](https://replicate.com/openai/whisper)
 
 Same audio 45 minutes (6 speakers) comparison by model
 ![Comparison of processing times by model](model-comparison.png)
@@ -65,9 +66,9 @@ In my tests, I face three main problems:
 
 All this beloongs to very long audio only.
 
-#### Gemini 1.5 Pro
+#### Gemini 1.5 Pro/Flash
 
-[Gemini 1.5 Pro model name and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
+[Gemini 1.5 Pro/Flash model names and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
 
 > Max output tokens: 8,192
 
@@ -81,7 +82,7 @@ Translation by chunks still works, but the quality little bit lower.
 
 It still works well for summarization.
 
-> [2 queries per minute, 1000 queries per day](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
+> [2 queries per minute and 1000 per day for Gemini 1.5-pro. 15 and 1500 for Gemini 1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
 
 [Languages support](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
 
@@ -92,14 +93,14 @@ Example of `.env` file:
 ```text
 GEMINI_API_KEY = your_api_key
 REPLICATE_API_TOKEN = your_api_key
-HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model
+HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model with enabled diarization
 ```
 
 You need to replace the path to the env_file in `compose.yaml`
 
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API token](https://replicate.com/account/api-tokens) \
-[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model.
+[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization.
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
@@ -108,7 +109,7 @@ You need to replace the path to the env_file in `compose.yaml`
 |  | Links |
 | ---|--- |
 | Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>~~[pytube](https://pytube.io/en/latest/)~~<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp) |
-| Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
+| Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br>[.dockerignore validator](https://dockerignore.vw.codes/)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
 
