@@ -41,7 +41,7 @@ I use three models:
 
 [vaibhavs10/incredibly-fast-whisper](https://replicate.com/vaibhavs10/incredibly-fast-whisper) best for speed \
 [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs \
-[openai/whisper](https://replicate.com/openai/whisper)
+[openai/whisper](https://replicate.com/openai/whisper) best in accuracy
 
 Same audio 45 minutes (6 speakers) comparison by model
 ![Comparison of processing times by model](model-comparison.png)
