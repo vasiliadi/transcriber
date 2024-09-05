@@ -13,12 +13,7 @@ from bs4 import BeautifulSoup
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 genai.configure(api_key=gemini_api_key)
-generation_config = {
-    #   "temperature": 1,
-    #   "top_p": 0.95,
-    #   "top_k": 0,
-    "max_output_tokens": 8192,
-}
+generation_config = {"max_output_tokens": 8192}
 gemini_safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -272,7 +267,7 @@ def translate(
             translation = flash_model.generate_content(prompt)
             time.sleep(
                 sleep_time
-            )  # 2 queries per minute for 1.5-pro and 15 for 1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
+            )  # 2 queries per minute for Gemini 1.5-pro and 15 for Gemini 1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
             return translation.text
         else:
             translation = flash_model.generate_content(prompt)
@@ -288,12 +283,23 @@ def translate(
 @retry.Retry(predicate=retry.if_transient_error)
 def identify_speakers(transcription):
     prompt = (
-        'Identify speakers names and replace "speaker" with identified name. For exmple <example_json>{"avg_logprob": -0.1729651133334914, "end": "238.19", "speaker": "SPEAKER_00", "start": "15.34", "text": "About six years ago."}</example_json>, return only json as example <example_return>{"SPEAKER_00":"Dave"}</example_return>. If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>'
-        + f"Do it with this json <transcribed_json>{transcription}</transcribed_json>"
+        f'Identify speakers names and replace "SPEAKER_" with identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
+        + """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
+        Return using this JSON schema, include only unique records:
+        
+        original_speaker as key: str
+        detected_speaker as value: str
+        Return: dict[str, str]
+        """
     )
-    names = pro_model.generate_content(prompt)
-    names_json = json.loads(names.text.split("```json")[1].split("```")[0])
-    return names_json
+    names = flash_model.generate_content(
+        prompt,
+        generation_config={
+            "max_output_tokens": 8192,
+            "response_mime_type": "application/json",
+        },
+    )
+    return json.loads(names.text)
 
 
 def convert_to_minutes(seconds):
