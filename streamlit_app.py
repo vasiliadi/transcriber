@@ -47,7 +47,7 @@ CONVERTED_FILE_NAME = "audio.ogg"
 
 # Initialization
 if "mode" not in st.session_state:
-    st.session_state.mode = "Audio file link"
+    st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
     st.session_state.model_name = "incredibly-fast-whisper"
     st.session_state.summary_prompt = (
@@ -66,24 +66,26 @@ def download(mode=st.session_state.mode):
             with open(AUDIO_FILE_NAME, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-        case "YouTube link":
-            ydl_opts = {
-                "format": "worstaudio",
-                "outtmpl": "audio",
-                "postprocessors": [
-                    {  # Extract audio using ffmpeg
-                        "key": "FFmpegExtractAudio",
-                        "preferredcodec": "mp3",
-                    }
-                ],
-            }
-            with YoutubeDL(ydl_opts) as ydl:
-                ydl.download(yt_url)
-
-        case "Audio file link":
-            downloaded_file = requests.get(requests.utils.requote_uri(audio_link))
-            with open(AUDIO_FILE_NAME, "wb") as f:
-                f.write(downloaded_file.content)
+        case "YouTube or link to an audio file":
+            if url.startswith("https://www.youtube.com/") or url.startswith(
+                "https://youtu.be/"
+            ):
+                ydl_opts = {
+                    "format": "worstaudio",
+                    "outtmpl": "audio",
+                    "postprocessors": [
+                        {  # Extract audio using ffmpeg
+                            "key": "FFmpegExtractAudio",
+                            "preferredcodec": "mp3",
+                        }
+                    ],
+                }
+                with YoutubeDL(ydl_opts) as ydl:
+                    ydl.download(url)
+            else:
+                downloaded_file = requests.get(requests.utils.requote_uri(url))
+                with open(AUDIO_FILE_NAME, "wb") as f:
+                    f.write(downloaded_file.content)
 
 
 def compress_audio(
@@ -391,7 +393,7 @@ st.title("Transcribe & Translate Audio Files")
 
 st.radio(
     label="Choose what to transcribe:",
-    options=["Uploaded file", "YouTube link", "Audio file link"],
+    options=["Uploaded file", "YouTube or link to an audio file"],
     key="mode",
 )
 
@@ -400,14 +402,9 @@ if st.session_state.mode == "Uploaded file":
         "Choose a file:",
         type=["wav", "mp3", "aiff", "aac", "ogg", "flac"],
     )
-elif st.session_state.mode == "YouTube link":
-    yt_url = st.text_input(
-        label="Enter YouTube URL:",
-        placeholder="https://www.youtube.com/watch?v=z7-fPFtgRE4",
-    )
-elif st.session_state.mode == "Audio file link":
-    audio_link = st.text_input(
-        label="Enter the link to the file:",
+if st.session_state.mode == "YouTube or link to an audio file":
+    url = st.text_input(
+        label="Enter a YouTube URL or audio link:",
         placeholder="https://traffic.megaphone.fm/GLD4878952581.mp3",
     )
 
@@ -516,21 +513,14 @@ if go:
                 get_printable_results()
             else:
                 st.error("Upload an audio file.", icon="🚨")
-
-        elif st.session_state.mode == "YouTube link":
-            if len(yt_url.strip()) != 0:
-                get_printable_results()
-            else:
-                st.error("Enter a YouTube link.", icon="🚨")
-
-        elif st.session_state.mode == "Audio file link":
-            if len(audio_link.strip()) != 0:
-                if audio_link.startswith("https://castro.fm/episode/"):
+        elif st.session_state.mode == "YouTube or link to an audio file":
+            if len(url.strip()) != 0:
+                if url.startswith("https://castro.fm/episode/"):
                     soup = BeautifulSoup(
-                        requests.get(requests.utils.requote_uri(audio_link)).content,
+                        requests.get(requests.utils.requote_uri(url)).content,
                         "html.parser",
                     )
-                    audio_link = soup.source.get("src")
+                    url = soup.source.get("src")
                 get_printable_results()
             else:
                 st.error("Enter an audio file link.", icon="🚨")
