@@ -9,6 +9,7 @@ import replicate
 import requests
 from yt_dlp import YoutubeDL
 from bs4 import BeautifulSoup
+from elevenlabs.client import ElevenLabs
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
@@ -41,6 +42,12 @@ try:
 except KeyError:
     pass
 
+# ElevenLabs.io config
+try:
+    elevenlabs_api_key = os.environ["ELEVENLABS_API_KEY"]
+except KeyError:
+    pass
+
 # File names
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
@@ -57,6 +64,7 @@ if "mode" not in st.session_state:
     st.session_state.diarization = True
     st.session_state.speaker_identification = True
     st.session_state.raw_json = False
+    st.session_state.tts = False
 
 
 # Functions
@@ -267,7 +275,7 @@ def translate(
             translation = flash_model.generate_content(prompt)
             time.sleep(
                 sleep_time
-            )  # 2 queries per minute for Gemini 1.5-pro and 15 for Gemini 1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
+            )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
             return translation.text
         else:
             translation = flash_model.generate_content(prompt)
@@ -314,18 +322,41 @@ def clean_up():
         os.remove(AUDIO_FILE_NAME)
 
 
+def generate_speech(text):
+    try:
+        if elevenlabs_api_key is None:
+            pass
+    except NameError:
+        st.error(
+            "ELEVENLABS_API_KEY is not provided. Disable Text to Speech Player or provide ELEVENLABS_API_KEY",
+            icon="🚨",
+        )
+        st.stop()
+    elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
+    generated_audio = elevenlabs_client.generate(
+        text=text,
+        model="eleven_turbo_v2_5",
+    )
+    return b"".join(generated_audio)
+
+
 def get_printable_results():
     with st.spinner("Uploading the file to the server..."):
         download()
     if summary:
-        st.audio(AUDIO_FILE_NAME)
+        if not st.session_state.tts:
+            st.audio(AUDIO_FILE_NAME)
         with st.spinner("Summarizing..."):
             summary_results = summarize()
             if target_language != None:
-                translation_results = translate(summary_results)
-                st.markdown(translation_results)
+                summary_results = translate(summary_results)
+                st.markdown(summary_results)
             else:
                 st.markdown(summary_results)
+        if st.session_state.tts:
+            with st.spinner("Generating speech..."):
+                speech = generate_speech(summary_results)
+                st.audio(speech)
     else:
         with st.spinner("Compressing file..."):
             compress_audio()
@@ -504,6 +535,7 @@ if advanced:
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Provide a bullet-point summary"
     if summarization_style == "Explain like I am 5":
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Explain like I am 5 years old."
+    st.checkbox("Enable Text to Speech Player", disabled=not summary, key="tts")
     st.divider()
 
 go = st.button("Go")
