@@ -272,22 +272,25 @@ def translate(
     text, target_language=st.session_state.language, chunks=False, sleep_time=30
 ):
     prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
-    try:
-        if chunks:
-            translation = flash_model.generate_content(prompt)
-            time.sleep(
-                sleep_time
-            )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-            return translation.text
-        else:
-            translation = flash_model.generate_content(prompt)
-            return translation.text
-    except ValueError:
-        st.error(
-            "The translator thinks the content is unsafe and can't return the translation 🙈",
-            icon="🚨",
-        )
-        st.stop()
+    if target_language != None:
+        try:
+            if chunks:
+                translation = flash_model.generate_content(prompt)
+                time.sleep(
+                    sleep_time
+                )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
+                return translation.text
+            else:
+                translation = flash_model.generate_content(prompt)
+                return translation.text
+        except ValueError:
+            st.error(
+                "The translator thinks the content is unsafe and can't return the translation 🙈",
+                icon="🚨",
+            )
+            st.stop()
+    else:
+        return text
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -350,11 +353,8 @@ def get_printable_results():
             st.audio(AUDIO_FILE_NAME)
         with st.spinner("Summarizing..."):
             summary_results = summarize()
-            if target_language != None:
-                summary_results = translate(summary_results)
-                st.markdown(summary_results)
-            else:
-                st.markdown(summary_results)
+            summary_results = translate(summary_results)
+            st.markdown(summary_results)
         if st.session_state.tts:
             with st.spinner("Generating speech..."):
                 speech = generate_speech(summary_results)
@@ -366,25 +366,15 @@ def get_printable_results():
         with st.spinner("Transcribing..."):
             transcription = transcribe(model_name=st.session_state.model_name)
             if transcription["num_speakers"] == 1:
-                if target_language != None:
-                    for segment in transcription["segments"]:
-                        text = str(segment["text"]).replace("$", "\$")
-                        st.markdown(
-                            f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
-                        )
-                else:
-                    for segment in transcription["segments"]:
-                        text = str(segment["text"]).replace("$", "\$")
-                        st.markdown(
-                            f"**{convert_to_minutes(segment['start'])}:** {text}"
-                        )
+                for segment in transcription["segments"]:
+                    text = str(segment["text"]).replace("$", "\$")
+                    st.markdown(
+                        f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
+                    )
             elif (
                 transcription["num_speakers"] == 0
             ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
-                if target_language != None:
-                    st.markdown(translate(transcription["segments"]))
-                else:
-                    st.markdown(transcription["segments"])
+                st.markdown(translate(transcription["segments"]))
             else:
                 if st.session_state.speaker_identification:
                     names = identify_speakers(transcription)
@@ -392,19 +382,11 @@ def get_printable_results():
                     names = {}
                     for speaker in transcription["segments"]:
                         names[speaker["speaker"]] = speaker["speaker"]
-                if target_language != None:
-                    for segment in transcription["segments"]:
-                        text = str(segment["text"]).replace("$", "\$")
-                        st.markdown(
-                            f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
-                        )
-                else:
-                    for segment in transcription["segments"]:
-                        text = str(segment["text"]).replace("$", "\$")
-                        st.markdown(
-                            f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {text}"
-                        )
-
+                for segment in transcription["segments"]:
+                    text = str(segment["text"]).replace("$", "\$")
+                    st.markdown(
+                        f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
+                    )
             if st.session_state.raw_json:
                 last_prediction_id = replicate_client.predictions.list().results[0].id
                 data = json.dumps(
