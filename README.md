@@ -82,9 +82,23 @@ Translation by chunks still works, but the quality little bit lower.
 
 It still works well for summarization.
 
-> [2 queries per minute and 1000 per day for Gemini 1.5-pro. 15 and 1500 for Gemini 1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
+> [2 queries per minute and 1000 per day for Gemini-1.5-pro. 15 and 1500 for Gemini-1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
 
 [Languages support](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
+
+### Optional settings
+
+#### HuggingFace.co
+
+For diarization, all models rely on [pyannote.audio](https://huggingface.co/pyannote) solutions. As a developer, you must agree to the user conditions for accessing the models offered by pyannote. Therefore, it is necessary to accept the user conditions for [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1)) and obtain the [HuggingFace API token](https://huggingface.co/settings/tokens).
+
+The [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) model also uses the same models for diarization, but the developer uses his own HuggingFace API token. This means that an additional token is not required.
+
+#### Text to Speach
+
+I use the [ElevenLabs](https://elevenlabs.io/) `eleven_turbo_v2_5` model to generate high-quality audio for summaries in various languages. It's very fast and 50% cheaper than the `eleven_multilingual_v2` model. You get 10,000 credits per month for free, which is about 15 generated audios. If you need more, you'll need to purchase a [plan](https://elevenlabs.io/pricing).
+
+Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is another high-quality multilanguage model, but [Coqui](https://coqui.ai/), the developer of this model, is shutting down. As a result, I only use ElevenLabs.
 
 ### Config
 
@@ -94,13 +108,15 @@ Example of `.env` file:
 GEMINI_API_KEY = your_api_key
 REPLICATE_API_TOKEN = your_api_key
 HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model with enabled diarization
+ELEVENLABS_API_KEY = your_api_key # only if you want to use Text to Speech Player
 ```
 
 You need to replace the path to the env_file in `compose.yaml`
 
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API token](https://replicate.com/account/api-tokens) \
-[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization.
+[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization. \
+[Get ElevenLabs API key](https://elevenlabs.io/api)
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
@@ -108,7 +124,7 @@ You need to replace the path to the env_file in `compose.yaml`
 
 |  | Links |
 | ---|--- |
-| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>~~[pytube](https://pytube.io/en/latest/)~~<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp) |
+| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>~~[pytube](https://pytube.io/en/latest/)~~<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) |
 | Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br>[.dockerignore validator](https://dockerignore.vw.codes/)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
