@@ -137,10 +137,8 @@ def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_p
 def correct_transcription(transcription):
     if st.session_state.post_processing:
         prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
-        corrected_transcription = flash_model.generate_content(prompt).text
-    else:
-        corrected_transcription = transcription
-    return corrected_transcription
+        return flash_model.generate_content(prompt).text
+    return transcription
 
 
 def transcribe(model_name=st.session_state.model_name):
