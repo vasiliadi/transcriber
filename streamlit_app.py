@@ -130,8 +130,7 @@ def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_p
     audio_file = genai.upload_file(audio_file_name)
     response = pro_model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
-    summary = response.text.replace("$", "\$")
-    return summary
+    return response.text.replace("$", "\$")
 
 
 @retry.Retry(predicate=retry.if_transient_error)
