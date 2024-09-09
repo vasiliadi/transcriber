@@ -268,26 +268,22 @@ def transcribe(model_name=st.session_state.model_name):
 def translate(
     text, target_language=st.session_state.language, chunks=False, sleep_time=30
 ):
-    prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
-    if target_language != None:
-        try:
-            if chunks:
-                translation = flash_model.generate_content(prompt)
-                time.sleep(
-                    sleep_time
-                )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-                return translation.text
-            else:
-                translation = flash_model.generate_content(prompt)
-                return translation.text
-        except ValueError:
-            st.error(
-                "The translator thinks the content is unsafe and can't return the translation 🙈",
-                icon="🚨",
-            )
-            st.stop()
-    else:
+    if target_language is None:
         return text
+    prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
+    try:
+        translation = flash_model.generate_content(prompt)
+        if chunks:
+            time.sleep(
+                sleep_time
+            )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
+            return translation.text
+    except ValueError:
+        st.error(
+            "The translator thinks the content is unsafe and can't return the translation 🙈",
+            icon="🚨",
+        )
+        st.stop()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
