@@ -515,22 +515,17 @@ go = st.button("Go")
 # Data processing
 if go:
     try:
-        if st.session_state.mode == "Uploaded file":
-            if uploaded_file is not None:
-                get_printable_results()
-            else:
-                st.error("Upload an audio file.", icon="🚨")
-        elif st.session_state.mode == "YouTube or link to an audio file":
-            if len(url.strip()) != 0:
-                if url.startswith("https://castro.fm/episode/"):
-                    soup = BeautifulSoup(
-                        requests.get(requests.utils.requote_uri(url)).content,
-                        "html.parser",
-                    )
-                    url = soup.source.get("src")
-                get_printable_results()
-            else:
-                st.error("Enter an audio file link.", icon="🚨")
+        if st.session_state.mode == "Uploaded file" and uploaded_file is None:
+            st.error("Upload an audio file.", icon="🚨")
+        elif st.session_state.mode == "YouTube or link to an audio file" and not url.strip():
+            st.error("Enter an audio file link.", icon="🚨")
+        else:
+            if url.startswith("https://castro.fm/episode/"):
+                url = BeautifulSoup(
+                    requests.get(requests.utils.requote_uri(url)).content,
+                    "html.parser",
+                ).source.get("src")
+            get_printable_results()
     except Exception as e:
         st.error("Repeat attempt! An error has occurred.", icon="🚨")
         st.write(e)
