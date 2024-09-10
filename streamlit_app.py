@@ -72,14 +72,13 @@ if "mode" not in st.session_state:
 
 
 # Functions
-def download(mode=st.session_state.mode):
-    match mode:
-        case "Uploaded file":
+def download(input, mode=st.session_state.mode):
+    with st.spinner("Uploading the file to the server..."):
+        if mode == "Uploaded file":
             with open(AUDIO_FILE_NAME, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-
-        case "YouTube or link to an audio file":
-            if url.startswith("https://www.youtube.com/") or url.startswith(
+                f.write(input.getbuffer())
+        if mode == "YouTube or link to an audio file":
+            if input.startswith("https://www.youtube.com/") or input.startswith(
                 "https://youtu.be/"
             ):
                 ydl_opts = {
@@ -93,9 +92,14 @@ def download(mode=st.session_state.mode):
                     ],
                 }
                 with YoutubeDL(ydl_opts) as ydl:
-                    ydl.download(url)
+                    ydl.download(input)
             else:
-                downloaded_file = requests.get(requests.utils.requote_uri(url))
+                if input.startswith("https://castro.fm/episode/"):
+                    input = BeautifulSoup(
+                        requests.get(requests.utils.requote_uri(input)).content,
+                        "html.parser",
+                    ).source.get("src")
+                downloaded_file = requests.get(requests.utils.requote_uri(input))
                 with open(AUDIO_FILE_NAME, "wb") as f:
                     f.write(downloaded_file.content)
 
@@ -235,7 +239,7 @@ def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
                 "segments": correct_transcription(transcription["text"]),
             }
 
-    return transcription
+        return transcription
 
 
 def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
@@ -256,13 +260,10 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
 def transcribe(model_name=st.session_state.model_name):
     if model_name == WHISPER_DIARIZATION:
         return process_whisper_diarization()
-    elif model_name == INCREDIBLY_FAST_WHISPER:
+    if model_name == INCREDIBLY_FAST_WHISPER:
         return process_incredibly_fast_whisper()
-    elif model_name == WHISPER:
+    if model_name == WHISPER:
         return process_whisper()
-    else:
-        st.error("Model not found 🫴")
-        st.stop()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -404,12 +405,12 @@ st.radio(
 )
 
 if st.session_state.mode == "Uploaded file":
-    uploaded_file = st.file_uploader(
+    data_input = st.file_uploader(
         "Choose a file:",
         type=["wav", "mp3", "aiff", "aac", "ogg", "flac"],
     )
 if st.session_state.mode == "YouTube or link to an audio file":
-    url = st.text_input(
+    data_input = st.text_input(
         label="Enter a YouTube URL or audio link:",
         placeholder="https://traffic.megaphone.fm/GLD4878952581.mp3",
     )
@@ -515,21 +516,15 @@ go = st.button("Go")
 # Data processing
 if go:
     try:
-        if st.session_state.mode == "Uploaded file" and uploaded_file is None:
+        if st.session_state.mode == "Uploaded file" and data_input is None:
             st.error("Upload an audio file.", icon="🚨")
         elif (
             st.session_state.mode == "YouTube or link to an audio file"
-            and not url.strip()
+            and not data_input.strip()
         ):
             st.error("Enter an audio file link.", icon="🚨")
         else:
-            if url.startswith("https://castro.fm/episode/"):
-                url = BeautifulSoup(
-                    requests.get(requests.utils.requote_uri(url)).content,
-                    "html.parser",
-                ).source.get("src")
-            with st.spinner("Uploading the file to the server..."):
-                download()
+            download(input=data_input)
             if summary:
                 process_summary()
             else:
