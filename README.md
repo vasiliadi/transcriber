@@ -122,7 +122,7 @@ You need to replace the path to the env_file in `compose.yaml`
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API token](https://replicate.com/account/api-tokens) \
 [Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget to accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization. \
-[Get ElevenLabs API key](https://elevenlabs.io/api)
+[Get ElevenLabs API key](https://elevenlabs.io/api) \
 [Get OpenAI API key](https://platform.openai.com/docs/api-reference/authentication)
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
