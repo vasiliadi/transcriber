@@ -48,15 +48,19 @@ try:
 except KeyError:
     pass
 
-# File names
+# Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
+WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
+INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
+WHISPER = "openai/whisper"
+
 
 # Initialization
 if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
-    st.session_state.model_name = "incredibly-fast-whisper"
+    st.session_state.model_name = INCREDIBLY_FAST_WHISPER
     st.session_state.summary_prompt = (
         "Listen carefully to the following audio file. Provide a detailed summary."
     )
@@ -141,26 +145,20 @@ def correct_transcription(transcription):
     return transcription
 
 
+def get_latest_model_version(model_name):
+    return replicate_client.models.get(model_name).versions.list()[0].id
+
+
 def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
-    latest_model_version = (
-        replicate_client.models.get("thomasmol/whisper-diarization")
-        .versions.list()[0]
-        .id
-    )
     with open(audio_file_name, "rb") as audio:
         transcription = replicate_client.run(
-            f"thomasmol/whisper-diarization:{latest_model_version}",
+            f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
             input={"file": audio, "transcript_output_format": "segments_only"},
         )
         return transcription
 
 
 def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
-    latest_model_version = (
-        replicate_client.models.get("vaibhavs10/incredibly-fast-whisper")
-        .versions.list()[0]
-        .id
-    )
     with open(audio_file_name, "rb") as audio:
         if st.session_state.diarization:
             try:
@@ -174,7 +172,7 @@ def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
                 st.stop()
             try:
                 transcription = replicate.run(
-                    f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
+                    f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                     input={
                         "audio": audio,
                         "hf_token": hf_access_token,
@@ -227,7 +225,7 @@ def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
 
         if not st.session_state.diarization:
             transcription = replicate.run(
-                f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
+                f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                 input={
                     "audio": audio,
                 },
@@ -241,12 +239,9 @@ def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
 
 
 def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
-    latest_model_version = (
-        replicate_client.models.get("openai/whisper").versions.list()[0].id
-    )
     with open(audio_file_name, "rb") as audio:
         transcription = replicate_client.run(
-            f"openai/whisper:{latest_model_version}",
+            f"{WHISPER}:{get_latest_model_version(WHISPER)}",
             input={"audio": audio},
         )
 
@@ -259,16 +254,12 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
 
 
 def transcribe(model_name=st.session_state.model_name):
-    match model_name:
-        case "whisper-diarization":
-            process_whisper_diarization()
-        case "incredibly-fast-whisper":
-            process_incredibly_fast_whisper()
-        case "whisper":
-            process_whisper()
-        case _:
-            st.error("Model not found 🫴")
-            st.stop()
+    if model_name == WHISPER_DIARIZATION:
+        process_whisper_diarization()
+    if model_name == INCREDIBLY_FAST_WHISPER:
+        process_incredibly_fast_whisper()
+    if model_name == WHISPER:
+        process_whisper()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -440,7 +431,7 @@ if advanced:
         st.radio(
             label="Select option",
             label_visibility="collapsed",
-            options=["whisper-diarization", "incredibly-fast-whisper", "whisper"],
+            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER],
             captions=["best for dialogs", "best for speed", "best in accuracy"],
             index=1,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
@@ -448,14 +439,14 @@ if advanced:
             disabled=summary,
         )
     with col2_model_settings:
-        if st.session_state.model_name == "whisper-diarization":
+        if st.session_state.model_name == WHISPER_DIARIZATION:
             st.checkbox(
                 "Enable speaker identification",
                 value=True,
                 disabled=False,
                 key="speaker_identification",
             )
-        if st.session_state.model_name == "incredibly-fast-whisper":
+        if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
 
             def change_state():
                 if not st.session_state.diarization:
@@ -482,7 +473,7 @@ if advanced:
                 disabled=st.session_state.diarization,
                 key="post_processing",
             )
-        if st.session_state.model_name == "whisper":
+        if st.session_state.model_name == WHISPER:
             st.checkbox(
                 "Enable post-processing",
                 value=True,
