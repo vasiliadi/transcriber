@@ -399,15 +399,6 @@ def process_transcription():
             )
 
 
-def get_printable_results():
-    with st.spinner("Uploading the file to the server..."):
-        download()
-    if summary:
-        process_summary()
-    else:
-        process_transcription()
-
-
 # Frontend
 st.set_page_config(page_title="Transcriber")
 st.title("Transcribe & Translate Audio Files")
@@ -543,7 +534,12 @@ if go:
                     requests.get(requests.utils.requote_uri(url)).content,
                     "html.parser",
                 ).source.get("src")
-            get_printable_results()
+            with st.spinner("Uploading the file to the server..."):
+                download()
+            if summary:
+                process_summary()
+            else:
+                process_transcription()
     except Exception as e:
         st.error("Repeat attempt! An error has occurred.", icon="🚨")
         st.write(e)
