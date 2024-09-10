@@ -48,15 +48,19 @@ try:
 except KeyError:
     pass
 
-# File names
+# Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
+WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
+INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
+WHISPER = "openai/whisper"
+
 
 # Initialization
 if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
-    st.session_state.model_name = "incredibly-fast-whisper"
+    st.session_state.model_name = INCREDIBLY_FAST_WHISPER
     st.session_state.summary_prompt = (
         "Listen carefully to the following audio file. Provide a detailed summary."
     )
@@ -68,14 +72,13 @@ if "mode" not in st.session_state:
 
 
 # Functions
-def download(mode=st.session_state.mode):
-    match mode:
-        case "Uploaded file":
+def download(input, mode=st.session_state.mode):
+    with st.spinner("Uploading the file to the server..."):
+        if mode == "Uploaded file":
             with open(AUDIO_FILE_NAME, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-
-        case "YouTube or link to an audio file":
-            if url.startswith("https://www.youtube.com/") or url.startswith(
+                f.write(input.getbuffer())
+        if mode == "YouTube or link to an audio file":
+            if input.startswith("https://www.youtube.com/") or input.startswith(
                 "https://youtu.be/"
             ):
                 ydl_opts = {
@@ -89,9 +92,14 @@ def download(mode=st.session_state.mode):
                     ],
                 }
                 with YoutubeDL(ydl_opts) as ydl:
-                    ydl.download(url)
+                    ydl.download(input)
             else:
-                downloaded_file = requests.get(requests.utils.requote_uri(url))
+                if input.startswith("https://castro.fm/episode/"):
+                    input = BeautifulSoup(
+                        requests.get(requests.utils.requote_uri(input)).content,
+                        "html.parser",
+                    ).source.get("src")
+                downloaded_file = requests.get(requests.utils.requote_uri(input))
                 with open(AUDIO_FILE_NAME, "wb") as f:
                     f.write(downloaded_file.content)
 
@@ -130,167 +138,154 @@ def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_p
     audio_file = genai.upload_file(audio_file_name)
     response = pro_model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
-    summary = response.text.replace("$", "\$")
-    return summary
+    return response.text.replace("$", "\$")
 
 
 @retry.Retry(predicate=retry.if_transient_error)
 def correct_transcription(transcription):
     if st.session_state.post_processing:
         prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
-        corrected_transcription = flash_model.generate_content(prompt).text
-    else:
-        corrected_transcription = transcription
-    return corrected_transcription
+        return flash_model.generate_content(prompt).text
+    return transcription
+
+
+def get_latest_model_version(model_name):
+    return replicate_client.models.get(model_name).versions.list()[0].id
+
+
+def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
+    with open(audio_file_name, "rb") as audio:
+        transcription = replicate_client.run(
+            f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
+            input={"file": audio, "transcript_output_format": "segments_only"},
+        )
+        return transcription
+
+
+def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
+    with open(audio_file_name, "rb") as audio:
+        if st.session_state.diarization:
+            try:
+                if hf_access_token is None:
+                    pass
+            except NameError:
+                st.error(
+                    "HF_ACCESS_TOKEN is not provided. Disable diarization or provide HF_ACCESS_TOKEN. Or switch the model",
+                    icon="🚨",
+                )
+                st.stop()
+            try:
+                transcription = replicate.run(
+                    f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
+                    input={
+                        "audio": audio,
+                        "hf_token": hf_access_token,
+                        "diarise_audio": True,
+                    },
+                )
+            except:
+                st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
+                st.stop()
+
+            def detected_num_speakers(transcription):
+                speakers = [i["speaker"] for i in transcription[0:-1]]
+                return len(set(speakers))
+
+            output = []
+            current_group = {
+                "start": str(transcription[0]["timestamp"][0]),
+                "end": str(transcription[0]["timestamp"][1]),
+                "speaker": transcription[0]["speaker"],
+                "text": transcription[0]["text"],
+            }
+
+            for i in range(1, len(transcription[0:-1])):
+                time_gap = (
+                    transcription[i]["timestamp"][0]
+                    - transcription[i - 1]["timestamp"][1]
+                )
+                if (
+                    transcription[i]["speaker"] == transcription[i - 1]["speaker"]
+                    and time_gap <= 2
+                ):
+                    current_group["end"] = str(transcription[i]["timestamp"][1])
+                    current_group["text"] += " " + transcription[i]["text"]
+                else:
+                    output.append(current_group)
+
+                    current_group = {
+                        "start": str(transcription[i]["timestamp"][0]),
+                        "end": str(transcription[i]["timestamp"][1]),
+                        "speaker": transcription[i]["speaker"],
+                        "text": transcription[i]["text"],
+                    }
+
+            output.append(current_group)
+
+            transcription = {
+                "num_speakers": detected_num_speakers(transcription),
+                "segments": output,
+            }
+
+        if not st.session_state.diarization:
+            transcription = replicate.run(
+                f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
+                input={
+                    "audio": audio,
+                },
+            )
+            transcription = {
+                "num_speakers": 0,
+                "segments": correct_transcription(transcription["text"]),
+            }
+
+        return transcription
+
+
+def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
+    with open(audio_file_name, "rb") as audio:
+        transcription = replicate_client.run(
+            f"{WHISPER}:{get_latest_model_version(WHISPER)}",
+            input={"audio": audio},
+        )
+
+        transcription = {
+            "num_speakers": 0,
+            "segments": correct_transcription(transcription["transcription"]),
+        }
+
+        return transcription
 
 
 def transcribe(model_name=st.session_state.model_name):
-    match model_name:
-        case "whisper-diarization":
-            latest_model_version = (
-                replicate_client.models.get("thomasmol/whisper-diarization")
-                .versions.list()[0]
-                .id
-            )
-            with open(CONVERTED_FILE_NAME, "rb") as audio:
-                transcription = replicate_client.run(
-                    f"thomasmol/whisper-diarization:{latest_model_version}",
-                    input={"file": audio, "transcript_output_format": "segments_only"},
-                )
-                return transcription
-
-        case "incredibly-fast-whisper":
-            latest_model_version = (
-                replicate_client.models.get("vaibhavs10/incredibly-fast-whisper")
-                .versions.list()[0]
-                .id
-            )
-
-            with open(CONVERTED_FILE_NAME, "rb") as audio:
-                if st.session_state.diarization:
-                    try:
-                        if hf_access_token is None:
-                            pass
-                    except NameError:
-                        st.error(
-                            "HF_ACCESS_TOKEN is not provided. Disable diarization or provide HF_ACCESS_TOKEN. Or switch the model",
-                            icon="🚨",
-                        )
-                        st.stop()
-                    try:
-                        transcription = replicate.run(
-                            f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
-                            input={
-                                "audio": audio,
-                                "hf_token": hf_access_token,
-                                "diarise_audio": True,
-                            },
-                        )
-                    except:
-                        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-                        st.stop()
-
-                    def detected_num_speakers(transcription):
-                        speakers = [i["speaker"] for i in transcription[0:-1]]
-                        return len(set(speakers))
-
-                    output = []
-                    current_group = {
-                        "start": str(transcription[0]["timestamp"][0]),
-                        "end": str(transcription[0]["timestamp"][1]),
-                        "speaker": transcription[0]["speaker"],
-                        "text": transcription[0]["text"],
-                    }
-
-                    for i in range(1, len(transcription[0:-1])):
-                        time_gap = (
-                            transcription[i]["timestamp"][0]
-                            - transcription[i - 1]["timestamp"][1]
-                        )
-                        if (
-                            transcription[i]["speaker"]
-                            == transcription[i - 1]["speaker"]
-                            and time_gap <= 2
-                        ):
-                            current_group["end"] = str(transcription[i]["timestamp"][1])
-                            current_group["text"] += " " + transcription[i]["text"]
-                        else:
-                            output.append(current_group)
-
-                            current_group = {
-                                "start": str(transcription[i]["timestamp"][0]),
-                                "end": str(transcription[i]["timestamp"][1]),
-                                "speaker": transcription[i]["speaker"],
-                                "text": transcription[i]["text"],
-                            }
-
-                    output.append(current_group)
-
-                    transcription = {
-                        "num_speakers": detected_num_speakers(transcription),
-                        "segments": output,
-                    }
-
-                if not st.session_state.diarization:
-                    transcription = replicate.run(
-                        f"vaibhavs10/incredibly-fast-whisper:{latest_model_version}",
-                        input={
-                            "audio": audio,
-                        },
-                    )
-                    transcription = {
-                        "num_speakers": 0,
-                        "segments": correct_transcription(transcription["text"]),
-                    }
-
-                return transcription
-
-        case "whisper":
-            latest_model_version = (
-                replicate_client.models.get("openai/whisper").versions.list()[0].id
-            )
-            with open(CONVERTED_FILE_NAME, "rb") as audio:
-                transcription = replicate_client.run(
-                    f"openai/whisper:{latest_model_version}",
-                    input={"audio": audio},
-                )
-
-                transcription = {
-                    "num_speakers": 0,
-                    "segments": correct_transcription(transcription["transcription"]),
-                }
-
-                return transcription
-
-        case _:
-            st.error("Model not found 🫴")
-            st.stop()
+    if model_name == WHISPER_DIARIZATION:
+        return process_whisper_diarization()
+    if model_name == INCREDIBLY_FAST_WHISPER:
+        return process_incredibly_fast_whisper()
+    if model_name == WHISPER:
+        return process_whisper()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
 def translate(
     text, target_language=st.session_state.language, chunks=False, sleep_time=30
 ):
-    prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
-    if target_language != None:
-        try:
-            if chunks:
-                translation = flash_model.generate_content(prompt)
-                time.sleep(
-                    sleep_time
-                )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-                return translation.text
-            else:
-                translation = flash_model.generate_content(prompt)
-                return translation.text
-        except ValueError:
-            st.error(
-                "The translator thinks the content is unsafe and can't return the translation 🙈",
-                icon="🚨",
-            )
-            st.stop()
-    else:
+    if target_language is None:
         return text
+    prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
+    try:
+        translation = flash_model.generate_content(prompt)
+        if chunks:
+            time.sleep(
+                sleep_time
+            )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
+        return translation.text
+    except ValueError:
+        st.error(
+            "The translator thinks the content is unsafe and can't return the translation 🙈",
+            icon="🚨",
+        )
+        st.stop()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -345,59 +340,58 @@ def generate_speech(text):
     return b"".join(generated_audio)
 
 
-def get_printable_results():
-    with st.spinner("Uploading the file to the server..."):
-        download()
-    if summary:
-        if not st.session_state.tts:
-            st.audio(AUDIO_FILE_NAME)
-        with st.spinner("Summarizing..."):
-            summary_results = summarize()
-            summary_results = translate(summary_results)
-            st.markdown(summary_results)
-        if st.session_state.tts:
-            with st.spinner("Generating speech..."):
-                speech = generate_speech(summary_results)
-                st.audio(speech)
-    else:
-        with st.spinner("Compressing file..."):
-            compress_audio()
-        st.audio(CONVERTED_FILE_NAME)
-        with st.spinner("Transcribing..."):
-            transcription = transcribe(model_name=st.session_state.model_name)
-            if transcription["num_speakers"] == 1:
-                for segment in transcription["segments"]:
-                    text = str(segment["text"]).replace("$", "\$")
-                    st.markdown(
-                        f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
-                    )
-            elif (
-                transcription["num_speakers"] == 0
-            ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
-                st.markdown(translate(transcription["segments"]))
+def process_summary():
+    if not st.session_state.tts:
+        st.audio(AUDIO_FILE_NAME)
+    with st.spinner("Summarizing..."):
+        summary_results = summarize()
+        summary_results = translate(summary_results)
+        st.markdown(summary_results)
+    if st.session_state.tts:
+        with st.spinner("Generating speech..."):
+            speech = generate_speech(summary_results)
+            st.audio(speech)
+
+
+def process_transcription():
+    with st.spinner("Compressing file..."):
+        compress_audio()
+    st.audio(CONVERTED_FILE_NAME)
+    with st.spinner("Transcribing..."):
+        transcription = transcribe(model_name=st.session_state.model_name)
+        if transcription["num_speakers"] == 1:
+            for segment in transcription["segments"]:
+                text = str(segment["text"]).replace("$", "\$")
+                st.markdown(
+                    f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
+                )
+        elif (
+            transcription["num_speakers"] == 0
+        ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
+            st.markdown(translate(transcription["segments"]).replace("$", "\$"))
+        else:
+            if st.session_state.speaker_identification:
+                names = identify_speakers(transcription)
             else:
-                if st.session_state.speaker_identification:
-                    names = identify_speakers(transcription)
-                else:
-                    names = {}
-                    for speaker in transcription["segments"]:
-                        names[speaker["speaker"]] = speaker["speaker"]
-                for segment in transcription["segments"]:
-                    text = str(segment["text"]).replace("$", "\$")
-                    st.markdown(
-                        f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
-                    )
-            if st.session_state.raw_json:
-                last_prediction_id = replicate_client.predictions.list().results[0].id
-                data = json.dumps(
-                    replicate_client.predictions.get(last_prediction_id).output
+                names = {}
+                for speaker in transcription["segments"]:
+                    names[speaker["speaker"]] = speaker["speaker"]
+            for segment in transcription["segments"]:
+                text = str(segment["text"]).replace("$", "\$")
+                st.markdown(
+                    f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
                 )
-                st.download_button(
-                    label="Download JSON",
-                    data=data,
-                    file_name="data.json",
-                    mime="application/json",
-                )
+        if st.session_state.raw_json:
+            last_prediction_id = replicate_client.predictions.list().results[0].id
+            data = json.dumps(
+                replicate_client.predictions.get(last_prediction_id).output
+            )
+            st.download_button(
+                label="Download JSON",
+                data=data,
+                file_name="data.json",
+                mime="application/json",
+            )
 
 
 # Frontend
@@ -411,12 +405,12 @@ st.radio(
 )
 
 if st.session_state.mode == "Uploaded file":
-    uploaded_file = st.file_uploader(
+    data_input = st.file_uploader(
         "Choose a file:",
         type=["wav", "mp3", "aiff", "aac", "ogg", "flac"],
     )
 if st.session_state.mode == "YouTube or link to an audio file":
-    url = st.text_input(
+    data_input = st.text_input(
         label="Enter a YouTube URL or audio link:",
         placeholder="https://traffic.megaphone.fm/GLD4878952581.mp3",
     )
@@ -441,7 +435,7 @@ if advanced:
         st.radio(
             label="Select option",
             label_visibility="collapsed",
-            options=["whisper-diarization", "incredibly-fast-whisper", "whisper"],
+            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER],
             captions=["best for dialogs", "best for speed", "best in accuracy"],
             index=1,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
@@ -449,14 +443,14 @@ if advanced:
             disabled=summary,
         )
     with col2_model_settings:
-        if st.session_state.model_name == "whisper-diarization":
+        if st.session_state.model_name == WHISPER_DIARIZATION:
             st.checkbox(
                 "Enable speaker identification",
                 value=True,
                 disabled=False,
                 key="speaker_identification",
             )
-        if st.session_state.model_name == "incredibly-fast-whisper":
+        if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
 
             def change_state():
                 if not st.session_state.diarization:
@@ -483,7 +477,7 @@ if advanced:
                 disabled=st.session_state.diarization,
                 key="post_processing",
             )
-        if st.session_state.model_name == "whisper":
+        if st.session_state.model_name == WHISPER:
             st.checkbox(
                 "Enable post-processing",
                 value=True,
@@ -522,22 +516,19 @@ go = st.button("Go")
 # Data processing
 if go:
     try:
-        if st.session_state.mode == "Uploaded file":
-            if uploaded_file is not None:
-                get_printable_results()
+        if st.session_state.mode == "Uploaded file" and data_input is None:
+            st.error("Upload an audio file.", icon="🚨")
+        elif (
+            st.session_state.mode == "YouTube or link to an audio file"
+            and not data_input.strip()
+        ):
+            st.error("Enter an audio file link.", icon="🚨")
+        else:
+            download(input=data_input)
+            if summary:
+                process_summary()
             else:
-                st.error("Upload an audio file.", icon="🚨")
-        elif st.session_state.mode == "YouTube or link to an audio file":
-            if len(url.strip()) != 0:
-                if url.startswith("https://castro.fm/episode/"):
-                    soup = BeautifulSoup(
-                        requests.get(requests.utils.requote_uri(url)).content,
-                        "html.parser",
-                    )
-                    url = soup.source.get("src")
-                get_printable_results()
-            else:
-                st.error("Enter an audio file link.", icon="🚨")
+                process_transcription()
     except Exception as e:
         st.error("Repeat attempt! An error has occurred.", icon="🚨")
         st.write(e)
