@@ -256,10 +256,13 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
 def transcribe(model_name=st.session_state.model_name):
     if model_name == WHISPER_DIARIZATION:
         process_whisper_diarization()
-    if model_name == INCREDIBLY_FAST_WHISPER:
+    elif model_name == INCREDIBLY_FAST_WHISPER:
         process_incredibly_fast_whisper()
-    if model_name == WHISPER:
+    elif model_name == WHISPER:
         process_whisper()
+    else:
+        st.error("Model not found 🫴")
+        st.stop()
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -275,7 +278,7 @@ def translate(
             time.sleep(
                 sleep_time
             )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-            return translation.text
+        return translation.text
     except ValueError:
         st.error(
             "The translator thinks the content is unsafe and can't return the translation 🙈",
