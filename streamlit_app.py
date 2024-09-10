@@ -10,6 +10,8 @@ import requests
 from yt_dlp import YoutubeDL
 from bs4 import BeautifulSoup
 from elevenlabs.client import ElevenLabs
+from elevenlabs import save
+from openai import OpenAI
 
 AI_CONFIG = {
     "gemini": {
@@ -22,7 +24,9 @@ AI_CONFIG = {
         ],
         "pro_model": "models/gemini-1.5-pro",
         "flash_model": "models/gemini-1.5-flash",
-    }
+    },
+    "openai": {"tts_model": "tts-1", "voice": "alloy"},
+    "elevenlabs": {"tts_model": "eleven_turbo_v2_5"},
 }
 
 # Google Gemini config
@@ -44,20 +48,20 @@ replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 replicate_client = replicate.Client(api_token=replicate_api_token)
 
 # HuggingFace.co config
-try:
-    hf_access_token = os.environ["HF_ACCESS_TOKEN"]
-except KeyError:
-    pass
+hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
 # ElevenLabs.io config
-try:
-    elevenlabs_api_key = os.environ["ELEVENLABS_API_KEY"]
-except KeyError:
-    pass
+elevenlabs_api_key = os.environ["ELEVENLABS_API_KEY"]
+elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
+
+# OpenAI config
+openai_api_key = os.environ["OPENAI_API_KEY"]
+openai_client = OpenAI(api_key=openai_api_key)
 
 # Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
+GENERATED_FILE_NAME = "speech.mp3"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
 WHISPER = "openai/whisper"
@@ -76,6 +80,7 @@ if "mode" not in st.session_state:
     st.session_state.speaker_identification = True
     st.session_state.raw_json = False
     st.session_state.tts = False
+    st.session_state.tts_model = "ElevenLabs"
 
 
 # Functions
@@ -172,15 +177,6 @@ def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
 def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
     with open(audio_file_name, "rb") as audio:
         if st.session_state.diarization:
-            try:
-                if hf_access_token is None:
-                    pass
-            except NameError:
-                st.error(
-                    "HF_ACCESS_TOKEN is not provided. Disable diarization or provide HF_ACCESS_TOKEN. Or switch the model",
-                    icon="🚨",
-                )
-                st.stop()
             try:
                 transcription = replicate.run(
                     f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
@@ -327,24 +323,30 @@ def clean_up():
         os.remove(CONVERTED_FILE_NAME)
     if os.path.isfile(AUDIO_FILE_NAME):
         os.remove(AUDIO_FILE_NAME)
+    if os.path.isfile(GENERATED_FILE_NAME):
+        os.remove(GENERATED_FILE_NAME)
 
 
 def generate_speech(text):
-    try:
-        if elevenlabs_api_key is None:
-            pass
-    except NameError:
-        st.error(
-            "ELEVENLABS_API_KEY is not provided. Disable Text to Speech Player or provide ELEVENLABS_API_KEY",
-            icon="🚨",
+    if st.session_state.tts_model == "ElevenLabs":
+        generated_audio = elevenlabs_client.generate(
+            text=text,
+            model=AI_CONFIG["elevenlabs"]["tts_model"],
         )
-        st.stop()
-    elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
-    generated_audio = elevenlabs_client.generate(
-        text=text,
-        model="eleven_turbo_v2_5",
-    )
-    return b"".join(generated_audio)
+        save(generated_audio, GENERATED_FILE_NAME)
+    if st.session_state.tts_model == "OpenAI":
+        if text > 4096:
+            st.error(
+                f"Speech cannot be sentientized using the OpenAI model. Input is {len(text)}, with a maximum of 4096 characters. ",
+                icon="🚨",
+            )
+            st.stop()
+        generated_audio = openai_client.audio.speech.create(
+            model=AI_CONFIG["openai"]["tts_model"],
+            voice=AI_CONFIG["openai"]["voice"],
+            input=text,
+        )
+        generated_audio.write_to_file(GENERATED_FILE_NAME)
 
 
 def process_summary():
@@ -356,8 +358,8 @@ def process_summary():
         st.markdown(summary_results)
     if st.session_state.tts:
         with st.spinner("Generating speech..."):
-            speech = generate_speech(summary_results)
-            st.audio(speech)
+            generate_speech(summary_results)
+            st.audio(GENERATED_FILE_NAME)
 
 
 def process_transcription():
@@ -488,7 +490,6 @@ if advanced:
             st.checkbox(
                 "Enable post-processing",
                 value=True,
-                # disabled=summary,
                 key="post_processing",
             )
 
@@ -515,7 +516,16 @@ if advanced:
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Provide a bullet-point summary"
     if summarization_style == "Explain like I am 5":
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Explain like I am 5 years old."
-    st.checkbox("Enable Text to Speech Player", disabled=not summary, key="tts")
+    text_to_speech = st.checkbox(
+        "Enable Text to Speech Player", disabled=not summary, key="tts"
+    )
+    st.radio(
+        label="Text-To-Speech engine",
+        options=["ElevenLabs", "OpenAI"],
+        index=0,
+        key="tts_model",
+        disabled=not text_to_speech,
+    )
     st.divider()
 
 go = st.button("Go")

@@ -98,7 +98,8 @@ The [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diar
 
 By default, I use the [ElevenLabs](https://elevenlabs.io/) `eleven_turbo_v2_5` model to generate high-quality audio for summaries in various languages. It's very fast and 50% cheaper than the `eleven_multilingual_v2` model. You get 10,000 credits per month for free, which is about 15 generated audios. If you need more, you'll need to purchase a [plan](https://elevenlabs.io/pricing) or use [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech/).
 
-[OpenAI TTS](https://openai.com/api/pricing/) is pay as you go service, which costs $0.015 / 1K characters.
+[OpenAI TTS](https://openai.com/api/pricing/) is pay as you go service, which costs $0.015 / 1K characters. \
+OpenAI's **input is limited** to a maximum of 4096 characters. Sometimes, that's not sufficient for a detailed summary.
 
 Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is another high-quality multilanguage model, but [Coqui](https://coqui.ai/), the developer of this model, is shutting down. As a result, I use ElevenLabs or OpenAI.
 
@@ -107,12 +108,14 @@ Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is ano
 Example of `.env` file:
 
 ```text
-GEMINI_API_KEY = your_api_key # required
-REPLICATE_API_TOKEN = your_api_key # required
+GEMINI_API_KEY = your_api_key
+REPLICATE_API_TOKEN = your_api_key
 HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model with enabled diarization
 ELEVENLABS_API_KEY = your_api_key # only if you want to use ElevenLabs TTS
 OPENAI_API_KEY = your_api_key # only if you want to use OpenAI TTS
 ```
+
+**All keys are mandatory**, but you can fill some of them with the wrong key to complete the function. Using functions that require a specific key filled with the incorrect key will result in an error.
 
 You need to replace the path to the env_file in `compose.yaml`
 
