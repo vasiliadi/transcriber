@@ -11,25 +11,32 @@ from yt_dlp import YoutubeDL
 from bs4 import BeautifulSoup
 from elevenlabs.client import ElevenLabs
 
+AI_CONFIG = {
+    "gemini": {
+        "generation_config": {"max_output_tokens": 8192},
+        "safety_settings": [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ],
+        "pro_model": "models/gemini-1.5-pro",
+        "flash_model": "models/gemini-1.5-flash",
+    }
+}
+
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 genai.configure(api_key=gemini_api_key)
-generation_config = {"max_output_tokens": 8192}
-gemini_safety_settings = [
-    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-]
 pro_model = genai.GenerativeModel(
-    "models/gemini-1.5-pro",
-    generation_config=generation_config,
-    safety_settings=gemini_safety_settings,
+    AI_CONFIG["gemini"]["pro_model"],
+    generation_config=AI_CONFIG["gemini"]["generation_config"],
+    safety_settings=AI_CONFIG["gemini"]["safety_settings"],
 )
 flash_model = genai.GenerativeModel(
-    "models/gemini-1.5-flash",
-    generation_config=generation_config,
-    safety_settings=gemini_safety_settings,
+    AI_CONFIG["gemini"]["flash_model"],
+    generation_config=AI_CONFIG["gemini"]["generation_config"],
+    safety_settings=AI_CONFIG["gemini"]["safety_settings"],
 )
 
 # Replicate.com config
