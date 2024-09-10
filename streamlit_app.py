@@ -255,11 +255,11 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
 
 def transcribe(model_name=st.session_state.model_name):
     if model_name == WHISPER_DIARIZATION:
-        process_whisper_diarization()
+        return process_whisper_diarization()
     elif model_name == INCREDIBLY_FAST_WHISPER:
-        process_incredibly_fast_whisper()
+        return process_incredibly_fast_whisper()
     elif model_name == WHISPER:
-        process_whisper()
+        return process_whisper()
     else:
         st.error("Model not found 🫴")
         st.stop()
@@ -367,7 +367,7 @@ def process_transcription():
         elif (
             transcription["num_speakers"] == 0
         ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
-            st.markdown(translate(transcription["segments"]))
+            st.markdown(translate(transcription["segments"]).replace("$", "\$"))
         else:
             if st.session_state.speaker_identification:
                 names = identify_speakers(transcription)
