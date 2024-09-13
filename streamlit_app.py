@@ -155,6 +155,7 @@ def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_p
     return response.text.replace("$", "\$")
 
 
+@st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
 def correct_transcription(transcription):
     if st.session_state.post_processing:
@@ -271,6 +272,7 @@ def transcribe(model_name=st.session_state.model_name):
         return process_whisper()
 
 
+@st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
 def translate(
     text, target_language=st.session_state.language, chunks=False, sleep_time=30
@@ -293,6 +295,7 @@ def translate(
         st.stop()
 
 
+@st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
 def identify_speakers(transcription):
     prompt = (
@@ -315,6 +318,7 @@ def identify_speakers(transcription):
     return json.loads(names.text)
 
 
+@st.cache_data(show_spinner=False)
 def convert_to_minutes(seconds):
     minutes, seconds = divmod(float(seconds), 60)
     return f"{int(minutes)}:{int(seconds):02d}"
@@ -548,6 +552,10 @@ if advanced:
         key="tts_model",
         disabled=not text_to_speech,
     )
+    st.divider()
+    if st.button("Clear Cache", type="primary"):
+        st.cache_data.clear()
+        st.success("Cache cleared.")
     st.divider()
 
 go = st.button("Go")
