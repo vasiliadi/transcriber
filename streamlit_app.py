@@ -14,6 +14,7 @@ from elevenlabs import save
 from openai import OpenAI
 from pydub import AudioSegment
 from semantic_text_splitter import TextSplitter
+import httpx
 
 AI_CONFIG = {
     "gemini": {
@@ -47,7 +48,10 @@ flash_model = genai.GenerativeModel(
 
 # Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
-replicate_client = replicate.Client(api_token=replicate_api_token)
+replicate_client = replicate.Client(
+    api_token=replicate_api_token,
+    # timeout=httpx.Timeout(None),
+)
 
 # HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
@@ -110,10 +114,14 @@ def download(input, mode=st.session_state.mode):
             else:
                 if input.startswith("https://castro.fm/episode/"):
                     input = BeautifulSoup(
-                        requests.get(requests.utils.requote_uri(input)).content,
+                        requests.get(
+                            requests.utils.requote_uri(input), verify=True
+                        ).content,
                         "html.parser",
                     ).source.get("src")
-                downloaded_file = requests.get(requests.utils.requote_uri(input))
+                downloaded_file = requests.get(
+                    requests.utils.requote_uri(input), verify=True
+                )
                 with open(AUDIO_FILE_NAME, "wb") as f:
                     f.write(downloaded_file.content)
 
@@ -157,8 +165,10 @@ def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_p
 
 @st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
-def correct_transcription(transcription):
-    if st.session_state.post_processing:
+def correct_transcription(
+    transcription, post_processing=st.session_state.post_processing
+):
+    if post_processing:
         prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
         return flash_model.generate_content(prompt).text
     return transcription
@@ -168,92 +178,123 @@ def get_latest_model_version(model_name):
     return replicate_client.models.get(model_name).versions.list()[0].id
 
 
+def get_latest_prediction_output(sleep_time=10):
+    transcription = None
+    while transcription is None:
+        try:
+            transcription = replicate_client.predictions.list().results[0].output
+        except (TypeError, httpx.ReadTimeout):
+            time.sleep(sleep_time)
+    return transcription
+
+
+@st.cache_data(show_spinner=False)
+def detected_num_speakers(transcription):  # for incredibly-fast-whisper only
+    speakers = [i["speaker"] for i in transcription[0:-1]]
+    return len(set(speakers))
+
+
+@st.cache_data(show_spinner=False)
+def process_diarization_for_incredibly_fast_whisper(
+    transcription,
+):  # for incredibly-fast-whisper only
+    output = []
+    current_group = {
+        "start": str(transcription[0]["timestamp"][0]),
+        "end": str(transcription[0]["timestamp"][1]),
+        "speaker": transcription[0]["speaker"],
+        "text": transcription[0]["text"],
+    }
+
+    for i in range(1, len(transcription[0:-1])):
+        time_gap = (
+            transcription[i]["timestamp"][0] - transcription[i - 1]["timestamp"][1]
+        )
+        if (
+            transcription[i]["speaker"] == transcription[i - 1]["speaker"]
+            and time_gap <= 2
+        ):
+            current_group["end"] = str(transcription[i]["timestamp"][1])
+            current_group["text"] += " " + transcription[i]["text"]
+        else:
+            output.append(current_group)
+
+            current_group = {
+                "start": str(transcription[i]["timestamp"][0]),
+                "end": str(transcription[i]["timestamp"][1]),
+                "speaker": transcription[i]["speaker"],
+                "text": transcription[i]["text"],
+            }
+
+    output.append(current_group)
+    return output
+
+
 def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
     with open(audio_file_name, "rb") as audio:
-        transcription = replicate_client.run(
-            f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
-            input={"file": audio, "transcript_output_format": "segments_only"},
-        )
+        try:
+            transcription = replicate_client.run(
+                f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
+                input={"file": audio, "transcript_output_format": "segments_only"},
+            )
+        except httpx.ReadTimeout:
+            transcription = get_latest_prediction_output()
         return transcription
 
 
-def process_incredibly_fast_whisper(audio_file_name=CONVERTED_FILE_NAME):
+def process_incredibly_fast_whisper(
+    audio_file_name=CONVERTED_FILE_NAME, diarization=st.session_state.diarization
+):
     with open(audio_file_name, "rb") as audio:
-        if st.session_state.diarization:
+        if diarization:
             try:
-                transcription = replicate.run(
+                transcription = replicate_client.run(
                     f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                     input={
                         "audio": audio,
                         "hf_token": hf_access_token,
                         "diarise_audio": True,
                     },
+                    use_file_output=False,
                 )
             except:
                 st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
                 st.stop()
 
-            def detected_num_speakers(transcription):
-                speakers = [i["speaker"] for i in transcription[0:-1]]
-                return len(set(speakers))
-
-            output = []
-            current_group = {
-                "start": str(transcription[0]["timestamp"][0]),
-                "end": str(transcription[0]["timestamp"][1]),
-                "speaker": transcription[0]["speaker"],
-                "text": transcription[0]["text"],
-            }
-
-            for i in range(1, len(transcription[0:-1])):
-                time_gap = (
-                    transcription[i]["timestamp"][0]
-                    - transcription[i - 1]["timestamp"][1]
-                )
-                if (
-                    transcription[i]["speaker"] == transcription[i - 1]["speaker"]
-                    and time_gap <= 2
-                ):
-                    current_group["end"] = str(transcription[i]["timestamp"][1])
-                    current_group["text"] += " " + transcription[i]["text"]
-                else:
-                    output.append(current_group)
-
-                    current_group = {
-                        "start": str(transcription[i]["timestamp"][0]),
-                        "end": str(transcription[i]["timestamp"][1]),
-                        "speaker": transcription[i]["speaker"],
-                        "text": transcription[i]["text"],
-                    }
-
-            output.append(current_group)
-
             transcription = {
                 "num_speakers": detected_num_speakers(transcription),
-                "segments": output,
+                "segments": process_diarization_for_incredibly_fast_whisper(
+                    transcription
+                ),
             }
+            return transcription
 
-        if not st.session_state.diarization:
-            transcription = replicate.run(
+        try:
+            transcription = replicate_client.run(
                 f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                 input={
                     "audio": audio,
                 },
             )
-            transcription = {
-                "num_speakers": 0,
-                "segments": correct_transcription(transcription["text"]),
-            }
+        except httpx.ReadTimeout:
+            transcription = get_latest_prediction_output()
 
+        transcription = {
+            "num_speakers": 0,
+            "segments": correct_transcription(transcription["text"]),
+        }
         return transcription
 
 
 def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
     with open(audio_file_name, "rb") as audio:
-        transcription = replicate_client.run(
-            f"{WHISPER}:{get_latest_model_version(WHISPER)}",
-            input={"audio": audio},
-        )
+        try:
+            transcription = replicate_client.run(
+                f"{WHISPER}:{get_latest_model_version(WHISPER)}",
+                input={"audio": audio},
+            )
+        except httpx.ReadTimeout:
+            transcription = get_latest_prediction_output()
 
         transcription = {
             "num_speakers": 0,
@@ -459,7 +500,7 @@ target_language = st.selectbox(
     key="language",
 )
 
-summary = st.checkbox("Generate summary (without transcription)")
+summary = st.checkbox("Generate summary (without transcription)", value=True)
 
 advanced = st.toggle("Advanced settings")
 
