@@ -169,3 +169,11 @@ cython_debug/
 # Local
 temp
 .DS_Store
+
+# Zed
+.zed/
+
+# Constants
+audio.mp3
+audio.ogg
+speech.mp3

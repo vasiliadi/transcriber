@@ -23,3 +23,5 @@ temp/
 .devcontainer/
 .vscode/**/*
 .vscode/
+.zed/**/*
+.zed/
