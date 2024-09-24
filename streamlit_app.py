@@ -4,7 +4,7 @@ import subprocess
 import time
 import json
 import google.generativeai as genai
-from google.api_core import retry
+from google.api_core import retry, exceptions
 import replicate
 import requests
 from yt_dlp import YoutubeDL
@@ -88,6 +88,7 @@ if "mode" not in st.session_state:
     st.session_state.raw_json = False
     st.session_state.tts = False
     st.session_state.tts_model = "ElevenLabs"
+    st.session_state.transcription_for_summary = True
 
 
 # Functions
@@ -159,10 +160,18 @@ def compress_audio(
 @retry.Retry(predicate=retry.if_transient_error)
 def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_prompt):
     audio_file = genai.upload_file(audio_file_name)
-    response = pro_model.generate_content(
-        [prompt, audio_file], stream=False, request_options={"timeout": 120000}
-    )
+    response = pro_model.generate_content([prompt, audio_file])
     genai.delete_file(audio_file.name)
+    return response.text.replace("$", "\$")
+
+
+@st.cache_data(show_spinner=False)
+@retry.Retry(predicate=retry.if_transient_error)
+def summarize_with_transcription(transcription):
+    prompt = (
+        f"Read carefully transcription and provide a detailed summary: {transcription}"
+    )
+    response = pro_model.generate_content(prompt)
     return response.text.replace("$", "\$")
 
 
@@ -249,6 +258,7 @@ def process_incredibly_fast_whisper(
     audio_file_name=CONVERTED_FILE_NAME,
     diarization=st.session_state.diarization,
     variant=st.session_state.model_name_variant,
+    post_processing=st.session_state.post_processing,
 ):
     with open(audio_file_name, "rb") as audio:
         try:
@@ -272,7 +282,10 @@ def process_incredibly_fast_whisper(
             "segments": (
                 process_diarization_for_incredibly_fast_whisper(transcription)
                 if diarization
-                else correct_transcription(transcription["text"])
+                else correct_transcription(
+                    transcription["text"],
+                    post_processing=post_processing,
+                )
             ),
         }
         return transcription
@@ -412,7 +425,19 @@ def process_summary():
     if not st.session_state.tts:
         st.audio(AUDIO_FILE_NAME)
     with st.spinner("Summarizing..."):
-        summary_results = summarize()
+        try:
+            summary_results = summarize()
+        except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
+            if st.session_state.transcription_for_summary:
+                compress_audio()
+                transcription = process_incredibly_fast_whisper(
+                    diarization=False,
+                    variant=INCREDIBLY_FAST_WHISPER,
+                    post_processing=False,
+                )
+                transcription = transcription["segments"]
+                summary_results = summarize_with_transcription(transcription)
+
         summary_results = translate(summary_results)
         st.markdown(summary_results)
     if st.session_state.tts:
@@ -588,9 +613,12 @@ if advanced:
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Provide a bullet-point summary"
     if summarization_style == "Explain like I am 5":
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Explain like I am 5 years old."
-    # summarize_with_transcription = st.checkbox(
-    #     "Use transcription for summary", disabled=not summary
-    # )
+    st.checkbox(
+        "Use transcription for summary (in case of failure without)",
+        disabled=not summary,
+        key="transcription_for_summary",
+        value=True,
+    )
     text_to_speech = st.checkbox(
         "Enable Text to Speech Player", disabled=not summary, key="tts"
     )
