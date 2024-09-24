@@ -78,6 +78,7 @@ if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
     st.session_state.model_name = INCREDIBLY_FAST_WHISPER
+    st.session_state.model_name_variant = INCREDIBLY_FAST_WHISPER
     st.session_state.summary_prompt = (
         "Listen carefully to the following audio file. Provide a detailed summary."
     )
@@ -158,7 +159,9 @@ def compress_audio(
 @retry.Retry(predicate=retry.if_transient_error)
 def summarize(audio_file_name=AUDIO_FILE_NAME, prompt=st.session_state.summary_prompt):
     audio_file = genai.upload_file(audio_file_name)
-    response = pro_model.generate_content([prompt, audio_file])
+    response = pro_model.generate_content(
+        [prompt, audio_file], stream=False, request_options={"timeout": 120000}
+    )
     genai.delete_file(audio_file.name)
     return response.text.replace("$", "\$")
 
@@ -243,45 +246,34 @@ def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
 
 
 def process_incredibly_fast_whisper(
-    audio_file_name=CONVERTED_FILE_NAME, diarization=st.session_state.diarization
+    audio_file_name=CONVERTED_FILE_NAME,
+    diarization=st.session_state.diarization,
+    variant=st.session_state.model_name_variant,
 ):
     with open(audio_file_name, "rb") as audio:
-        if diarization:
-            try:
-                transcription = replicate_client.run(
-                    f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
-                    input={
-                        "audio": audio,
-                        "hf_token": hf_access_token,
-                        "diarise_audio": True,
-                    },
-                    use_file_output=False,
-                )
-            except:
-                st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-                st.stop()
-
-            transcription = {
-                "num_speakers": detected_num_speakers(transcription),
-                "segments": process_diarization_for_incredibly_fast_whisper(
-                    transcription
-                ),
-            }
-            return transcription
-
         try:
             transcription = replicate_client.run(
-                f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
+                f"{variant}:{get_latest_model_version(variant)}",
                 input={
                     "audio": audio,
+                    "hf_token": hf_access_token,
+                    "diarise_audio": diarization,
                 },
+                use_file_output=False,
             )
         except httpx.ReadTimeout:
             transcription = get_latest_prediction_output()
+        except:
+            st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
+            st.stop()
 
         transcription = {
-            "num_speakers": 0,
-            "segments": correct_transcription(transcription["text"]),
+            "num_speakers": detected_num_speakers(transcription) if diarization else 0,
+            "segments": (
+                process_diarization_for_incredibly_fast_whisper(transcription)
+                if diarization
+                else correct_transcription(transcription["text"])
+            ),
         }
         return transcription
 
@@ -343,7 +335,7 @@ def identify_speakers(transcription):
         f'Identify speakers names and replace "SPEAKER_" with identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
         + """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
         Return using this JSON schema, include only unique records:
-        
+
         original_speaker as key: str
         detected_speaker as value: str
         Return: dict[str, str]
@@ -500,7 +492,7 @@ target_language = st.selectbox(
     key="language",
 )
 
-summary = st.checkbox("Generate summary (without transcription)", value=True)
+summary = st.checkbox("Generate summary", value=True)
 
 advanced = st.toggle("Advanced settings")
 
@@ -527,6 +519,19 @@ if advanced:
                 key="speaker_identification",
             )
         if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
+
+            st.radio(
+                label="Model version",
+                captions=["best for speed", "best for fast diarization"],
+                options=[
+                    "vaibhavs10/incredibly-fast-whisper",
+                    "nicknaskida/incredibly-fast-whisper",
+                ],
+                index=0,
+                key="model_name_variant",
+            )
+
+            st.divider()
 
             def change_state():
                 if not st.session_state.diarization:
@@ -583,6 +588,9 @@ if advanced:
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Provide a bullet-point summary"
     if summarization_style == "Explain like I am 5":
         st.session_state.summary_prompt = "Listen carefully to the following audio file. Explain like I am 5 years old."
+    # summarize_with_transcription = st.checkbox(
+    #     "Use transcription for summary", disabled=not summary
+    # )
     text_to_speech = st.checkbox(
         "Enable Text to Speech Player", disabled=not summary, key="tts"
     )
