@@ -25,8 +25,8 @@ AI_CONFIG = {
             {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
         ],
-        "pro_model": "models/gemini-1.5-pro-002",
-        "flash_model": "models/gemini-1.5-flash",
+        "pro_model": "models/gemini-1.5-pro-latest",
+        "flash_model": "models/gemini-1.5-flash-latest",
     },
     "openai": {"tts_model": "tts-1", "voice": "alloy"},
     "elevenlabs": {"tts_model": "eleven_turbo_v2_5"},
@@ -175,7 +175,7 @@ def summarize(
 ):
     try:
         audio_file = genai.upload_file(audio_file_name)
-        response = pro_model.generate_content([prompt, audio_file], request_options={"timeout": 600})
+        response = pro_model.generate_content([prompt, audio_file], request_options={"timeout": 120})
         genai.delete_file(audio_file.name)
         return response.text.replace("$", "\$")
     except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
