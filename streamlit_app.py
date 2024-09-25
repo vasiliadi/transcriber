@@ -25,7 +25,7 @@ AI_CONFIG = {
             {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
         ],
-        "pro_model": "models/gemini-1.5-pro",
+        "pro_model": "models/gemini-1.5-pro-002",
         "flash_model": "models/gemini-1.5-flash",
     },
     "openai": {"tts_model": "tts-1", "voice": "alloy"},
@@ -175,7 +175,7 @@ def summarize(
 ):
     try:
         audio_file = genai.upload_file(audio_file_name)
-        response = pro_model.generate_content([prompt, audio_file])
+        response = pro_model.generate_content([prompt, audio_file], request_options={"timeout": 600})
         genai.delete_file(audio_file.name)
         return response.text.replace("$", "\$")
     except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
@@ -188,6 +188,7 @@ def summarize(
             )
             transcription = transcription["segments"]
             return summarize_with_transcription(transcription)
+        raise Exception()
 
 
 @st.cache_data(show_spinner=False)
