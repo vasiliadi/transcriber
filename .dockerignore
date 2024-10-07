@@ -4,6 +4,7 @@ model-comparison.png
 screenshot.png
 **/.gitignore
 **/.git
+.git/**/*
 **/Dockerfile
 **/.dockerignore
 **/compose.yml

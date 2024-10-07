@@ -108,11 +108,12 @@ Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is ano
 Example of `.env` file:
 
 ```text
-GEMINI_API_KEY = your_api_key
-REPLICATE_API_TOKEN = your_api_key
-HF_ACCESS_TOKEN = your_api_key # only for incredibly-fast-whisper model with enabled diarization
-ELEVENLABS_API_KEY = your_api_key # only if you want to use ElevenLabs TTS
-OPENAI_API_KEY = your_api_key # only if you want to use OpenAI TTS
+GEMINI_API_KEY = "your_api_key"
+REPLICATE_API_TOKEN = "your_api_key"
+HF_ACCESS_TOKEN = "your_api_key" # only for incredibly-fast-whisper model with enabled diarization
+ELEVENLABS_API_KEY = "your_api_key" # only if you want to use ElevenLabs TTS
+OPENAI_API_KEY = "your_api_key" # only if you want to use OpenAI TTS
+PROXY = "" # only if you need to use proxy
 ```
 
 **All keys are mandatory**, but you can fill some of them with the wrong key to complete the function. Using functions that require a specific key filled with the incorrect key will result in an error.
