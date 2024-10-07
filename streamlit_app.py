@@ -64,6 +64,9 @@ elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
 openai_api_key = os.environ["OPENAI_API_KEY"]
 openai_client = OpenAI(api_key=openai_api_key)
 
+# Proxy config
+proxy = os.environ["PROXY"]
+
 # Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
@@ -104,6 +107,7 @@ def download(input, mode=st.session_state.mode):
                 ydl_opts = {
                     "format": "worstaudio",
                     "outtmpl": "audio",
+                    "proxy": proxy,
                     "postprocessors": [
                         {  # Extract audio using ffmpeg
                             "key": "FFmpegExtractAudio",
