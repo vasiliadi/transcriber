@@ -128,6 +128,11 @@ You need to replace the path to the env_file in `compose.yaml`
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
+## PS
+
+Your transcription and [Google NotebookLM](https://notebooklm.google.com/) is very powerfull tool. \
+Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quickstarts/Caching.ipynb), you can ask ton of questions about the topic.
+
 ### Docs
 
 |  | Links |
