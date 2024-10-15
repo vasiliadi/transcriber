@@ -80,7 +80,7 @@ WHISPER = "openai/whisper"
 if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
-    st.session_state.model_name = INCREDIBLY_FAST_WHISPER
+    st.session_state.model_name = WHISPER_DIARIZATION
     st.session_state.model_name_variant = INCREDIBLY_FAST_WHISPER
     st.session_state.summary_prompt = (
         "Listen carefully to the following audio file. Provide a detailed summary."
@@ -168,7 +168,7 @@ def summarize_with_transcription(transcription):
         f"Read carefully transcription and provide a detailed summary: {transcription}"
     )
     response = pro_model.generate_content(prompt)
-    return response.text.replace("$", "\$")
+    return response.text.replace("$", r"\$")
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -181,7 +181,7 @@ def summarize(
         audio_file = genai.upload_file(audio_file_name)
         response = pro_model.generate_content([prompt, audio_file], request_options={"timeout": 120})
         genai.delete_file(audio_file.name)
-        return response.text.replace("$", "\$")
+        return response.text.replace("$", r"\$")
     except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
         if transcription_for_summary:
             compress_audio()
@@ -462,14 +462,14 @@ def process_transcription():
         transcription = transcribe(model_name=st.session_state.model_name)
         if transcription["num_speakers"] == 1:
             for segment in transcription["segments"]:
-                text = str(segment["text"]).replace("$", "\$")
+                text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
                     f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
                 )
         elif (
             transcription["num_speakers"] == 0
         ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
-            st.markdown(translate(transcription["segments"]).replace("$", "\$"))
+            st.markdown(translate(transcription["segments"]).replace("$", r"\$"))
         else:
             if st.session_state.speaker_identification:
                 names = identify_speakers(transcription)
@@ -478,7 +478,7 @@ def process_transcription():
                 for speaker in transcription["segments"]:
                     names[speaker["speaker"]] = speaker["speaker"]
             for segment in transcription["segments"]:
-                text = str(segment["text"]).replace("$", "\$")
+                text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
                     f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
                 )
@@ -525,7 +525,7 @@ target_language = st.selectbox(
     key="language",
 )
 
-summary = st.checkbox("Generate summary", value=True)
+summary = st.checkbox("Generate summary", value=False)
 
 advanced = st.toggle("Advanced settings")
 
@@ -538,7 +538,7 @@ if advanced:
             label_visibility="collapsed",
             options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER],
             captions=["best for dialogs", "best for speed", "best in accuracy"],
-            index=1,  # change if default value (st.session_state.model_name) has changed
+            index=0,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
             horizontal=False,
             disabled=summary,
