@@ -14,7 +14,7 @@ from summary import process_summary
 if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
-    st.session_state.model_name = INCREDIBLY_FAST_WHISPER
+    st.session_state.model_name = WHISPER_DIARIZATION
     st.session_state.model_name_variant = INCREDIBLY_FAST_WHISPER
     st.session_state.summary_prompt = (
         "Listen carefully to the following audio file. Provide a detailed summary."
@@ -58,7 +58,7 @@ target_language = st.selectbox(
     key="language",
 )
 
-summary = st.checkbox("Generate summary", value=True)
+summary = st.checkbox("Generate summary", value=False)
 
 advanced = st.toggle("Advanced settings")
 
@@ -71,7 +71,7 @@ if advanced:
             label_visibility="collapsed",
             options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER],
             captions=["best for dialogs", "best for speed", "best in accuracy"],
-            index=1,  # change if default value (st.session_state.model_name) has changed
+            index=0,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
             horizontal=False,
             disabled=summary,

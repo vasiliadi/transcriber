@@ -21,7 +21,7 @@ def summarize_with_transcription(transcription):
         f"Read carefully transcription and provide a detailed summary: {transcription}"
     )
     response = pro_model.generate_content(prompt)
-    return response.text.replace("$", "\$")
+    return response.text.replace("$", r"\$")
 
 
 @retry.Retry(predicate=retry.if_transient_error)
@@ -36,7 +36,7 @@ def summarize(
             [prompt, audio_file], request_options={"timeout": 120}
         )
         genai.delete_file(audio_file.name)
-        return response.text.replace("$", "\$")
+        return response.text.replace("$", r"\$")
     except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
         if transcription_for_summary:
             compress_audio()

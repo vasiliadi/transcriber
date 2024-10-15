@@ -190,14 +190,14 @@ def process_transcription():
         transcription = transcribe(model_name=st.session_state.model_name)
         if transcription["num_speakers"] == 1:
             for segment in transcription["segments"]:
-                text = str(segment["text"]).replace("$", "\$")
+                text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
                     f"**{convert_to_minutes(segment['start'])}:** {translate(text, target_language=st.session_state.language, chunks=True, sleep_time=5)}"
                 )
         elif (
             transcription["num_speakers"] == 0
         ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
-            st.markdown(translate(transcription["segments"]).replace("$", "\$"), target_language=st.session_state.language)
+            st.markdown(translate(transcription["segments"]).replace("$", r"\$"), target_language=st.session_state.language)
         else:
             if st.session_state.speaker_identification:
                 names = identify_speakers(transcription)
@@ -206,7 +206,7 @@ def process_transcription():
                 for speaker in transcription["segments"]:
                     names[speaker["speaker"]] = speaker["speaker"]
             for segment in transcription["segments"]:
-                text = str(segment["text"]).replace("$", "\$")
+                text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
                     f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, target_language=st.session_state.language, chunks=True, sleep_time=5)}"
                 )
