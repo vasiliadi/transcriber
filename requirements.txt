@@ -5,6 +5,6 @@ replicate==1.0.1
 yt-dlp==2024.10.7
 beautifulsoup4==4.12.3
 elevenlabs==1.9.0
-openai==1.51.2
+openai==1.54.3
 pydub==0.25.1
 semantic-text-splitter==0.18.0
