@@ -7,4 +7,4 @@ beautifulsoup4==4.12.3
 elevenlabs==1.12.1
 openai==1.51.2
 pydub==0.25.1
-semantic-text-splitter==0.18.0
+semantic-text-splitter==0.18.1
