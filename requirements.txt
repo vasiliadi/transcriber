@@ -2,7 +2,7 @@ streamlit==1.39.0
 google-generativeai==0.8.3
 requests[socks]==2.32.3
 replicate==1.0.3
-yt-dlp==2024.10.7
+yt-dlp==2024.11.18
 beautifulsoup4==4.12.3
 elevenlabs==1.12.1
 openai==1.54.4
