@@ -1,0 +1,35 @@
+name: "OpenCommit Action"
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - "dependabot/**"
+
+jobs:
+  opencommit:
+    timeout-minutes: 10
+    name: OpenCommit
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # 4.0.4
+        with:
+          node-version: "20"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+        with:
+          fetch-depth: 0
+      - uses: di-sukharev/opencommit@4e25f1460af4747fba99415afec991f3dfe8444f # github-action-v1.0.4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          OCO_OPENAI_API_KEY: ${{ secrets.OCO_OPENAI_API_KEY }}
+          OCO_TOKENS_MAX_INPUT: 4096
+          OCO_TOKENS_MAX_OUTPUT: 500
+          OCO_OPENAI_BASE_PATH: ""
+          OCO_DESCRIPTION: false
+          OCO_EMOJI: true
+          OCO_MODEL: gpt-4o-mini
+          OCO_LANGUAGE: en
+          OCO_PROMPT_MODULE: conventional-commit
