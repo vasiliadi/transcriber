@@ -1,0 +1,29 @@
+version = 1
+
+[[analyzers]]
+name = "python"
+enabled = true
+
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+  # type_checker = "mypy"
+  cyclomatic_complexity_threshold = "medium"
+
+[[analyzers]]
+name = "docker"
+enabled = true
+
+  [analyzers.meta]
+  dockerfile_paths = ["Dockerfile"]
+
+[[analyzers]]
+name = "secrets"
+enabled = true
+
+[[transformers]]
+name = "ruff"
+enabled = false
+
+[[transformers]]
+name = "prettier"
+enabled = false
