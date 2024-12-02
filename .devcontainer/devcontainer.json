@@ -1,7 +1,7 @@
 // With Microsoft image and features
 {
 	"name": "transcriber msdev container",	
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers-contrib/features/ffmpeg-apt-get:1": {}
@@ -15,12 +15,13 @@
 		"vscode": {
 			// "settings": {},
 			"extensions": [
-				"ms-python.python", 
-				"ms-python.black-formatter", 
-				"ms-python.isort", 
+				"ms-python.python",
+				"charliermarsh.ruff",
 				"visualstudioexptteam.vscodeintellicode",
-				"ms-toolsai.jupyter", 
-				"davidanson.vscode-markdownlint", 
+				"ms-toolsai.jupyter",
+				"davidanson.vscode-markdownlint",
+				"tamasfe.even-better-toml",
+				"eamodio.gitlens",
 				"ms-azuretools.vscode-docker"
 			]
 		}
@@ -30,7 +31,7 @@
 // With production enviroment
 // {
 // 	"name": "transcriber prod env container",
-// 	"image": "python:3.11-slim",
+// 	"image": "python:3.12-slim",
 // 	"forwardPorts": [8501],
 // 	"onCreateCommand": {
 // 		"packages": "apt-get update && apt-get install --no-install-recommends -y ffmpeg git && apt-get clean && rm -rf /var/lib/apt/lists/*"
@@ -43,12 +44,13 @@
 // 		"vscode": {
 // 			// "settings": {},
 // 			"extensions": [
-// 				"ms-python.python", 
-// 				"ms-python.black-formatter", 
-// 				"ms-python.isort", 
+// 				"ms-python.python",
+// 				"charliermarsh.ruff",
 // 				"visualstudioexptteam.vscodeintellicode",
-// 				"ms-toolsai.jupyter", 
-// 				"davidanson.vscode-markdownlint", 
+// 				"ms-toolsai.jupyter",
+// 				"davidanson.vscode-markdownlint",
+// 				"tamasfe.even-better-toml",
+// 				"eamodio.gitlens",
 // 				"ms-azuretools.vscode-docker"
 // 			]
 // 		}
