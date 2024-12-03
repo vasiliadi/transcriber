@@ -1,6 +1,7 @@
 # The Transcriber
 
-![Python](https://img.shields.io/badge/Python-3.11_|_3.12-blue)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+[![DeepSource](https://app.deepsource.com/gh/vasiliadi/transcriber.svg/?label=resolved+issues&show_trend=false&token=_odPCADfGsWvgHGN0FcW1SpO)](https://app.deepsource.com/gh/vasiliadi/transcriber/)
 
 Transcriber &amp; translator for audio files. Like Otter.ai but open-source and almost free.
 
@@ -19,7 +20,7 @@ Where you get:
 At least three times cheaper with the same or even better quality of transcription, in my opinion. \
 And you pay as you go.
 
-**Translation and summerization**:
+**Translation and summarization**:
 [Gemini 1.5 Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
 
 **Hosting**:
@@ -108,12 +109,12 @@ Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is ano
 Example of `.env` file:
 
 ```text
-GEMINI_API_KEY = "your_api_key"
-REPLICATE_API_TOKEN = "your_api_key"
-HF_ACCESS_TOKEN = "your_api_key" # only for incredibly-fast-whisper model with enabled diarization
-ELEVENLABS_API_KEY = "your_api_key" # only if you want to use ElevenLabs TTS
-OPENAI_API_KEY = "your_api_key" # only if you want to use OpenAI TTS
-PROXY = "" # only if you need to use proxy
+GEMINI_API_KEY="your_api_key"
+REPLICATE_API_TOKEN="your_api_key"
+HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper model with enabled diarization
+ELEVENLABS_API_KEY="your_api_key" # only if you want to use ElevenLabs TTS
+OPENAI_API_KEY="your_api_key" # only if you want to use OpenAI TTS
+PROXY="" # only if you need to use proxy
 ```
 
 **All keys are mandatory**, but you can fill some of them with the wrong key to complete the function. Using functions that require a specific key filled with the incorrect key will result in an error.

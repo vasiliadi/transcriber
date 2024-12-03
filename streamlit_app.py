@@ -1,20 +1,22 @@
-import streamlit as st
+import json
 import os
 import subprocess
 import time
-import json
+from pathlib import Path
+
 import google.generativeai as genai
-from google.api_core import retry, exceptions
+import httpx
 import replicate
 import requests
-from yt_dlp import YoutubeDL
+import streamlit as st
 from bs4 import BeautifulSoup
-from elevenlabs.client import ElevenLabs
 from elevenlabs import save
+from elevenlabs.client import ElevenLabs
+from google.api_core import exceptions, retry
 from openai import OpenAI
 from pydub import AudioSegment
 from semantic_text_splitter import TextSplitter
-import httpx
+from yt_dlp import YoutubeDL
 
 AI_CONFIG = {
     "gemini": {
@@ -50,7 +52,6 @@ flash_model = genai.GenerativeModel(
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 replicate_client = replicate.Client(
     api_token=replicate_api_token,
-    # timeout=httpx.Timeout(None),
 )
 
 # HuggingFace.co config
@@ -95,14 +96,14 @@ if "mode" not in st.session_state:
 
 
 # Functions
-def download(input, mode=st.session_state.mode):
+def download(url, mode=st.session_state.mode):
     with st.spinner("Uploading the file to the server..."):
         if mode == "Uploaded file":
-            with open(AUDIO_FILE_NAME, "wb") as f:
-                f.write(input.getbuffer())
+            with Path(AUDIO_FILE_NAME).open("wb") as f:
+                f.write(url.getbuffer())
         if mode == "YouTube or link to an audio file":
-            if input.startswith("https://www.youtube.com/") or input.startswith(
-                "https://youtu.be/"
+            if url.startswith("https://www.youtube.com/") or url.startswith(
+                "https://youtu.be/",
             ):
                 ydl_opts = {
                     "format": "worstaudio",
@@ -112,28 +113,33 @@ def download(input, mode=st.session_state.mode):
                         {  # Extract audio using ffmpeg
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
-                        }
+                        },
                     ],
                 }
                 with YoutubeDL(ydl_opts) as ydl:
-                    ydl.download(input)
+                    ydl.download(url)
             else:
-                if input.startswith("https://castro.fm/episode/"):
-                    input = BeautifulSoup(
+                if url.startswith("https://castro.fm/episode/"):
+                    url = BeautifulSoup(
                         requests.get(
-                            requests.utils.requote_uri(input), verify=True
+                            requests.utils.requote_uri(url),
+                            verify=True,
+                            timeout=120,
                         ).content,
                         "html.parser",
                     ).source.get("src")
                 downloaded_file = requests.get(
-                    requests.utils.requote_uri(input), verify=True
+                    requests.utils.requote_uri(url),
+                    verify=True,
+                    timeout=120,
                 )
-                with open(AUDIO_FILE_NAME, "wb") as f:
+                with Path(AUDIO_FILE_NAME).open("wb") as f:
                     f.write(downloaded_file.content)
 
 
 def compress_audio(
-    audio_file_name=AUDIO_FILE_NAME, converted_file_name=CONVERTED_FILE_NAME
+    audio_file_name=AUDIO_FILE_NAME,
+    converted_file_name=CONVERTED_FILE_NAME,
 ):
     try:
         subprocess.run(
@@ -179,7 +185,10 @@ def summarize(
 ):
     try:
         audio_file = genai.upload_file(audio_file_name)
-        response = pro_model.generate_content([prompt, audio_file], request_options={"timeout": 120})
+        response = pro_model.generate_content(
+            [prompt, audio_file],
+            request_options={"timeout": 120},
+        )
         genai.delete_file(audio_file.name)
         return response.text.replace("$", r"\$")
     except (exceptions.RetryError, TimeoutError, exceptions.DeadlineExceeded):
@@ -192,13 +201,14 @@ def summarize(
             )
             transcription = transcription["segments"]
             return summarize_with_transcription(transcription)
-        raise Exception()
+        raise
 
 
 @st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
 def correct_transcription(
-    transcription, post_processing=st.session_state.post_processing
+    transcription,
+    post_processing=st.session_state.post_processing,
 ):
     if post_processing:
         prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
@@ -244,7 +254,7 @@ def process_diarization_for_incredibly_fast_whisper(
         )
         if (
             transcription[i]["speaker"] == transcription[i - 1]["speaker"]
-            and time_gap <= 2
+            and time_gap <= 2  # noqa: PLR2004
         ):
             current_group["end"] = str(transcription[i]["timestamp"][1])
             current_group["text"] += " " + transcription[i]["text"]
@@ -263,7 +273,7 @@ def process_diarization_for_incredibly_fast_whisper(
 
 
 def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
-    with open(audio_file_name, "rb") as audio:
+    with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
                 f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
@@ -280,7 +290,7 @@ def process_incredibly_fast_whisper(
     variant=st.session_state.model_name_variant,
     post_processing=st.session_state.post_processing,
 ):
-    with open(audio_file_name, "rb") as audio:
+    with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
                 f"{variant}:{get_latest_model_version(variant)}",
@@ -293,7 +303,7 @@ def process_incredibly_fast_whisper(
             )
         except httpx.ReadTimeout:
             transcription = get_latest_prediction_output()
-        except:
+        except:  # noqa: E722
             st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
             st.stop()
 
@@ -308,11 +318,11 @@ def process_incredibly_fast_whisper(
                 )
             ),
         }
-        return transcription
+        return transcription  # noqa: RET504
 
 
 def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
-    with open(audio_file_name, "rb") as audio:
+    with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
                 f"{WHISPER}:{get_latest_model_version(WHISPER)}",
@@ -326,7 +336,7 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
             "segments": correct_transcription(transcription["transcription"]),
         }
 
-        return transcription
+        return transcription  # noqa: RET504
 
 
 def transcribe(model_name=st.session_state.model_name):
@@ -336,12 +346,16 @@ def transcribe(model_name=st.session_state.model_name):
         return process_incredibly_fast_whisper()
     if model_name == WHISPER:
         return process_whisper()
+    return None
 
 
 @st.cache_data(show_spinner=False)
 @retry.Retry(predicate=retry.if_transient_error)
 def translate(
-    text, target_language=st.session_state.language, chunks=False, sleep_time=30
+    text,
+    target_language=st.session_state.language,
+    chunks=False,
+    sleep_time=30,
 ):
     if target_language is None:
         return text
@@ -350,7 +364,7 @@ def translate(
         translation = flash_model.generate_content(prompt)
         if chunks:
             time.sleep(
-                sleep_time
+                sleep_time,
             )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
         return translation.text
     except ValueError:
@@ -391,12 +405,12 @@ def convert_to_minutes(seconds):
 
 
 def clean_up():
-    if os.path.isfile(CONVERTED_FILE_NAME):
-        os.remove(CONVERTED_FILE_NAME)
-    if os.path.isfile(AUDIO_FILE_NAME):
-        os.remove(AUDIO_FILE_NAME)
-    if os.path.isfile(GENERATED_FILE_NAME):
-        os.remove(GENERATED_FILE_NAME)
+    if Path(CONVERTED_FILE_NAME).is_file():
+        Path(CONVERTED_FILE_NAME).unlink()
+    if Path(AUDIO_FILE_NAME).is_file():
+        Path(AUDIO_FILE_NAME).unlink()
+    if Path(GENERATED_FILE_NAME).is_file():
+        Path(GENERATED_FILE_NAME).unlink()
 
 
 def generate_opoenai_tts_audio(text, output_file_name, sleep_time=0):
@@ -421,21 +435,23 @@ def generate_speech(text):
     if st.session_state.tts_model == "ElevenLabs":
         generate_elevenlabs_tts_audio(text, GENERATED_FILE_NAME)
     if st.session_state.tts_model == "OpenAI":
-        if len(text) > 4096:
+        if len(text) > 4096:  # noqa: PLR2004
             splitter = TextSplitter(4096)
             chunks = splitter.chunks(text)
             for i in range(len(chunks)):
                 temp_file_name = f"part_{i}.mp3"
                 generate_opoenai_tts_audio(
-                    chunks[i], temp_file_name, sleep_time=2
+                    chunks[i],
+                    temp_file_name,
+                    sleep_time=2,
                 )  # https://platform.openai.com/docs/guides/rate-limits/usage-tiers
                 locals()[f"sound{i}"] = AudioSegment.from_file(temp_file_name)
                 if i == 0:
                     sounds = locals()[f"sound{i}"]
                 if i > 0:
                     sounds += locals()[f"sound{i}"]
-                if os.path.isfile(temp_file_name):
-                    os.remove(temp_file_name)
+                if Path(temp_file_name).is_file():
+                    Path(temp_file_name).unlink()
             sounds.export(GENERATED_FILE_NAME, format="mp3")
         else:
             generate_opoenai_tts_audio(text, GENERATED_FILE_NAME)
@@ -464,7 +480,7 @@ def process_transcription():
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}"
+                    f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}",
                 )
         elif (
             transcription["num_speakers"] == 0
@@ -480,12 +496,12 @@ def process_transcription():
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}"
+                    f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}",
                 )
         if st.session_state.raw_json:
             last_prediction_id = replicate_client.predictions.list().results[0].id
             data = json.dumps(
-                replicate_client.predictions.get(last_prediction_id).output
+                replicate_client.predictions.get(last_prediction_id).output,
             )
             st.download_button(
                 label="Download JSON",
@@ -552,7 +568,6 @@ if advanced:
                 key="speaker_identification",
             )
         if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
-
             st.radio(
                 label="Model version",
                 captions=["best for speed", "best for fast diarization"],
@@ -628,7 +643,9 @@ if advanced:
         value=True,
     )
     text_to_speech = st.checkbox(
-        "Enable Text to Speech Player", disabled=not summary, key="tts"
+        "Enable Text to Speech Player",
+        disabled=not summary,
+        key="tts",
     )
     st.radio(
         label="Text-To-Speech engine",
