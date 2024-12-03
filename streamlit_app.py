@@ -138,7 +138,7 @@ def download(url, mode=st.session_state.mode):
 def compress_audio(
     audio_file_name=AUDIO_FILE_NAME,
     converted_file_name=CONVERTED_FILE_NAME,
-):  # skipcq: BAN-B607
+):
     try:
         subprocess.run(
             [
@@ -158,7 +158,7 @@ def compress_audio(
             check=True,
             capture_output=True,
             text=True,
-        )
+        )  # skipcq: BAN-B607
     except subprocess.CalledProcessError as e:
         st.error("Check uploaded file 👀", icon="🚨")
         st.write(e.stderr)
