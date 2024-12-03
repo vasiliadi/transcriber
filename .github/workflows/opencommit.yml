@@ -5,6 +5,7 @@ on:
     branches-ignore:
       - main
       - "dependabot/**"
+      - "renovate/**"
 
 jobs:
   opencommit:
