@@ -1,10 +1,10 @@
 streamlit==1.39.0
 google-generativeai==0.8.3
 requests[socks]==2.32.3
-replicate==0.34.2
+replicate==1.0.3
 yt-dlp[default]==2024.10.22
 beautifulsoup4==4.12.3
-elevenlabs==1.9.0
-openai==1.51.0
+elevenlabs==1.12.1
+openai==1.54.4
 pydub==0.25.1
-semantic-text-splitter==0.17.0
+semantic-text-splitter==0.18.1
