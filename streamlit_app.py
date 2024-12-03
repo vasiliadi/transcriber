@@ -102,9 +102,7 @@ def download(url, mode=st.session_state.mode):
             with Path(AUDIO_FILE_NAME).open("wb") as f:
                 f.write(url.getbuffer())
         if mode == "YouTube or link to an audio file":
-            if url.startswith("https://www.youtube.com/") or url.startswith(
-                "https://youtu.be/",
-            ):
+            if url.startswith(("https://www.youtube.com/", "https://youtu.be/")):
                 ydl_opts = {
                     "format": "worstaudio",
                     "outtmpl": "audio",
@@ -140,11 +138,11 @@ def download(url, mode=st.session_state.mode):
 def compress_audio(
     audio_file_name=AUDIO_FILE_NAME,
     converted_file_name=CONVERTED_FILE_NAME,
-):
+):  # skipcq: BAN-B607
     try:
         subprocess.run(
             [
-                "ffmpeg",
+                "ffmpeg",  # /usr/bin/ffmpeg
                 "-y",
                 "-i",
                 audio_file_name,
@@ -154,7 +152,7 @@ def compress_audio(
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "16k",  # 12k works well too
+                "16k",
                 converted_file_name,
             ],
             check=True,
@@ -380,7 +378,7 @@ def translate(
 def identify_speakers(transcription):
     prompt = (
         f'Identify speakers names and replace "SPEAKER_" with identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
-        + """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
+        """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
         Return using this JSON schema, include only unique records:
 
         original_speaker as key: str
@@ -438,7 +436,7 @@ def generate_speech(text):
         if len(text) > 4096:  # noqa: PLR2004
             splitter = TextSplitter(4096)
             chunks = splitter.chunks(text)
-            for i in range(len(chunks)):
+            for i in enumerate(chunks):
                 temp_file_name = f"part_{i}.mp3"
                 generate_opoenai_tts_audio(
                     chunks[i],
@@ -673,7 +671,7 @@ if go:
         ):
             st.error("Enter an audio file link.", icon="🚨")
         else:
-            download(input=data_input)
+            download(url=data_input)
             if summary:
                 process_summary()
             else:
