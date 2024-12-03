@@ -140,7 +140,7 @@ def compress_audio(
     converted_file_name=CONVERTED_FILE_NAME,
 ):
     try:
-        subprocess.run(
+        subprocess.run(  # skipcq: BAN-B607
             [
                 "ffmpeg",  # /usr/bin/ffmpeg
                 "-y",
@@ -158,7 +158,7 @@ def compress_audio(
             check=True,
             capture_output=True,
             text=True,
-        )  # skipcq: BAN-B607
+        )
     except subprocess.CalledProcessError as e:
         st.error("Check uploaded file 👀", icon="🚨")
         st.write(e.stderr)
