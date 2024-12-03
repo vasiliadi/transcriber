@@ -16,40 +16,57 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle
-    "F",    # Pyflakes
-    "B",    # flake8-bugbear
-    "I",    # isort
-    "W",    # pycodestyle
-    "SIM",  # flake8-simplify
-    "UP",   # pyupgrade
-    "LOG",  # flake8-logging
-    "G",    # flake8-logging-format
-    "PT",   # flake8-pytest-style
-    "S",    # flake8-bandit
-    "DTZ",  # flake8-datetimez
-    "Q",    # flake8-quotes
-    "RET",  # flake8-return
-    "TID",  # flake8-tidy-imports
-    "PTH",  # flake8-use-pathlib
-    "PERF", # Perflint
-    "FURB", # refurb
-    "RUF",  # Ruff-specific rules
-    "C90",  # mccabe
-    "N",    # pep8-naming
-    "A",    # flake8-builtins
-    "COM",  # flake8-commas
-    "CPY",  # flake8-copyright
-    "C4",   # flake8-comprehensions
-    "ICN",  # flake8-import-conventions
-    "T20",  # flake8-print
-    "RSE",  # flake8-raise
-    "TCH",  # flake8-type-checking
-    "ARG",  # flake8-unused-arguments
-    "FIX",  # flake8-fixme
-    "ERA",  # eradicate
-    "PL",   # Pylint
-    "FLY",  # flynt
+    "E",     # pycodestyle
+    "F",     # Pyflakes
+    "B",     # flake8-bugbear
+    "I",     # isort
+    "W",     # pycodestyle
+    "SIM",   # flake8-simplify
+    "UP",    # pyupgrade
+    "LOG",   # flake8-logging
+    "G",     # flake8-logging-format
+    "PT",    # flake8-pytest-style
+    "S",     # flake8-bandit
+    "DTZ",   # flake8-datetimez
+    "Q",     # flake8-quotes
+    "RET",   # flake8-return
+    "TID",   # flake8-tidy-imports
+    "PTH",   # flake8-use-pathlib
+    "PERF",  # Perflint
+    "FURB",  # refurb
+    "RUF",   # Ruff-specific rules
+    "C90",   # mccabe
+    "N",     # pep8-naming
+    "A",     # flake8-builtins
+    "COM",   # flake8-commas
+    "CPY",   # flake8-copyright
+    "C4",    # flake8-comprehensions
+    "ICN",   # flake8-import-conventions
+    "T20",   # flake8-print
+    "RSE",   # flake8-raise
+    "TCH",   # flake8-type-checking
+    "ARG",   # flake8-unused-arguments
+    "FIX",   # flake8-fixme
+    "ERA",   # eradicate
+    "PL",    # Pylint
+    "FLY",   # flynt
+    # "D",     # pydocstyle
+    # "ANN",   # flake8-annotations
+    "ASYNC", # flake8-async
+    "T10",   # flake8-debugger
+    "EM",    # flake8-errmsg
+    "EXE",   # flake8-executable
+    "FA",    # flake8-future-annotations
+    "ISC",   # flake8-implicit-str-concat
+    "INP",   # flake8-no-pep420
+    "PIE",   # flake8-pie
+    "PYI",   # flake8-pyi
+    "RSE",   # flake8-raise
+    "SLF",   # flake8-self
+    "SLOT",  # flake8-slots
+    "INT",   # flake8-gettext
+    "PGH",   # pygrep-hooks
+    "DOC",   # pydoclint
 ]
 ignore = ["S603", "S607", "E501"]
 
