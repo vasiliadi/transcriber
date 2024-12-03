@@ -8,6 +8,7 @@ enabled = true
   runtime_version = "3.x.x"
   # type_checker = "mypy"
   cyclomatic_complexity_threshold = "medium"
+  max_line_length = 88
 
 [[analyzers]]
 name = "docker"
