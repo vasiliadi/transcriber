@@ -1,7 +1,7 @@
 # The Transcriber
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
-[![DeepSource](https://app.deepsource.com/gh/vasiliadi/transcriber.svg/?label=resolved+issues&show_trend=false&token=_odPCADfGsWvgHGN0FcW1SpO)](https://app.deepsource.com/gh/vasiliadi/transcriber/)
+[![DeepSource](https://app.deepsource.com/gh/vasiliadi/transcriber.svg/?label=active+issues&show_trend=true&token=_odPCADfGsWvgHGN0FcW1SpO)](https://app.deepsource.com/gh/vasiliadi/transcriber/)
 
 Transcriber &amp; translator for audio files. Like Otter.ai but open-source and almost free.
 
