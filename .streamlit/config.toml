@@ -3,3 +3,6 @@ disableWidgetStateDuplicationWarning = true
 
 [browser]
 gatherUsageStats = false
+
+[server]
+maxUploadSize = 300
