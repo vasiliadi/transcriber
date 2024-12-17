@@ -1,3 +1,22 @@
+[project]
+name = "transcriber"
+version = "0.1.0"
+description = "Transcriber & translator for audio files. Like Otter.ai but free and build with Gemini AI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4==4.12.3",
+    "elevenlabs==1.50.2",
+    "google-generativeai==0.8.3",
+    "openai==1.57.4",
+    "pydub==0.25.1",
+    "replicate==1.0.4",
+    "requests[socks]==2.32.3",
+    "semantic-text-splitter==0.20.0",
+    "streamlit==1.41.1",
+    "yt-dlp[default]==2024.12.13",
+]
+
 [tool.mypy]
 ignore_missing_imports = true
 follow_imports = "silent"
