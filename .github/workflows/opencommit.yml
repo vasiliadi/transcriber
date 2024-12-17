@@ -31,6 +31,6 @@ jobs:
           OCO_OPENAI_BASE_PATH: ""
           OCO_DESCRIPTION: false
           OCO_EMOJI: true
-          OCO_MODEL: gpt-4o-mini
+          OCO_MODEL: gpt-4o
           OCO_LANGUAGE: en
           OCO_PROMPT_MODULE: conventional-commit
