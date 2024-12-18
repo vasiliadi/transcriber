@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-RUN useradd -r -m -u 1000 app --shell /bin/false \
-    && chown -R app:app /app
-USER app
+# RUN useradd -r -u 999 app --shell /bin/false \
+#     && chown -R app:app /app
+# USER app
 HEALTHCHECK CMD curl --fail http://localhost:8080/_stcore/health
 ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
