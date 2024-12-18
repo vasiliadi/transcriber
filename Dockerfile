@@ -4,8 +4,8 @@ ENV PYTHONUNBUFFERED=1 \
 EXPOSE 8080
 WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
-COPY streamlit_app.py pyproject.toml uv.lock ./
-COPY .streamlit ./.streamlit
+COPY pyproject.toml uv.lock ./
+COPY src .
 RUN uv sync \
     --frozen \
     --no-install-project \
@@ -15,7 +15,11 @@ RUN uv sync \
     && rm -f pyproject.toml uv.lock
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpeg \
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+RUN useradd -r -m -u 1000 app --shell /bin/false \
+    && chown -R app:app /app
+USER app
 HEALTHCHECK CMD curl --fail http://localhost:8080/_stcore/health
 ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
