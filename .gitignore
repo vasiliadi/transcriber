@@ -128,6 +128,7 @@ ENV/
 env.bak/
 venv.bak/
 .streamlit/secrets.toml
+src/.streamlit/secrets.toml
 
 # Spyder project settings
 .spyderproject
