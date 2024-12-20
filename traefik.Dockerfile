@@ -8,9 +8,7 @@ COPY pyproject.toml uv.lock ./
 COPY src .
 RUN uv sync \
     --frozen \
-    --no-install-project \
     --compile-bytecode \
-    --no-cache \
     --python-preference only-system \
     && rm -f pyproject.toml uv.lock
 RUN apt-get update && apt-get install --no-install-recommends -y \

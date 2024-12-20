@@ -27,3 +27,5 @@ temp/
 .zed/**/*
 .zed/
 src/.streamlit/secrets.toml
+.venv/**/*
+.venv/
