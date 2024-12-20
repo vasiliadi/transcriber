@@ -80,7 +80,6 @@ select = [
     "INP",   # flake8-no-pep420
     "PIE",   # flake8-pie
     "PYI",   # flake8-pyi
-    "RSE",   # flake8-raise
     "SLF",   # flake8-self
     "SLOT",  # flake8-slots
     "INT",   # flake8-gettext
