@@ -14,7 +14,7 @@ dependencies = [
     "requests[socks]==2.32.3",
     "semantic-text-splitter==0.20.0",
     "streamlit==1.41.1",
-    "yt-dlp[default]==2024.12.13",
+    "yt-dlp[default]==2024.12.23",
 ]
 
 [tool.mypy]
