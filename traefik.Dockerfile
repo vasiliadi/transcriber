@@ -4,8 +4,7 @@ ENV PYTHONUNBUFFERED=1 \
 EXPOSE 8080
 WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
-COPY pyproject.toml uv.lock ./
-COPY src .
+COPY /src pyproject.toml uv.lock ./
 RUN uv sync \
     --frozen \
     --compile-bytecode \
