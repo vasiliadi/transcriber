@@ -22,7 +22,7 @@ Where you get:
 At least three times cheaper with the same or even better quality of transcription, in my opinion. \
 And you pay as you go.
 
-**Translation and summarization**:
+**Translation (summarization is depricated[^2], use [vasiliadi/ai-summarizer-telegram-bot](https://github.com/vasiliadi/ai-summarizer-telegram-bot))**:
 [Gemini 1.5 Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
 
 **Hosting**:
@@ -83,7 +83,7 @@ Translation by chunks still works, but the quality little bit lower.
 
 > Max audio length: approximately 8.4 hours
 
-It still works well for summarization.
+~~It still works well for summarization.~~
 
 > [2 queries per minute and 1000 per day for Gemini-1.5-pro. 15 and 1500 for Gemini-1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
 
@@ -97,7 +97,7 @@ For diarization, all models rely on [pyannote.audio](https://huggingface.co/pyan
 
 The [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) model also uses the same models for diarization, but the developer uses his own HuggingFace API token. This means that an additional token is not required.
 
-#### Text to Speach
+#### Text to Speach (depricated[^2])
 
 By default, I use the [ElevenLabs](https://elevenlabs.io/) `eleven_turbo_v2_5` model to generate high-quality audio for summaries in various languages. It's very fast and 50% cheaper than the `eleven_multilingual_v2` model. You get 10,000 credits per month for free, which is about 15 generated audios. If you need more, you'll need to purchase a [plan](https://elevenlabs.io/pricing) or use [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech/).
 
@@ -114,8 +114,6 @@ Example of `.env` file:
 GEMINI_API_KEY="your_api_key"
 REPLICATE_API_TOKEN="your_api_key"
 HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper model with enabled diarization
-ELEVENLABS_API_KEY="your_api_key" # only if you want to use ElevenLabs TTS
-OPENAI_API_KEY="your_api_key" # only if you want to use OpenAI TTS
 PROXY="" # only if you need to use proxy
 ```
 
@@ -125,9 +123,7 @@ You need to replace the path to the env_file in `compose.yaml`
 
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API token](https://replicate.com/account/api-tokens) \
-[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget to accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization. \
-[Get ElevenLabs API key](https://elevenlabs.io/api) \
-[Get OpenAI API key](https://platform.openai.com/docs/api-reference/authentication)
+[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget to accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization.
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
@@ -140,7 +136,7 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 
 |  | Links |
 | ---|--- |
-| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[google-generativeai](https://ai.google.dev/gemini-api/docs/get-started/python)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>[openai](https://github.com/openai/openai-python)<br>[pydub](https://github.com/jiaaro/pydub/)<br>[semantic_text_splitter](https://github.com/benbrandt/text-splitter) |
+| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[Google Gen AI SDK](https://github.com/googleapis/python-genai)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>[openai](https://github.com/openai/openai-python)<br>[pydub](https://github.com/jiaaro/pydub/)<br>[semantic_text_splitter](https://github.com/benbrandt/text-splitter) |
 | Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br>[.dockerignore validator](https://dockerignore.vw.codes/)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
@@ -158,3 +154,4 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | Digital Ocean | [How to Deploy from Container Images](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/) |
 
 [^1]: For August 2024
+[^2]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
