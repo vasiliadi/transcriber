@@ -224,7 +224,7 @@ name = "click"
 version = "8.1.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "platform_system == 'Windows'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/96/d3/f04c7bfcf5c1862a2a5b845c6b2b360488cf47af55dfa79c98f6a6bf98b5/click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de", size = 336121 }
 wheels = [
@@ -951,7 +951,7 @@ dependencies = [
     { name = "toml" },
     { name = "tornado" },
     { name = "typing-extensions" },
-    { name = "watchdog", marker = "platform_system != 'Darwin'" },
+    { name = "watchdog", marker = "sys_platform != 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/78/33/14b5ac0369ecf0af675911e5e84b934e6fcc2cec850857d2390eb373b0a6/streamlit-1.41.1.tar.gz", hash = "sha256:6626d32b098ba1458b71eebdd634c62af2dd876380e59c4b6a1e828a39d62d69", size = 8712473 }
 wheels = [
@@ -996,7 +996,7 @@ wheels = [
 
 [[package]]
 name = "transcriber"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -1014,7 +1014,7 @@ requires-dist = [
     { name = "replicate", specifier = "==1.0.4" },
     { name = "requests", extras = ["socks"], specifier = "==2.32.3" },
     { name = "streamlit", specifier = "==1.41.1" },
-    { name = "yt-dlp", extras = ["default"], specifier = "==2024.12.23" },
+    { name = "yt-dlp", extras = ["default"], specifier = "==2025.1.12" },
 ]
 
 [[package]]
@@ -1095,11 +1095,11 @@ wheels = [
 
 [[package]]
 name = "yt-dlp"
-version = "2024.12.23"
+version = "2025.1.12"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/88/ea/f30e5925c5b9109d2f8e47b87bb7e7feac1a6c496b5324deb352c2002cf4/yt_dlp-2024.12.23.tar.gz", hash = "sha256:ac0e72b5a9017ba104b4258546201a7cedc38e8bd20727e0c63b77c829b425e9", size = 2914953 }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/16/69ca019a8346313ea141c24429322d479b28b15e8d7a23af03b0065767f1/yt_dlp-2025.1.12.tar.gz", hash = "sha256:8e7e246e2a5a2cff0a9c13db46844a37a547680702012058c94ec18fce0ca25a", size = 2916928 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/d3/dc656c921f45baaba4d439292194b5be7f48b3558fcc38941aca16fa5afa/yt_dlp-2024.12.23-py3-none-any.whl", hash = "sha256:2fc08a5221a0379628ac4e7324c6c69a95b9fdfa7a7ca3187444b3b7451e38be", size = 3176724 },
+    { url = "https://files.pythonhosted.org/packages/f3/9d/782c67465798478b3f8cf8c72da771e1eb0956e13b820f862b35de66d4a7/yt_dlp-2025.1.12-py3-none-any.whl", hash = "sha256:f7ea19afb64f8e457a1b9598ddb67f8deaa313bf1d57abd5612db9272ab10795", size = 3178322 },
 ]
 
 [package.optional-dependencies]
