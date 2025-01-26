@@ -10,7 +10,7 @@ dependencies = [
     "replicate==1.0.4",
     "requests[socks]==2.32.3",
     "streamlit==1.41.1",
-    "yt-dlp[default]==2025.1.15",
+    "yt-dlp[default]==2025.1.26",
 ]
 
 [tool.mypy]
