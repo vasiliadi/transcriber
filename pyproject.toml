@@ -5,7 +5,7 @@ description = "Transcriber & translator for audio files. Like Otter.ai but free 
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4==4.12.3",
+    "beautifulsoup4==4.13.0",
     "google-genai>=0.3.0",
     "replicate==1.0.4",
     "requests[socks]==2.32.3",
