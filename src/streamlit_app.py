@@ -57,6 +57,10 @@ WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
 WHISPER = "openai/whisper"
 
+# Headers for requests https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
+headers = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+}
 
 # Initialization
 if "mode" not in st.session_state:
@@ -96,6 +100,7 @@ def download(url, mode=st.session_state.mode):
                     url = BeautifulSoup(
                         requests.get(
                             requests.utils.requote_uri(url),
+                            headers=headers,
                             verify=True,
                             timeout=120,
                         ).content,
@@ -103,6 +108,7 @@ def download(url, mode=st.session_state.mode):
                     ).source.get("src")
                 downloaded_file = requests.get(
                     requests.utils.requote_uri(url),
+                    headers=headers,
                     verify=True,
                     timeout=120,
                 )
