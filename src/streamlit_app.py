@@ -108,6 +108,7 @@ def download(url, mode=st.session_state.mode):
                     ).source.get("src")
                 downloaded_file = requests.get(
                     requests.utils.requote_uri(url),
+                    headers=headers,
                     verify=True,
                     timeout=120,
                 )
