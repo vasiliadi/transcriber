@@ -438,7 +438,7 @@ if st.session_state.mode == "Uploaded file":
     data_input = st.file_uploader(
         "Choose a file:",
         # https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/audio-understanding#audio-requirements
-        type=["wav", "mp3", "aiff", "aac", "ogg", "flac", "m4a"],
+        type=["wav", "mp3", "aiff", "aac", "ogg", "flac", "m4a", "mp4"],
     )
 if st.session_state.mode == "YouTube or link to an audio file":
     data_input = st.text_input(
