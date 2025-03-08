@@ -537,7 +537,7 @@ if advanced:
             )
             st.divider()
 
-            def change_state():
+            def change_state_for_ifw():
                 if not st.session_state.diarization:
                     st.session_state.speaker_identification = False
                 if st.session_state.diarization:
@@ -548,7 +548,7 @@ if advanced:
                 value=True,
                 disabled=False,
                 key="diarization",
-                on_change=change_state(),
+                on_change=change_state_for_ifw(),
             )
             st.checkbox(
                 "Enable speaker identification",
@@ -570,7 +570,7 @@ if advanced:
             )
         if st.session_state.model_name == WHISPERX:
 
-            def change_state():
+            def change_state_for_wx():
                 if not st.session_state.diarization:
                     st.session_state.speaker_identification = False
                 if st.session_state.diarization:
@@ -581,7 +581,7 @@ if advanced:
                 value=True,
                 disabled=False,
                 key="diarization",
-                on_change=change_state(),
+                on_change=change_state_for_wx(),
             )
             st.checkbox(
                 "Enable speaker identification",
