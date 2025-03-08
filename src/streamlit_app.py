@@ -56,11 +56,12 @@ CONVERTED_FILE_NAME = "audio.ogg"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
 WHISPER = "openai/whisper"
+WHISPERX = "victor-upmeet/whisperx"
 
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
 }
 
 # Initialization
@@ -183,8 +184,11 @@ def get_latest_prediction_output(sleep_time=10):
 
 
 @st.cache_data(show_spinner=False)
-def detected_num_speakers(transcription):  # for incredibly-fast-whisper only
-    speakers = [i["speaker"] for i in transcription[0:-1]]
+def detected_num_speakers(transcription, model=st.session_state.model_name):
+    if model == INCREDIBLY_FAST_WHISPER:  # for incredibly-fast-whisper only
+        speakers = [i["speaker"] for i in transcription[0:-1]]
+    if model == WHISPERX:
+        speakers = [i["speaker"] for i in transcription["segments"][0:-1]]
     return len(set(speakers))
 
 
@@ -260,7 +264,12 @@ def process_incredibly_fast_whisper(
             st.stop()
 
         transcription = {
-            "num_speakers": detected_num_speakers(transcription) if diarization else 0,
+            "num_speakers": detected_num_speakers(
+                transcription,
+                model=INCREDIBLY_FAST_WHISPER,
+            )
+            if diarization
+            else 0,
             "segments": (
                 process_diarization_for_incredibly_fast_whisper(transcription)
                 if diarization
@@ -291,6 +300,35 @@ def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
         return transcription  # noqa: RET504
 
 
+def process_whisperx(
+    audio_file_name=CONVERTED_FILE_NAME,
+    diarization=st.session_state.diarization,
+):
+    with Path(audio_file_name).open("rb") as audio:
+        try:
+            transcription = replicate_client.run(
+                f"{WHISPERX}:{get_latest_model_version(WHISPERX)}",
+                input={
+                    "audio_file": audio,
+                    "diarization": diarization,
+                    "huggingface_access_token": hf_access_token,
+                },
+            )
+        except httpx.ReadTimeout:
+            transcription = get_latest_prediction_output()
+        except:  # noqa: E722
+            st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
+            st.stop()
+
+        transcription = {
+            "num_speakers": detected_num_speakers(transcription, model=WHISPERX)
+            if diarization
+            else 1,
+            "segments": transcription["segments"],
+        }
+        return transcription  # noqa: RET504
+
+
 def transcribe(model_name=st.session_state.model_name):
     if model_name == WHISPER_DIARIZATION:
         return process_whisper_diarization()
@@ -298,6 +336,8 @@ def transcribe(model_name=st.session_state.model_name):
         return process_incredibly_fast_whisper()
     if model_name == WHISPER:
         return process_whisper()
+    if model_name == WHISPERX:
+        return process_whisperx()
     return None
 
 
@@ -465,8 +505,13 @@ if advanced:
         st.radio(
             label="Select option",
             label_visibility="collapsed",
-            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER],
-            captions=["best for dialogs", "best for speed", "best in accuracy"],
+            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER, WHISPERX],
+            captions=[
+                "best for dialogs",
+                "best for speed",
+                "best in accuracy",
+                "new best for dialogs",
+            ],
             index=0,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
             horizontal=False,
@@ -492,7 +537,7 @@ if advanced:
             )
             st.divider()
 
-            def change_state():
+            def change_state_for_ifw():
                 if not st.session_state.diarization:
                     st.session_state.speaker_identification = False
                 if st.session_state.diarization:
@@ -503,7 +548,7 @@ if advanced:
                 value=True,
                 disabled=False,
                 key="diarization",
-                on_change=change_state(),
+                on_change=change_state_for_ifw(),
             )
             st.checkbox(
                 "Enable speaker identification",
@@ -522,6 +567,27 @@ if advanced:
                 "Enable post-processing",
                 value=True,
                 key="post_processing",
+            )
+        if st.session_state.model_name == WHISPERX:
+
+            def change_state_for_wx():
+                if not st.session_state.diarization:
+                    st.session_state.speaker_identification = False
+                if st.session_state.diarization:
+                    st.session_state.post_processing = False
+
+            st.checkbox(
+                "Enable diarization",
+                value=True,
+                disabled=False,
+                key="diarization",
+                on_change=change_state_for_wx(),
+            )
+            st.checkbox(
+                "Enable speaker identification",
+                value=False,
+                disabled=not st.session_state.diarization,
+                key="speaker_identification",
             )
 
     st.checkbox("Enable Raw JSON download", key="raw_json")
