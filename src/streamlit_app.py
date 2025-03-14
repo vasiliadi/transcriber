@@ -17,7 +17,7 @@ from yt_dlp import YoutubeDL
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "models/gemini-1.5-flash-latest"
+GEMINI_MODEL = "gemini-2.0-flash"
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category="HARM_CATEGORY_HARASSMENT",
