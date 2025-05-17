@@ -113,7 +113,7 @@ Example of `.env` file:
 ```text
 GEMINI_API_KEY="your_api_key"
 REPLICATE_API_TOKEN="your_api_key"
-HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper model with enabled diarization
+HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper and whisperx models with enabled diarization
 PROXY="" # only if you need to use proxy
 ```
 
@@ -136,7 +136,7 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 
 |  | Links |
 | ---|--- |
-| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[Google Gen AI SDK](https://github.com/googleapis/python-genai)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>[openai](https://github.com/openai/openai-python)<br>[pydub](https://github.com/jiaaro/pydub/)<br>[semantic_text_splitter](https://github.com/benbrandt/text-splitter) |
+| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[Google Gen AI SDK](https://github.com/googleapis/python-genai)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>~~[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)~~<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>~~[openai](https://github.com/openai/openai-python)~~<br>~~[pydub](https://github.com/jiaaro/pydub/)~~<br>[semantic_text_splitter](https://github.com/benbrandt/text-splitter) |
 | Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br>[.dockerignore validator](https://dockerignore.vw.codes/)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
