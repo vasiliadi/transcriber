@@ -757,7 +757,7 @@ wheels = [
 
 [[package]]
 name = "replicate"
-version = "1.0.6"
+version = "1.0.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -765,9 +765,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/f2/f498326e91ec1a96735edf7c8eb2091c9bc33ee77f7258eea3cd97cc7491/replicate-1.0.6.tar.gz", hash = "sha256:b8a0f1649ed4146c3d624e22a418b8c6decce9346cffc110c90fde5995c46e60", size = 60792, upload-time = "2025-04-25T16:07:35.08Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/fd/caf6c59a6b8007366bd52ab5a320bf8d828f3860a60039309cfc0e375ec9/replicate-1.0.7.tar.gz", hash = "sha256:d88cb2c37ba39fb370c87fc3291601c67aae64bb918a20a85b5ce399c23ee84c", size = 62226, upload-time = "2025-05-27T11:29:08.111Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/cd/693b9885f5770403ac83024e7d3ec22019069d9c82c4d537eaf17f93fef9/replicate-1.0.6-py3-none-any.whl", hash = "sha256:d544f837dc7e9dc3b3c1df60a145c7d6f362d6719b719793a44a4be28837103d", size = 48233, upload-time = "2025-04-25T16:07:33.513Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/5a/b3aa02a11a33de08e7771579154af3193decfb9d923b30b14c17b4e8bbce/replicate-1.0.7-py3-none-any.whl", hash = "sha256:667c50a9eb83be17de6278ff89483102b3b50f49a2c7fbcaa2e2b14df13816f9", size = 48626, upload-time = "2025-05-27T11:29:06.801Z" },
 ]
 
 [[package]]
@@ -967,7 +967,7 @@ dependencies = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.13.4" },
     { name = "google-genai", specifier = ">=0.3.0" },
-    { name = "replicate", specifier = "==1.0.6" },
+    { name = "replicate", specifier = "==1.0.7" },
     { name = "requests", extras = ["socks"], specifier = "==2.32.3" },
     { name = "streamlit", specifier = "==1.45.1" },
     { name = "yt-dlp", extras = ["default"], specifier = "==2025.5.22" },
