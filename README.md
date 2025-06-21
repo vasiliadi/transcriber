@@ -23,7 +23,7 @@ At least three times cheaper with the same or even better quality of transcripti
 And you pay as you go.
 
 **Translation (summarization is depricated[^1], use [vasiliadi/ai-summarizer-telegram-bot](https://github.com/vasiliadi/ai-summarizer-telegram-bot))**:
-[Gemini 1.5 Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
+[Gemini Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
 
 **Hosting**:
 Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
@@ -44,7 +44,8 @@ I use three models:
 
 [vaibhavs10/incredibly-fast-whisper](https://replicate.com/vaibhavs10/incredibly-fast-whisper) best for speed \
 [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs \
-[openai/whisper](https://replicate.com/openai/whisper) best in accuracy
+[openai/whisper](https://replicate.com/openai/whisper) best in accuracy \
+[victor-upmeet/whisperx](https://replicate.com/victor-upmeet/whisperx) best overall
 
 Same audio 45 minutes (6 speakers) comparison by model
 ![Comparison of processing times by model](model-comparison.png)
@@ -69,9 +70,9 @@ In my tests, I face three main problems:
 
 All this beloongs to very long audio only.
 
-#### Gemini 1.5 Pro/Flash
+#### Gemini Pro/Flash
 
-[Gemini 1.5 Pro/Flash model names and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
+[Gemini Pro/Flash model names and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
 
 > Max output tokens: 8,192
 
