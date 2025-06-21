@@ -17,7 +17,7 @@ from yt_dlp import YoutubeDL
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category="HARM_CATEGORY_HARASSMENT",
@@ -163,6 +163,7 @@ def correct_transcription(
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
                 max_output_tokens=8192,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
         return response.text
@@ -371,6 +372,7 @@ def translate(
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
                 max_output_tokens=8192,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
         if chunks:
@@ -406,6 +408,7 @@ def identify_speakers(transcription):
             safety_settings=SAFETY_SETTINGS,
             response_mime_type="application/json",
             max_output_tokens=8192,
+            thinking_config=types.ThinkingConfig(thinking_budget=-1),
         ),
     )
     return json.loads(names.text)
@@ -520,7 +523,7 @@ if advanced:
         if st.session_state.model_name == WHISPER_DIARIZATION:
             st.checkbox(
                 "Enable speaker identification",
-                value=True,
+                value=False,
                 disabled=False,
                 key="speaker_identification",
             )
@@ -552,7 +555,7 @@ if advanced:
             )
             st.checkbox(
                 "Enable speaker identification",
-                value=True,
+                value=False,
                 disabled=not st.session_state.diarization,
                 key="speaker_identification",
             )
