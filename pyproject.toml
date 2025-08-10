@@ -9,7 +9,7 @@ dependencies = [
     "google-genai>=0.3.0",
     "replicate==1.0.7",
     "requests[socks]==2.32.4",
-    "streamlit==1.47.1",
+    "streamlit==1.48.0",
     "yt-dlp[default]==2025.7.21",
 ]
 
