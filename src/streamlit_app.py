@@ -55,13 +55,13 @@ AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
-WHISPER = "openai/whisper"
+OPENAI = "openai/gpt-4o-transcribe"
 WHISPERX = "victor-upmeet/whisperx"
 
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
 }
 
 # Initialization
@@ -69,7 +69,6 @@ if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
     st.session_state.language = None
     st.session_state.model_name = WHISPER_DIARIZATION
-    st.session_state.model_name_variant = INCREDIBLY_FAST_WHISPER
     st.session_state.post_processing = True
     st.session_state.diarization = True
     st.session_state.speaker_identification = True
@@ -244,13 +243,12 @@ def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
 def process_incredibly_fast_whisper(
     audio_file_name=CONVERTED_FILE_NAME,
     diarization=st.session_state.diarization,
-    variant=st.session_state.model_name_variant,
     post_processing=st.session_state.post_processing,
 ):
     with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
-                f"{variant}:{get_latest_model_version(variant)}",
+                f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                 input={
                     "audio": audio,
                     "hf_token": hf_access_token,
@@ -283,19 +281,19 @@ def process_incredibly_fast_whisper(
         return transcription  # noqa: RET504
 
 
-def process_whisper(audio_file_name=CONVERTED_FILE_NAME):
+def process_openai(audio_file_name=CONVERTED_FILE_NAME):
     with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
-                f"{WHISPER}:{get_latest_model_version(WHISPER)}",
-                input={"audio": audio},
+                f"{OPENAI}",
+                input={"audio_file": audio},
             )
         except httpx.ReadTimeout:
             transcription = get_latest_prediction_output()
 
         transcription = {
             "num_speakers": 0,
-            "segments": correct_transcription(transcription["transcription"]),
+            "segments": correct_transcription("".join(transcription)),
         }
 
         return transcription  # noqa: RET504
@@ -335,8 +333,8 @@ def transcribe(model_name=st.session_state.model_name):
         return process_whisper_diarization()
     if model_name == INCREDIBLY_FAST_WHISPER:
         return process_incredibly_fast_whisper()
-    if model_name == WHISPER:
-        return process_whisper()
+    if model_name == OPENAI:
+        return process_openai()
     if model_name == WHISPERX:
         return process_whisperx()
     return None
@@ -508,7 +506,7 @@ if advanced:
         st.radio(
             label="Select option",
             label_visibility="collapsed",
-            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, WHISPER, WHISPERX],
+            options=[WHISPER_DIARIZATION, INCREDIBLY_FAST_WHISPER, OPENAI, WHISPERX],
             captions=[
                 "best for dialogs",
                 "best for speed",
@@ -528,17 +526,6 @@ if advanced:
                 key="speaker_identification",
             )
         if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
-            st.radio(
-                label="Model version",
-                captions=["best for speed", "best for fast diarization"],
-                options=[
-                    "vaibhavs10/incredibly-fast-whisper",
-                    "nicknaskida/incredibly-fast-whisper",
-                ],
-                index=0,
-                key="model_name_variant",
-            )
-            st.divider()
 
             def change_state_for_ifw():
                 if not st.session_state.diarization:
@@ -565,7 +552,7 @@ if advanced:
                 disabled=st.session_state.diarization,
                 key="post_processing",
             )
-        if st.session_state.model_name == WHISPER:
+        if st.session_state.model_name == OPENAI:
             st.checkbox(
                 "Enable post-processing",
                 value=True,
