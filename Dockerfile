@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -fsSL https://deno.land/install.sh | sh
 # RUN useradd -r -u 999 app --shell /bin/false \
 #     && chown -R app:app /app
