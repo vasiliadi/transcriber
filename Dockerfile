@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:/root/.deno/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -fsSL https://deno.land/install.sh | sh
 # RUN useradd -r -u 999 app --shell /bin/false \
 #     && chown -R app:app /app
 # USER app
