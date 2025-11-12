@@ -40,14 +40,14 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 
 [Run Whisper model on Replicate](https://replicate.com/openai/whisper) much cheaper than using [OpenAI API for Whisper](https://openai.com/pricing).
 
-I use three models:
+I use four models:
 
 [vaibhavs10/incredibly-fast-whisper](https://replicate.com/vaibhavs10/incredibly-fast-whisper) best for speed \
 [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs \
-[openai/whisper](https://replicate.com/openai/whisper) best in accuracy \
+[openai/gpt-4o-transcribe](https://replicate.com/openai/gpt-4o-transcribe) best in accuracy \
 [victor-upmeet/whisperx](https://replicate.com/victor-upmeet/whisperx) best overall
 
-Same audio 45 minutes (6 speakers) comparison by model
+Same audio 45 minutes (6 speakers) comparison by model (example)
 ![Comparison of processing times by model](model-comparison.png)
 
 ### Limitations
