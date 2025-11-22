@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-node@v6.0.0
         with:
           node-version: "24"
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v5.0.1
         with:
           fetch-depth: 0
       - uses: di-sukharev/opencommit@4e25f1460af4747fba99415afec991f3dfe8444f # github-action-v1.0.4
