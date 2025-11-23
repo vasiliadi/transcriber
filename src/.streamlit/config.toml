@@ -5,4 +5,4 @@ disableWidgetStateDuplicationWarning = true
 gatherUsageStats = false
 
 [server]
-maxUploadSize = 1024
+maxUploadSize = 2048
