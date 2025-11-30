@@ -1,7 +1,7 @@
 // With Microsoft image and features
 {
 	"name": "transcriber msdev container",	
-	"image": "mcr.microsoft.com/devcontainers/python:2-3.12-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/python:3-3.12-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers-contrib/features/ffmpeg-apt-get:1": {}
