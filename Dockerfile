@@ -9,8 +9,7 @@ RUN uv sync \
     --frozen \
     --no-dev \
     --compile-bytecode \
-    --python-preference only-system \
-    && rm -f pyproject.toml uv.lock
+    --python-preference only-system
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpeg \
     curl \
