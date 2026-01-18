@@ -369,7 +369,6 @@ def translate(
                     """).strip(),
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                max_output_tokens=8192,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
