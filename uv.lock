@@ -131,11 +131,11 @@ wheels = [
 
 [[package]]
 name = "cachetools"
-version = "6.2.4"
+version = "6.2.5"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/bc/1d/ede8680603f6016887c062a2cf4fc8fdba905866a3ab8831aa8aa651320c/cachetools-6.2.4.tar.gz", hash = "sha256:82c5c05585e70b6ba2d3ae09ea60b79548872185d2f24ae1f2709d37299fd607", size = 31731, upload-time = "2025-12-15T18:24:53.744Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/e7/18ea2907d2ca91e9c0697596b8e60cd485b091152eb4109fad1e468e457d/cachetools-6.2.5.tar.gz", hash = "sha256:6d8bfbba1ba94412fb9d9196c4da7a87e9d4928fffc5e93542965dca4740c77f", size = 32168, upload-time = "2026-01-25T14:57:40.349Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2c/fc/1d7b80d0eb7b714984ce40efc78859c022cd930e402f599d8ca9e39c78a4/cachetools-6.2.4-py3-none-any.whl", hash = "sha256:69a7a52634fed8b8bf6e24a050fb60bff1c9bd8f6d24572b99c32d4e71e62a51", size = 11551, upload-time = "2025-12-15T18:24:52.332Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/a6/24169d70ec5264b65ba54ba49b3d10f46d6b1ad97e185c94556539b3dfc8/cachetools-6.2.5-py3-none-any.whl", hash = "sha256:db3ae5465e90befb7c74720dd9308d77a09b7cf13433570e07caa0845c30d5fe", size = 11553, upload-time = "2026-01-25T14:57:39.112Z" },
 ]
 
 [[package]]
@@ -335,7 +335,7 @@ requests = [
 
 [[package]]
 name = "google-genai"
-version = "1.59.0"
+version = "1.60.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -349,9 +349,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/40/34/c03bcbc759d67ac3d96077838cdc1eac85417de6ea3b65b313fe53043eee/google_genai-1.59.0.tar.gz", hash = "sha256:0b7a2dc24582850ae57294209d8dfc2c4f5fcfde0a3f11d81dc5aca75fb619e2", size = 487374, upload-time = "2026-01-15T20:29:46.619Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/3f/a753be0dcee352b7d63bc6d1ba14a72591d63b6391dac0cdff7ac168c530/google_genai-1.60.0.tar.gz", hash = "sha256:9768061775fddfaecfefb0d6d7a6cabefb3952ebd246cd5f65247151c07d33d1", size = 487721, upload-time = "2026-01-21T22:17:30.398Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/53/6d00692fe50d73409b3406ae90c71bc4499c8ae7fac377ba16e283da917c/google_genai-1.59.0-py3-none-any.whl", hash = "sha256:59fc01a225d074fe9d1e626c3433da292f33249dadce4deb34edea698305a6df", size = 719099, upload-time = "2026-01-15T20:29:44.604Z" },
+    { url = "https://files.pythonhosted.org/packages/31/e5/384b1f383917b5f0ae92e28f47bc27b16e3d26cd9bacb25e9f8ecab3c8fe/google_genai-1.60.0-py3-none-any.whl", hash = "sha256:967338378ffecebec19a8ed90cf8797b26818bacbefd7846a9280beb1099f7f3", size = 719431, upload-time = "2026-01-21T22:17:28.086Z" },
 ]
 
 [[package]]
@@ -583,11 +583,11 @@ wheels = [
 
 [[package]]
 name = "packaging"
-version = "25.0"
+version = "26.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727, upload-time = "2025-04-19T11:48:59.673Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/65/ee/299d360cdc32edc7d2cf530f3accf79c4fca01e96ffc950d8a52213bd8e4/packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4", size = 143416, upload-time = "2026-01-21T20:50:39.064Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469, upload-time = "2025-04-19T11:48:57.875Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/b9/c538f279a4e237a006a2c98387d081e9eb060d203d8ed34467cc0f0b9b53/packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529", size = 74366, upload-time = "2026-01-21T20:50:37.788Z" },
 ]
 
 [[package]]
@@ -787,11 +787,11 @@ wheels = [
 
 [[package]]
 name = "pycparser"
-version = "2.23"
+version = "3.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fe/cf/d2d3b9f5699fb1e4615c8e32ff220203e43b248e1dfcc6736ad9057731ca/pycparser-2.23.tar.gz", hash = "sha256:78816d4f24add8f10a06d6f05b4d424ad9e96cfebf68a4ddc99c65c0720d00c2", size = 173734, upload-time = "2025-09-09T13:23:47.91Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/7d/92392ff7815c21062bea51aa7b87d45576f649f16458d78b7cf94b9ab2e6/pycparser-3.0.tar.gz", hash = "sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29", size = 103492, upload-time = "2026-01-21T14:26:51.89Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/e3/59cd50310fc9b59512193629e1984c1f95e5c8ae6e5d8c69532ccc65a7fe/pycparser-2.23-py3-none-any.whl", hash = "sha256:e5c6e8d3fbad53479cab09ac03729e0a9faf2bee3db8208a550daf5af81a5934", size = 118140, upload-time = "2025-09-09T13:23:46.651Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl", hash = "sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992", size = 48172, upload-time = "2026-01-21T14:26:50.693Z" },
 ]
 
 [[package]]
@@ -1124,11 +1124,11 @@ wheels = [
 
 [[package]]
 name = "soupsieve"
-version = "2.8.2"
+version = "2.8.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/93/f2/21d6ca70c3cf35d01ae9e01be534bf6b6b103c157a728082a5028350c310/soupsieve-2.8.2.tar.gz", hash = "sha256:78a66b0fdee2ab40b7199dc3e747ee6c6e231899feeaae0b9b98a353afd48fd8", size = 118601, upload-time = "2026-01-18T16:21:31.09Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/ae/2d9c981590ed9999a0d91755b47fc74f74de286b0f5cee14c9269041e6c4/soupsieve-2.8.3.tar.gz", hash = "sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349", size = 118627, upload-time = "2026-01-20T04:27:02.457Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/9a/b4450ccce353e2430621b3bb571899ffe1033d5cd72c9e065110f95b1a63/soupsieve-2.8.2-py3-none-any.whl", hash = "sha256:0f4c2f6b5a5fb97a641cf69c0bd163670a0e45e6d6c01a2107f93a6a6f93c51a", size = 37016, upload-time = "2026-01-18T16:21:29.7Z" },
+    { url = "https://files.pythonhosted.org/packages/46/2c/1462b1d0a634697ae9e55b3cecdcb64788e8b7d63f54d923fcd0bb140aed/soupsieve-2.8.3-py3-none-any.whl", hash = "sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95", size = 37016, upload-time = "2026-01-20T04:27:01.012Z" },
 ]
 
 [[package]]
