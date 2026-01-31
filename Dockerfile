@@ -1,6 +1,5 @@
 FROM python:3.12-slim
-ENV PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:/root/.deno/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
 EXPOSE 8080
 WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
