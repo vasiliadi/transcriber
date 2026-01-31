@@ -1,6 +1,6 @@
 [project]
 name = "transcriber"
-version = "0.4.3"
+version = "0.4.4"
 description = "Transcriber & translator for audio files. Like Otter.ai but free and build with Gemini AI"
 readme = "README.md"
 requires-python = ">=3.12"
