@@ -13,9 +13,6 @@ RUN uv sync \
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpeg \
     curl \
-    unzip \
-    && set -o pipefail && curl -fsSL https://deno.land/install.sh | sh \
-    && apt-get purge -y unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 # RUN useradd -r -u 999 app --shell /bin/false \

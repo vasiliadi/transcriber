@@ -336,6 +336,19 @@ wheels = [
 ]
 
 [[package]]
+name = "deno"
+version = "2.6.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/12/dc/e96ae53193cf10d6b160e7a1586b4f86dc7a40539adb74dd60150af5f90f/deno-2.6.7.tar.gz", hash = "sha256:3ae9773c0b22f74f8adf9c62b751fb755875cebf3782a8534051fe454adeaa4f", size = 8127, upload-time = "2026-01-29T14:15:31.512Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/45/9fec3258206dc0b112cceb1b8909beaba034f9bff9cde02b560aea4896b3/deno-2.6.7-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:9f262184c898ab3a1b26149f2bfbec4f7bfd55752b0c87cab52f9752405cb73c", size = 44274025, upload-time = "2026-01-29T14:15:15.906Z" },
+    { url = "https://files.pythonhosted.org/packages/69/64/7378b81887096abaafd2b14246da3c26493a3ca1c36d97b3554e889f2a40/deno-2.6.7-py3-none-macosx_11_0_arm64.whl", hash = "sha256:edd156253f0fec31c879f7341246356136c09dee20f67f4cdcaca22ab04a6612", size = 41449770, upload-time = "2026-01-29T14:15:19.069Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/ac/8c7de80f5c960dd02aaa59b68d7658f53b19e4e54372b0152fff429f5666/deno-2.6.7-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8d54eecdedef65b2125ea5c195b89c1aa04aa1177359b3e9806d5889b1093346", size = 45314062, upload-time = "2026-01-29T14:15:21.789Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/57/37c8827275df54defb5fcf134237b6cc720f6744f4a52df566420142e9f4/deno-2.6.7-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:350d337b39dd1daf8ae278f5891ae043273312cf04fa9880fa0eb20623e09074", size = 47220866, upload-time = "2026-01-29T14:15:24.586Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/5a/52ef4f68d7da5d5b56738b81bce228dc7773af6116c8eadedc1fcd57e7d4/deno-2.6.7-py3-none-win_amd64.whl", hash = "sha256:8d9d4b00eb1ac0705603ba3e7d73ba104ec2d1a6ac970310b80e974fb3024300", size = 46110742, upload-time = "2026-01-29T14:15:27.529Z" },
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1261,7 +1274,7 @@ dependencies = [
     { name = "replicate" },
     { name = "requests", extra = ["socks"] },
     { name = "streamlit" },
-    { name = "yt-dlp", extra = ["default"] },
+    { name = "yt-dlp", extra = ["default", "deno"] },
 ]
 
 [package.metadata]
@@ -1271,7 +1284,7 @@ requires-dist = [
     { name = "replicate", specifier = "==1.0.7" },
     { name = "requests", extras = ["socks"], specifier = "==2.32.5" },
     { name = "streamlit", specifier = "==1.53.1" },
-    { name = "yt-dlp", extras = ["default"], specifier = "==2026.1.29" },
+    { name = "yt-dlp", extras = ["default", "deno"], specifier = "==2026.1.29" },
 ]
 
 [[package]]
@@ -1382,6 +1395,9 @@ default = [
     { name = "urllib3" },
     { name = "websockets" },
     { name = "yt-dlp-ejs" },
+]
+deno = [
+    { name = "deno" },
 ]
 
 [[package]]
