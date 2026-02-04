@@ -404,7 +404,6 @@ def identify_speakers(transcription):
             system_instruction=None,
             safety_settings=SAFETY_SETTINGS,
             response_mime_type="application/json",
-            max_output_tokens=8192,
             thinking_config=types.ThinkingConfig(thinking_budget=-1),
         ),
     )
