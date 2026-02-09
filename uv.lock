@@ -337,15 +337,15 @@ wheels = [
 
 [[package]]
 name = "deno"
-version = "2.6.7"
+version = "2.6.8"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/12/dc/e96ae53193cf10d6b160e7a1586b4f86dc7a40539adb74dd60150af5f90f/deno-2.6.7.tar.gz", hash = "sha256:3ae9773c0b22f74f8adf9c62b751fb755875cebf3782a8534051fe454adeaa4f", size = 8127, upload-time = "2026-01-29T14:15:31.512Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/5c/ba3171b42741d1ede4517f73b2a13f07a1828b5a616b086111a01821b0ce/deno-2.6.8.tar.gz", hash = "sha256:dd9e432c67f3d2f1a110d898612dccd7efc51a9486f8466a5fc482b8212d8e19", size = 8129, upload-time = "2026-02-02T18:06:29.122Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c1/45/9fec3258206dc0b112cceb1b8909beaba034f9bff9cde02b560aea4896b3/deno-2.6.7-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:9f262184c898ab3a1b26149f2bfbec4f7bfd55752b0c87cab52f9752405cb73c", size = 44274025, upload-time = "2026-01-29T14:15:15.906Z" },
-    { url = "https://files.pythonhosted.org/packages/69/64/7378b81887096abaafd2b14246da3c26493a3ca1c36d97b3554e889f2a40/deno-2.6.7-py3-none-macosx_11_0_arm64.whl", hash = "sha256:edd156253f0fec31c879f7341246356136c09dee20f67f4cdcaca22ab04a6612", size = 41449770, upload-time = "2026-01-29T14:15:19.069Z" },
-    { url = "https://files.pythonhosted.org/packages/9a/ac/8c7de80f5c960dd02aaa59b68d7658f53b19e4e54372b0152fff429f5666/deno-2.6.7-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8d54eecdedef65b2125ea5c195b89c1aa04aa1177359b3e9806d5889b1093346", size = 45314062, upload-time = "2026-01-29T14:15:21.789Z" },
-    { url = "https://files.pythonhosted.org/packages/c2/57/37c8827275df54defb5fcf134237b6cc720f6744f4a52df566420142e9f4/deno-2.6.7-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:350d337b39dd1daf8ae278f5891ae043273312cf04fa9880fa0eb20623e09074", size = 47220866, upload-time = "2026-01-29T14:15:24.586Z" },
-    { url = "https://files.pythonhosted.org/packages/b9/5a/52ef4f68d7da5d5b56738b81bce228dc7773af6116c8eadedc1fcd57e7d4/deno-2.6.7-py3-none-win_amd64.whl", hash = "sha256:8d9d4b00eb1ac0705603ba3e7d73ba104ec2d1a6ac970310b80e974fb3024300", size = 46110742, upload-time = "2026-01-29T14:15:27.529Z" },
+    { url = "https://files.pythonhosted.org/packages/56/9a/43c7bb102fe58b1318abe00b557c3dfa2f9a9d79f0cd3d9028b6bf8b9637/deno-2.6.8-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:078ef3d2a30bcaba91e246f730baddebf1e0e5249adfbfa1b0e169118a41faa5", size = 44303226, upload-time = "2026-02-02T18:06:13.277Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/65/fc7c99a0f60fe617eb5a533e37a1cd777f81c03b06b6766d0f52c92e94a8/deno-2.6.8-py3-none-macosx_11_0_arm64.whl", hash = "sha256:0c18549037ef7bc856cf3889df424f43810a0b830c0ffc799d8d951a4da5a033", size = 41472003, upload-time = "2026-02-02T18:06:16.735Z" },
+    { url = "https://files.pythonhosted.org/packages/da/4b/617ba0f2e8523c2145e612f4ef610afa231186ba1a860ce2c92c382c3e46/deno-2.6.8-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:332e33ca62bd416cea002a1e50af1c2843d84771e015bfffecdc0d44342eb0eb", size = 45335676, upload-time = "2026-02-02T18:06:19.975Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/18/5b0af1fb4f52775b58fae4b6a7f0e12f45cf1435e63a0f6af1a8a87d3595/deno-2.6.8-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:2c31bda6da38f9130ef796a9298642b2ca5525420033c74c8b6bbac9d1ab35b0", size = 47240835, upload-time = "2026-02-02T18:06:22.715Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/e8/defc9de7c0991bfb3c6d3e2a6a5d344fd0022ebe114743af483ff718609b/deno-2.6.8-py3-none-win_amd64.whl", hash = "sha256:dc7d517d8cd0cf43d55e3c8dbd2bbd911dc875cfc116982d882c9aa22f48863f", size = 46136023, upload-time = "2026-02-02T18:06:26.665Z" },
 ]
 
 [[package]]
@@ -402,7 +402,7 @@ requests = [
 
 [[package]]
 name = "google-genai"
-version = "1.61.0"
+version = "1.62.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -416,9 +416,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/38/421cd7e70952a536be87a0249409f87297d84f523754a25b08fe94b97e7f/google_genai-1.61.0.tar.gz", hash = "sha256:5773a4e8ad5b2ebcd54a633a67d8e9c4f413032fef07977ee47ffa34a6d3bbdf", size = 489672, upload-time = "2026-01-30T20:50:27.177Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/4c/71b32b5c8db420cf2fd0d5ef8a672adbde97d85e5d44a0b4fca712264ef1/google_genai-1.62.0.tar.gz", hash = "sha256:709468a14c739a080bc240a4f3191df597bf64485b1ca3728e0fb67517774c18", size = 490888, upload-time = "2026-02-04T22:48:41.989Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0e/87/78dd70cb59f7acf3350f53c5144a7aa7bc39c6f425cd7dc1224b59fcdac3/google_genai-1.61.0-py3-none-any.whl", hash = "sha256:cb073ef8287581476c1c3f4d8e735426ee34478e500a56deef218fa93071e3ca", size = 721948, upload-time = "2026-01-30T20:50:25.551Z" },
+    { url = "https://files.pythonhosted.org/packages/09/5f/4645d8a28c6e431d0dd6011003a852563f3da7037d36af53154925b099fd/google_genai-1.62.0-py3-none-any.whl", hash = "sha256:4c3daeff3d05fafee4b9a1a31f9c07f01bc22051081aa58b4d61f58d16d1bcc0", size = 724166, upload-time = "2026-02-04T22:48:39.956Z" },
 ]
 
 [[package]]
@@ -580,11 +580,11 @@ wheels = [
 
 [[package]]
 name = "narwhals"
-version = "2.15.0"
+version = "2.16.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/47/6d/b57c64e5038a8cf071bce391bb11551657a74558877ac961e7fa905ece27/narwhals-2.15.0.tar.gz", hash = "sha256:a9585975b99d95084268445a1fdd881311fa26ef1caa18020d959d5b2ff9a965", size = 603479, upload-time = "2026-01-06T08:10:13.27Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/6f/713be67779028d482c6e0f2dde5bc430021b2578a4808c1c9f6d7ad48257/narwhals-2.16.0.tar.gz", hash = "sha256:155bb45132b370941ba0396d123cf9ed192bf25f39c4cea726f2da422ca4e145", size = 618268, upload-time = "2026-02-02T10:31:00.545Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3d/2e/cf2ffeb386ac3763526151163ad7da9f1b586aac96d2b4f7de1eaebf0c61/narwhals-2.15.0-py3-none-any.whl", hash = "sha256:cbfe21ca19d260d9fd67f995ec75c44592d1f106933b03ddd375df7ac841f9d6", size = 432856, upload-time = "2026-01-06T08:10:11.511Z" },
+    { url = "https://files.pythonhosted.org/packages/03/cc/7cb74758e6df95e0c4e1253f203b6dd7f348bf2f29cf89e9210a2416d535/narwhals-2.16.0-py3-none-any.whl", hash = "sha256:846f1fd7093ac69d63526e50732033e86c30ea0026a44d9b23991010c7d1485d", size = 443951, upload-time = "2026-02-02T10:30:58.635Z" },
 ]
 
 [[package]]
@@ -1229,11 +1229,11 @@ wheels = [
 
 [[package]]
 name = "tenacity"
-version = "9.1.2"
+version = "9.1.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/0a/d4/2b0cd0fe285e14b36db076e78c93766ff1d529d70408bd1d2a5a84f1d929/tenacity-9.1.2.tar.gz", hash = "sha256:1169d376c297e7de388d18b4481760d478b0e99a777cad3a9c86e556f4b697cb", size = 48036, upload-time = "2025-04-02T08:25:09.966Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/c6/ee486fd809e357697ee8a44d3d69222b344920433d3b6666ccd9b374630c/tenacity-9.1.4.tar.gz", hash = "sha256:adb31d4c263f2bd041081ab33b498309a57c77f9acf2db65aadf0898179cf93a", size = 49413, upload-time = "2026-02-07T10:45:33.841Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/30/643397144bfbfec6f6ef821f36f33e57d35946c44a2352d3c9f0ae847619/tenacity-9.1.2-py3-none-any.whl", hash = "sha256:f77bf36710d8b73a50b2dd155c97b870017ad21afe6ab300326b0371b3b05138", size = 28248, upload-time = "2025-04-02T08:25:07.678Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/c1/eb8f9debc45d3b7918a32ab756658a0904732f75e555402972246b0b8e71/tenacity-9.1.4-py3-none-any.whl", hash = "sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55", size = 28926, upload-time = "2026-02-07T10:45:32.24Z" },
 ]
 
 [[package]]
