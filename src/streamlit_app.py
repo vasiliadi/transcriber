@@ -48,7 +48,7 @@ replicate_client = replicate.Client(
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
 # Proxy config
-proxy = os.environ.get["PROXY"]
+proxy = os.environ.get("PROXY")
 
 # Constants
 AUDIO_FILE_NAME = "audio.mp3"
