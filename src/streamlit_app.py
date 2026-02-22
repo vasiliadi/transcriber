@@ -48,7 +48,7 @@ replicate_client = replicate.Client(
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
 # Proxy config
-proxy = os.environ["PROXY"]
+proxy = os.environ.get["PROXY"]
 
 # Constants
 AUDIO_FILE_NAME = "audio.mp3"
@@ -61,7 +61,7 @@ WHISPERX = "victor-upmeet/whisperx"
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
 }
 
 # Initialization
@@ -161,7 +161,6 @@ def correct_transcription(
                 system_instruction=None,
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                max_output_tokens=8192,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
