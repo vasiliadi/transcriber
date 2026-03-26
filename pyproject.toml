@@ -8,7 +8,7 @@ dependencies = [
     "beautifulsoup4==4.14.3",
     "google-genai>=0.3.0",
     "replicate==1.0.7",
-    "requests[socks]==2.32.5",
+    "requests[socks]==2.33.0",
     "streamlit==1.55.0",
     "yt-dlp[default,deno]==2026.3.17",
 ]
