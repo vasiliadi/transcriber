@@ -170,6 +170,7 @@ cython_debug/
 # Local
 temp
 .DS_Store
+.envrc
 
 # Zed
 .zed/

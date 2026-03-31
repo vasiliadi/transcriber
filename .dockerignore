@@ -29,3 +29,4 @@ temp/
 src/.streamlit/secrets.toml
 .venv/**/*
 .venv/
+**/.envrc
