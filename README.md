@@ -142,8 +142,9 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
 | uv | [uv pip](https://docs.astral.sh/uv/reference/cli/#uv-pip) |
+| pixi | [pixi](https://pixi.prefix.dev/latest/) |
 | direnv | [direnv](https://direnv.net/) |
-| Universal AI context generator | [codesight](https://github.com/Houseofmvps/codesight) |
+| AI | [codesight](https://github.com/Houseofmvps/codesight) |
 
 ### Deploy
 
