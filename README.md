@@ -143,6 +143,7 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
 | uv | [uv pip](https://docs.astral.sh/uv/reference/cli/#uv-pip) |
 | direnv | [direnv](https://direnv.net/) |
+| Universal AI context generator | [codesight](https://github.com/Houseofmvps/codesight) |
 
 ### Deploy
 
