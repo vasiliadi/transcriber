@@ -179,3 +179,7 @@ temp
 audio.mp3
 audio.ogg
 speech.mp3
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml
