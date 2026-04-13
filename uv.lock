@@ -365,15 +365,15 @@ wheels = [
 
 [[package]]
 name = "deno"
-version = "2.7.11"
+version = "2.7.12"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d7/3f/a0477c72b847c0082ceb8885261eb14fb4addde22e8fb0146c011636979b/deno-2.7.11.tar.gz", hash = "sha256:342a656fca446fadc261ed22af35693b6c34e79129fa2bd387a1e5d39f496a99", size = 8167, upload-time = "2026-04-01T12:48:16.673Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/ac/39b45b51e7aaf9cad1de36f91bd58677818a7d7a867fa0721faff43b67c4/deno-2.7.12.tar.gz", hash = "sha256:7ef413693b4a9d86837a6f4991738429908f6f42f6f3ed85254ab0e679438049", size = 8167, upload-time = "2026-04-09T20:39:50.505Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/64/c8cb5a9c50135ada59b412b7511852d551d2618e169f48a8e7b8e90a382a/deno-2.7.11-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:76aa633656b07f64cfda3aa94a1e16bc123034ba2fe676d23b179f8326728534", size = 47857669, upload-time = "2026-04-01T12:48:01.947Z" },
-    { url = "https://files.pythonhosted.org/packages/27/f3/250216e71e21cfc291ff6eb6503a479410ff927c9f97ebb644463c620692/deno-2.7.11-py3-none-macosx_11_0_arm64.whl", hash = "sha256:a1dd1ceb0c2109b54334a621503e5297d473f5c3e6702992dfa68d9b7cdf1177", size = 44607869, upload-time = "2026-04-01T12:48:05.23Z" },
-    { url = "https://files.pythonhosted.org/packages/01/51/b8fcb7d6882d659abd678f48fc5bc89aa0aa10f5a399fca3823680f277ca/deno-2.7.11-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:56578808c891d1daeadc279ac73445a24a83c2c721b37016fd92b1aa9224979b", size = 48394760, upload-time = "2026-04-01T12:48:08.049Z" },
-    { url = "https://files.pythonhosted.org/packages/a0/18/91d1ceb2e15b4446fcecdf4be17ed59b02f5b35d8c98c94e7eaadf10591e/deno-2.7.11-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:58eea29d18fe8f80f2a4354d96225a31961ed3fa68336a7fcdd6add331df6acd", size = 50418090, upload-time = "2026-04-01T12:48:10.84Z" },
-    { url = "https://files.pythonhosted.org/packages/b6/8d/7a801d85a0a8233d00ea1a381fd32e76c81be9db78ada162e211e7619221/deno-2.7.11-py3-none-win_amd64.whl", hash = "sha256:e2b69676e52543153b82e926f558983f9251db2251474f3225301cf7aca05a2b", size = 49417475, upload-time = "2026-04-01T12:48:14.158Z" },
+    { url = "https://files.pythonhosted.org/packages/77/f0/0be717182294e9b61e58cd89b88d1b711c7e9c134e53890474b8d1e95704/deno-2.7.12-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:74677d1be23426b1f16ce33c1a96868bc7554e1d41a12fb4d446017bb1955d1d", size = 47683364, upload-time = "2026-04-09T20:39:35.086Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/44/ca1de5368b193c9819c57d505ff8ceb86dc38e2e87856b23c23b58abd234/deno-2.7.12-py3-none-macosx_11_0_arm64.whl", hash = "sha256:acf94fa815ac84a948b196f53a7e088ed126ec2e390a25d92cdfdc8c5d8a851e", size = 44460697, upload-time = "2026-04-09T20:39:38.5Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/68/ce111604f5877220e53fb10c5180ffaa484f829f20fcbc7f7115a90afadd/deno-2.7.12-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:ab7c12ee0e10cd232dbb8f7cf5802bfdbcc3462c0b1453726b158d8a27d4185f", size = 48237362, upload-time = "2026-04-09T20:39:41.555Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/07/d8ba3284e098128076cd9f84e85d2e62d12fa1e5b8e5c47681983017af1a/deno-2.7.12-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:b396675fef296530c386387990d26d118398452bac47541e739b353b9ff8809f", size = 50247653, upload-time = "2026-04-09T20:39:44.956Z" },
+    { url = "https://files.pythonhosted.org/packages/07/b0/c6c215eca2aa54b700a95867901832245518b2f217edfc78e733401bf8b3/deno-2.7.12-py3-none-win_amd64.whl", hash = "sha256:ddeeb03427d7ce0979a395ae2d1aa5ebcddeb97ab0fd9e7dfa56a08e0e5b817c", size = 49200604, upload-time = "2026-04-09T20:39:48.218Z" },
 ]
 
 [[package]]
@@ -411,15 +411,15 @@ wheels = [
 
 [[package]]
 name = "google-auth"
-version = "2.49.1"
+version = "2.49.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
     { name = "pyasn1-modules" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ea/80/6a696a07d3d3b0a92488933532f03dbefa4a24ab80fb231395b9a2a1be77/google_auth-2.49.1.tar.gz", hash = "sha256:16d40da1c3c5a0533f57d268fe72e0ebb0ae1cc3b567024122651c045d879b64", size = 333825, upload-time = "2026-03-12T19:30:58.135Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c6/fc/e925290a1ad95c975c459e2df070fac2b90954e13a0370ac505dff78cb99/google_auth-2.49.2.tar.gz", hash = "sha256:c1ae38500e73065dcae57355adb6278cf8b5c8e391994ae9cbadbcb9631ab409", size = 333958, upload-time = "2026-04-10T00:41:21.888Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/eb/c6c2478d8a8d633460be40e2a8a6f8f429171997a35a96f81d3b680dec83/google_auth-2.49.1-py3-none-any.whl", hash = "sha256:195ebe3dca18eddd1b3db5edc5189b76c13e96f29e73043b923ebcf3f1a860f7", size = 240737, upload-time = "2026-03-12T19:30:53.159Z" },
+    { url = "https://files.pythonhosted.org/packages/73/76/d241a5c927433420507215df6cac1b1fa4ac0ba7a794df42a84326c68da8/google_auth-2.49.2-py3-none-any.whl", hash = "sha256:c2720924dfc82dedb962c9f52cabb2ab16714fd0a6a707e40561d217574ed6d5", size = 240638, upload-time = "2026-04-10T00:41:14.501Z" },
 ]
 
 [package.optional-dependencies]
@@ -429,7 +429,7 @@ requests = [
 
 [[package]]
 name = "google-genai"
-version = "1.70.0"
+version = "1.72.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -443,9 +443,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/74/dd/28e4682904b183acbfad3fe6409f13a42f69bb8eab6e882d3bcbea1dde01/google_genai-1.70.0.tar.gz", hash = "sha256:36b67b0fc6f319e08d1f1efd808b790107b1809c8743a05d55dfcf9d9fad7719", size = 519550, upload-time = "2026-04-01T10:52:46.487Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/20/2aff5ea3cd7459f85101d119c136d9ca4369fcda3dcf0cfee89b305611a4/google_genai-1.72.0.tar.gz", hash = "sha256:abe7d3aecfafb464b904e3a09c81b626fb425e160e123e71a5125a7021cea7b2", size = 522844, upload-time = "2026-04-09T21:35:46.283Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/36/a3/d4564c8a9beaf6a3cef8d70fa6354318572cebfee65db4f01af0d41f45ba/google_genai-1.70.0-py3-none-any.whl", hash = "sha256:b74c24549d8b4208f4c736fd11857374788e1ffffc725de45d706e35c97fceee", size = 760584, upload-time = "2026-04-01T10:52:44.349Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/3d/9f70246114cdf56a2615a40428ced08bc844f5a26247fe812b2f0dd4eaca/google_genai-1.72.0-py3-none-any.whl", hash = "sha256:ea861e4c6946e3185c24b40d95503e088fc230a73a71fec0ef78164b369a8489", size = 764230, upload-time = "2026-04-09T21:35:44.587Z" },
 ]
 
 [[package]]
@@ -607,11 +607,11 @@ wheels = [
 
 [[package]]
 name = "narwhals"
-version = "2.18.1"
+version = "2.19.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/59/96/45218c2fdec4c9f22178f905086e85ef1a6d63862dcc3cd68eb60f1867f5/narwhals-2.18.1.tar.gz", hash = "sha256:652a1fcc9d432bbf114846688884c215f17eb118aa640b7419295d2f910d2a8b", size = 620578, upload-time = "2026-03-24T15:11:25.456Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4e/1a/bd3317c0bdbcd9ffb710ddf5250b32898f8f2c240be99494fe137feb77a7/narwhals-2.19.0.tar.gz", hash = "sha256:14fd7040b5ff211d415a82e4827b9d04c354e213e72a6d0730205ffd72e3b7ff", size = 623698, upload-time = "2026-04-06T15:50:58.786Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/c3/06490e98393dcb4d6ce2bf331a39335375c300afaef526897881fbeae6ab/narwhals-2.18.1-py3-none-any.whl", hash = "sha256:a0a8bb80205323851338888ba3a12b4f65d352362c8a94be591244faf36504ad", size = 444952, upload-time = "2026-03-24T15:11:23.801Z" },
+    { url = "https://files.pythonhosted.org/packages/37/72/e61e3091e0e00fae9d3a8ef85ece9d2cd4b5966058e1f2901ce42679eebf/narwhals-2.19.0-py3-none-any.whl", hash = "sha256:1f8dfa4a33a6dbff878c3e9be4c3b455dfcaf2a9322f1357db00e4e92e95b84b", size = 446991, upload-time = "2026-04-06T15:50:57.046Z" },
 ]
 
 [[package]]
@@ -1288,12 +1288,12 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beautifulsoup4", specifier = "==4.14.3" },
-    { name = "google-genai", specifier = ">=0.3.0" },
-    { name = "replicate", specifier = "==1.0.7" },
-    { name = "requests", extras = ["socks"], specifier = "==2.33.1" },
-    { name = "streamlit", specifier = "==1.56.0" },
-    { name = "yt-dlp", extras = ["default", "deno"], specifier = "==2026.3.17" },
+    { name = "beautifulsoup4", specifier = ">=4.14.3,<5" },
+    { name = "google-genai", specifier = ">=1.72.0,<2" },
+    { name = "replicate", specifier = ">=1.0.7,<2" },
+    { name = "requests", extras = ["socks"], specifier = ">=2.33.1,<3" },
+    { name = "streamlit", specifier = ">=1.56.0,<2" },
+    { name = "yt-dlp", extras = ["default", "deno"], specifier = ">=2026.3.17,<2027" },
 ]
 
 [[package]]
