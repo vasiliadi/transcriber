@@ -13,9 +13,6 @@ dependencies = [
     "yt-dlp[default,deno]>=2026.3.17,<2027",
 ]
 
-[tool.pylint]
-disable = ["C0114", "C0116", "E0611", "C0301"]
-
 [tool.ruff]
 extend-exclude = ["temp"]
 line-length = 88
