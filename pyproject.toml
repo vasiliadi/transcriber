@@ -1,9 +1,9 @@
 [project]
 name = "transcriber"
-version = "0.4.4"
+version = "0.5.0"
 description = "Transcriber & translator for audio files. Like Otter.ai but free and build with Gemini AI"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "beautifulsoup4>=4.14.3,<5",
     "google-genai>=1.72.0,<2",
@@ -13,21 +13,11 @@ dependencies = [
     "yt-dlp[default,deno]>=2026.3.17,<2027",
 ]
 
-[tool.mypy]
-ignore_missing_imports = true
-follow_imports = "silent"
-disallow_untyped_defs = true
-python_version = "3.12"
-exclude = ["temp.*"]
-
-[tool.pylint]
-disable = ["C0114", "C0116", "E0611", "C0301"]
-
 [tool.ruff]
 extend-exclude = ["temp"]
 line-length = 88
 indent-width = 4
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
@@ -104,4 +94,4 @@ start = "streamlit run src/streamlit_app.py"
 
 [tool.pixi.dependencies]
 ffmpeg = ">=8.0.1,<9"
-python = "~=3.12.0"
+python = "~=3.14.0"

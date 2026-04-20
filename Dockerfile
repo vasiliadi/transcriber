@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 ENV PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 EXPOSE 8080
@@ -7,7 +7,6 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 COPY /src pyproject.toml uv.lock ./
 RUN uv sync \
     --frozen \
-    --no-dev \
     --compile-bytecode \
     --no-managed-python \
     && rm -f pyproject.toml uv.lock
