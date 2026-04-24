@@ -14,7 +14,7 @@ See [libs.md](./libs.md) for the full function index.
 
 - `GEMINI_API_KEY` **required** — Google Gemini client (`src/streamlit_app.py:18`)
 - `HF_ACCESS_TOKEN` **required** — HuggingFace token for diarization models (`src/streamlit_app.py:48`)
-- `PROXY` **required** — proxy for yt-dlp/requests (`src/streamlit_app.py:51`, read via `os.environ.get`)
+- `PROXY` **optional** — proxy for yt-dlp/requests (`src/streamlit_app.py:51`, read via `os.environ.get`; omit to send no proxy)
 - `REPLICATE_API_TOKEN` **required** — Replicate client (`src/streamlit_app.py:42`)
 
 ## Config Files
