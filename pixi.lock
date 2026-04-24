@@ -2002,7 +2002,7 @@ packages:
 - pypi: ./
   name: transcriber
   version: 0.5.0
-  sha256: b675ee5e8c54aca1bb27b15406d00b115d3bd525907ab178addc08cb4c4db14a
+  sha256: 0bfbc5544c6f62e644834dfa22b10a8f2e2a3677f5a5f29663757a6222647e0e
   requires_dist:
   - beautifulsoup4>=4.14.3,<5
   - google-genai>=1.72.0,<2
