@@ -4,6 +4,7 @@ import subprocess
 import time
 from pathlib import Path
 from textwrap import dedent
+from typing import Any, cast
 
 import httpx
 import replicate
@@ -20,20 +21,20 @@ gemini_client = genai.Client(api_key=gemini_api_key)
 GEMINI_MODEL = "gemini-2.5-flash"
 SAFETY_SETTINGS = [
     types.SafetySetting(
-        category="HARM_CATEGORY_HARASSMENT",
-        threshold="BLOCK_NONE",
+        category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
     types.SafetySetting(
-        category="HARM_CATEGORY_HATE_SPEECH",
-        threshold="BLOCK_NONE",
+        category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
     types.SafetySetting(
-        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold="BLOCK_NONE",
+        category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
     types.SafetySetting(
-        category="HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold="BLOCK_NONE",
+        category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
 ]
 
@@ -61,7 +62,7 @@ WHISPERX = "victor-upmeet/whisperx"
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
 }
 
 # Initialization
@@ -76,7 +77,7 @@ if "mode" not in st.session_state:
 
 
 # Functions
-def download(url, mode=st.session_state.mode):
+def download(url: Any, mode: str = st.session_state.mode) -> None:
     with st.spinner("Uploading the file to the server..."):
         if mode == "Uploaded file":
             with Path(AUDIO_FILE_NAME).open("wb") as f:
@@ -98,7 +99,7 @@ def download(url, mode=st.session_state.mode):
                     ydl.download(url)
             else:
                 if url.startswith("https://castro.fm/episode/"):
-                    url = BeautifulSoup(
+                    source = BeautifulSoup(
                         requests.get(
                             requests.utils.requote_uri(url),
                             headers=headers,
@@ -106,7 +107,9 @@ def download(url, mode=st.session_state.mode):
                             timeout=120,
                         ).content,
                         "html.parser",
-                    ).source.get("src")
+                    ).source
+                    if source is not None:
+                        url = source.get("src")
                 downloaded_file = requests.get(
                     requests.utils.requote_uri(url),
                     headers=headers,
@@ -118,9 +121,9 @@ def download(url, mode=st.session_state.mode):
 
 
 def compress_audio(
-    audio_file_name=AUDIO_FILE_NAME,
-    converted_file_name=CONVERTED_FILE_NAME,
-):
+    audio_file_name: str = AUDIO_FILE_NAME,
+    converted_file_name: str = CONVERTED_FILE_NAME,
+) -> None:
     try:
         subprocess.run(
             [
@@ -149,9 +152,9 @@ def compress_audio(
 
 @st.cache_data(show_spinner=False)
 def correct_transcription(
-    transcription,
-    post_processing=st.session_state.post_processing,
-):
+    transcription: str,
+    post_processing: bool = st.session_state.post_processing,
+) -> str:
     if post_processing:
         prompt = f"Correct any spelling discrepancies in the transcribed text. Split text by speaker. Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided: <transcribed_text>{transcription}</transcribed_text>"
         response = gemini_client.models.generate_content(
@@ -164,15 +167,16 @@ def correct_transcription(
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
-        return response.text
+        if response.text is not None:
+            return response.text
     return transcription
 
 
-def get_latest_model_version(model_name):
+def get_latest_model_version(model_name: str) -> str:
     return replicate_client.models.get(model_name).versions.list()[0].id
 
 
-def get_latest_prediction_output(sleep_time=10):
+def get_latest_prediction_output(sleep_time: int = 10) -> Any:
     transcription = None
     while transcription is None:
         try:
@@ -183,7 +187,10 @@ def get_latest_prediction_output(sleep_time=10):
 
 
 @st.cache_data(show_spinner=False)
-def detected_num_speakers(transcription, model=st.session_state.model_name):
+def detected_num_speakers(
+    transcription: Any,
+    model: str = st.session_state.model_name,
+) -> int:
     if model == INCREDIBLY_FAST_WHISPER:  # for incredibly-fast-whisper only
         speakers = [i["speaker"] for i in transcription[0:-1]]
     if model == WHISPERX:
@@ -193,10 +200,10 @@ def detected_num_speakers(transcription, model=st.session_state.model_name):
 
 @st.cache_data(show_spinner=False)
 def process_diarization_for_incredibly_fast_whisper(
-    transcription,
-):  # for incredibly-fast-whisper only
-    output = []
-    current_group = {
+    transcription: list[dict[str, Any]],
+) -> list[dict[str, Any]]:  # for incredibly-fast-whisper only
+    output: list[dict[str, Any]] = []
+    current_group: dict[str, Any] = {
         "start": str(transcription[0]["timestamp"][0]),
         "end": str(transcription[0]["timestamp"][1]),
         "speaker": transcription[0]["speaker"],
@@ -227,7 +234,7 @@ def process_diarization_for_incredibly_fast_whisper(
     return output
 
 
-def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
+def process_whisper_diarization(audio_file_name: str = CONVERTED_FILE_NAME) -> Any:
     with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
@@ -240,13 +247,13 @@ def process_whisper_diarization(audio_file_name=CONVERTED_FILE_NAME):
 
 
 def process_incredibly_fast_whisper(
-    audio_file_name=CONVERTED_FILE_NAME,
-    diarization=st.session_state.diarization,
-    post_processing=st.session_state.post_processing,
-):
+    audio_file_name: str = CONVERTED_FILE_NAME,
+    diarization: bool = st.session_state.diarization,
+    post_processing: bool = st.session_state.post_processing,
+) -> dict[str, Any]:
     with Path(audio_file_name).open("rb") as audio:
         try:
-            transcription = replicate_client.run(
+            transcription: Any = replicate_client.run(
                 f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
                 input={
                     "audio": audio,
@@ -269,10 +276,12 @@ def process_incredibly_fast_whisper(
             if diarization
             else 0,
             "segments": (
-                process_diarization_for_incredibly_fast_whisper(transcription)
+                process_diarization_for_incredibly_fast_whisper(
+                    cast("list[dict[str, Any]]", transcription),
+                )
                 if diarization
                 else correct_transcription(
-                    transcription["text"],
+                    cast("dict[str, Any]", transcription)["text"],
                     post_processing=post_processing,
                 )
             ),
@@ -280,7 +289,7 @@ def process_incredibly_fast_whisper(
         return transcription  # noqa: RET504
 
 
-def process_openai(audio_file_name=CONVERTED_FILE_NAME):
+def process_openai(audio_file_name: str = CONVERTED_FILE_NAME) -> dict[str, Any]:
     with Path(audio_file_name).open("rb") as audio:
         try:
             transcription = replicate_client.run(
@@ -299,12 +308,12 @@ def process_openai(audio_file_name=CONVERTED_FILE_NAME):
 
 
 def process_whisperx(
-    audio_file_name=CONVERTED_FILE_NAME,
-    diarization=st.session_state.diarization,
-):
+    audio_file_name: str = CONVERTED_FILE_NAME,
+    diarization: bool = st.session_state.diarization,
+) -> dict[str, Any]:
     with Path(audio_file_name).open("rb") as audio:
         try:
-            transcription = replicate_client.run(
+            transcription: Any = replicate_client.run(
                 f"{WHISPERX}:{get_latest_model_version(WHISPERX)}",
                 input={
                     "audio_file": audio,
@@ -322,12 +331,12 @@ def process_whisperx(
             "num_speakers": detected_num_speakers(transcription, model=WHISPERX)
             if diarization
             else 1,
-            "segments": transcription["segments"],
+            "segments": cast("dict[str, Any]", transcription)["segments"],
         }
         return transcription  # noqa: RET504
 
 
-def transcribe(model_name=st.session_state.model_name):
+def transcribe(model_name: str = st.session_state.model_name) -> dict[str, Any] | None:
     if model_name == WHISPER_DIARIZATION:
         return process_whisper_diarization()
     if model_name == INCREDIBLY_FAST_WHISPER:
@@ -341,11 +350,11 @@ def transcribe(model_name=st.session_state.model_name):
 
 @st.cache_data(show_spinner=False)
 def translate(
-    text,
-    target_language=st.session_state.language,
-    chunks=False,
-    sleep_time=30,
-):
+    text: str,
+    target_language: str | None = st.session_state.language,
+    chunks: bool = False,
+    sleep_time: int = 30,
+) -> str:
     if target_language is None:
         return text
     prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
@@ -381,12 +390,15 @@ def translate(
             icon="🚨",
         )
         st.stop()
+        return text
     else:
-        return translation.text
+        if translation.text is not None:
+            return translation.text
+        return text
 
 
 @st.cache_data(show_spinner=False)
-def identify_speakers(transcription):
+def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
     prompt = (
         f'Identify speakers names and replace "SPEAKER_" with identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
         """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
@@ -407,28 +419,33 @@ def identify_speakers(transcription):
             thinking_config=types.ThinkingConfig(thinking_budget=-1),
         ),
     )
+    if names.text is None:
+        st.error("Can't identify speakers 🙈", icon="🚨")
+        st.stop()
     return json.loads(names.text)
 
 
 @st.cache_data(show_spinner=False)
-def convert_to_minutes(seconds):
+def convert_to_minutes(seconds: float | str) -> str:
     minutes, seconds = divmod(float(seconds), 60)
     return f"{int(minutes)}:{int(seconds):02d}"
 
 
-def clean_up():
+def clean_up() -> None:
     if Path(CONVERTED_FILE_NAME).is_file():
         Path(CONVERTED_FILE_NAME).unlink()
     if Path(AUDIO_FILE_NAME).is_file():
         Path(AUDIO_FILE_NAME).unlink()
 
 
-def process_transcription():
+def process_transcription() -> None:
     with st.spinner("Compressing file..."):
         compress_audio()
     st.audio(CONVERTED_FILE_NAME)
     with st.spinner("Transcribing..."):
         transcription = transcribe(model_name=st.session_state.model_name)
+        if transcription is None:
+            return
         if transcription["num_speakers"] == 1:
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
@@ -525,7 +542,7 @@ if advanced:
             )
         if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
 
-            def change_state_for_ifw():
+            def change_state_for_ifw() -> None:
                 if not st.session_state.diarization:
                     st.session_state.speaker_identification = False
                 if st.session_state.diarization:
@@ -558,7 +575,7 @@ if advanced:
             )
         if st.session_state.model_name == WHISPERX:
 
-            def change_state_for_wx():
+            def change_state_for_wx() -> None:
                 if not st.session_state.diarization:
                     st.session_state.speaker_identification = False
                 if st.session_state.diarization:
@@ -595,6 +612,7 @@ if go:
             st.error("Upload an audio file.", icon="🚨")
         elif (
             st.session_state.mode == "YouTube or link to an audio file"
+            and isinstance(data_input, str)
             and not data_input.strip()
         ):
             st.error("Enter an audio file link.", icon="🚨")
