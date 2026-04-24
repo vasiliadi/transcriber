@@ -42,10 +42,14 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 Install [pixi](https://pixi.sh/latest/#installation):
 
 ```sh
+# macOS (Homebrew)
+brew install pixi
+
+# or via install script
 curl -fsSL https://pixi.sh/install.sh | sh
 ```
 
-Clone the repo, copy `.env.example` to `.env` and fill in your API keys (see [Config](#config)), then run:
+Clone the repo, copy `.env.example` to `.streamlit/secrets.toml` and fill in your API keys (see [Config](#config)), then run:
 
 ```sh
 pixi run start
