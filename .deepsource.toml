@@ -5,7 +5,7 @@ name = "python"
 enabled = true
 
   [analyzers.meta]
-  runtime_version = "3.x.x"
+  runtime_version = "3.14.x"
   # type_checker = "mypy"
   cyclomatic_complexity_threshold = "medium"
   max_line_length = 88
@@ -21,10 +21,10 @@ enabled = true
 name = "secrets"
 enabled = true
 
-[[transformers]]
+[[code_formatters]]
 name = "ruff"
 enabled = false
 
-[[transformers]]
+[[code_formatters]]
 name = "prettier"
 enabled = false
