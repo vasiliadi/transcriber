@@ -1,6 +1,5 @@
 FROM python:3.14-slim
-ENV PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
@@ -9,6 +8,7 @@ RUN uv sync \
     --frozen \
     --compile-bytecode \
     --no-managed-python \
+    --no-cache \
     && rm -f pyproject.toml uv.lock
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ffmpeg \
