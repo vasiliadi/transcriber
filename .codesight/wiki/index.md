@@ -20,7 +20,7 @@ _Updated 2026-04-23 — re-run `npx codesight --wiki` if the codebase has change
 
 - **New session:** read `index.md` (this file), then `overview.md` for architecture
 - **Function reference:** read `.codesight/libs.md` for all 17 functions with descriptions
-- **Full context map:** read `.codesight/CODESIGHT.md`
+- **Config/env vars:** read `.codesight/CODESIGHT.md`
 - **Before implementing anything:** read `src/streamlit_app.py` directly
 
 ---
