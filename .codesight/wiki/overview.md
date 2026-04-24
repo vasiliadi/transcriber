@@ -58,7 +58,7 @@ All `process_*` functions normalise to `{"num_speakers": int, "segments": ...}`:
 
 - Streamlit reruns the entire script on every widget interaction — `st.session_state` initialisation block (line 68) guards against resetting values
 - `@st.cache_data` on Gemini calls avoids redundant API round-trips across reruns
-- `audio.mp3` / `audio.ogg` are written to the process cwd (`temp/` in Docker via `compose.yaml`) and deleted in `finally` via `clean_up()`
+- `audio.mp3` / `audio.ogg` are written to the process cwd (`/app` in Docker) and deleted in `finally` via `clean_up()`
 - `PROXY` is read with `os.environ.get` (not `os.environ[]`) so it doesn't hard-fail when unset, but downstream yt-dlp will silently send no proxy
 
 ---
