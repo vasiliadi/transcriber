@@ -84,7 +84,8 @@ docstring-code-line-length = "dynamic"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+# platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+platforms = ["osx-arm64"]
 
 [tool.pixi.pypi-dependencies]
 transcriber = { path = ".", editable = true }
