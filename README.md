@@ -37,6 +37,20 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 > [!NOTE]
 > Prices are subject to change without notice
 
+## How to start
+
+Install [pixi](https://pixi.sh/latest/#installation):
+
+```sh
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+Clone the repo, copy `.env.example` to `.env` and fill in your API keys (see [Config](#config)), then run:
+
+```sh
+pixi run start
+```
+
 ## Technical details
 
 [Run Whisper model on Replicate](https://replicate.com/openai/whisper) much cheaper than using [OpenAI API for Whisper](https://openai.com/pricing).

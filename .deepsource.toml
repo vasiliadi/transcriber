@@ -21,10 +21,10 @@ enabled = true
 name = "secrets"
 enabled = true
 
-[[transformers]]
+[[code_formatters]]
 name = "ruff"
 enabled = false
 
-[[transformers]]
+[[code_formatters]]
 name = "prettier"
 enabled = false
