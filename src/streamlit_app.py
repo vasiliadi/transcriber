@@ -419,17 +419,10 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
             thinking_config=types.ThinkingConfig(thinking_budget=-1),
         ),
     )
-    try:
-        result: dict[str, str] = json.loads(names.text or "{}")
-    except (json.JSONDecodeError, TypeError):
+    if names.text is None:
         st.error("Can't identify speakers 🙈", icon="🚨")
         st.stop()
-        return {}
-    else:
-        if not result:
-            st.error("Can't identify speakers 🙈", icon="🚨")
-            st.stop()
-        return result
+    return json.loads(names.text)
 
 
 @st.cache_data(show_spinner=False)
