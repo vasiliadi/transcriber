@@ -44,20 +44,20 @@ select = [
     "N",     # pep8-naming
     "A",     # flake8-builtins
     "COM",   # flake8-commas
-    "CPY",   # flake8-copyright
+    # "CPY",   # flake8-copyright — not used
     "C4",    # flake8-comprehensions
     "ICN",   # flake8-import-conventions
     "T20",   # flake8-print
     "RSE",   # flake8-raise
-    "TCH",   # flake8-type-checking
+    "TC",   # flake8-type-checking
     "ARG",   # flake8-unused-arguments
     "FIX",   # flake8-fixme
     "ERA",   # eradicate
     "PL",    # Pylint
     "FLY",   # flynt
-    # "D",     # pydocstyle
-    # "ANN",   # flake8-annotations
-    "ASYNC", # flake8-async
+    # "D",     # pydocstyle — not used
+    # "ANN",   # flake8-annotations — not used
+    # "ASYNC", # flake8-async — not used
     "T10",   # flake8-debugger
     "EM",    # flake8-errmsg
     "EXE",   # flake8-executable
@@ -71,8 +71,17 @@ select = [
     "INT",   # flake8-gettext
     "PGH",   # pygrep-hooks
     "DOC",   # pydoclint
+    # "FAST",  # FastAPI — not used
+    "YTT",   # flake8-2020
+    "BLE",   # flake8-blind-except
+    "FBT",   # flake8-boolean-trap
+    # "DJ",    # flake8-django — not used
+    "TD",    # flake8-todos
+    # "NPY",   # NumPy-specific rules — not used
+    # "PD",    # pandas-vet — not used
+    "TRY",   # tryceratops
 ]
-ignore = ["S603", "S607", "E501"]
+ignore = ["S603", "S607", "E501", "FBT002", "BLE001"]
 
 [tool.ruff.format]
 quote-style = "double"
