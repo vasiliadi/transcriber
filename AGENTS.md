@@ -18,10 +18,10 @@ This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audi
 
 **No database, no routes, no ORM.**
 
-Required environment variables (no defaults):
+Required environment variables:
 - `GEMINI_API_KEY` — Google Gemini client
 - `HF_ACCESS_TOKEN` — HuggingFace token passed to diarization models
-- `PROXY` — optional proxy for yt-dlp/requests (read via `os.environ.get`)
+- `PROXY` *(optional)* — proxy for yt-dlp/requests; omit to send no proxy
 - `REPLICATE_API_TOKEN` — Replicate client
 
 Read `.codesight/libs.md` for a full function index. Read actual source files before implementing.
