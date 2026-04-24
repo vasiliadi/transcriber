@@ -177,7 +177,7 @@ def get_latest_prediction_output(sleep_time=10):
     while transcription is None:
         try:
             transcription = replicate_client.predictions.list().results[0].output
-        except (TypeError, httpx.ReadTimeout):
+        except TypeError, httpx.ReadTimeout:
             time.sleep(sleep_time)
     return transcription
 
@@ -375,13 +375,14 @@ def translate(
             time.sleep(
                 sleep_time,
             )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-        return translation.text
     except ValueError:
         st.error(
             "The translator thinks the content is unsafe and can't return the translation 🙈",
             icon="🚨",
         )
         st.stop()
+    else:
+        return translation.text
 
 
 @st.cache_data(show_spinner=False)
