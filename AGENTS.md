@@ -2,7 +2,7 @@
 
 This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audio transcription and translation.
 
-**Run:** `streamlit run src/streamlit_app.py`
+**Run:** `pixi run start` — use `pixi` instead of bare `python` or `streamlit` for all commands
 
 **Stack:** Python, Streamlit, Replicate (transcription models), Google Gemini (post-processing/translation/speaker ID), yt-dlp (YouTube download), ffmpeg (audio compression)
 
