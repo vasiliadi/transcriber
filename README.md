@@ -41,7 +41,9 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 
 **AI agent setup (one-liner):**
 
-> Read https://raw.githubusercontent.com/vasiliadi/transcriber/main/llms.txt and follow the instructions to run transcriber locally.
+```text
+Read https://raw.githubusercontent.com/vasiliadi/transcriber/main/llms.txt and follow the instructions to run transcriber locally.
+```
 
 **Manual setup:**
 
