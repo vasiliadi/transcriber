@@ -1,0 +1,97 @@
+# Transcriber — local setup instructions for AI agents
+
+Follow these steps in order to set up and run Transcriber locally.
+
+---
+
+## 1. Prerequisites
+
+Check if `git` is installed:
+
+```
+git --version
+```
+
+If missing, install it from https://git-scm.com/downloads.
+
+Check if `pixi` is installed:
+
+```
+pixi --version
+```
+
+If missing, install it:
+
+- macOS / Linux: `curl -fsSL https://pixi.sh/install.sh | sh`
+- Windows: `winget install prefix-dev.pixi`
+
+Restart the shell after installing pixi so the binary is on PATH.
+
+---
+
+## 2. Clone the repository
+
+```
+git clone https://github.com/vasiliadi/transcriber.git
+cd transcriber
+```
+
+---
+
+## 3. Configure secrets
+
+The app reads credentials from `.streamlit/secrets.toml`. Create that file now:
+
+```
+mkdir -p .streamlit
+```
+
+Then create `.streamlit/secrets.toml` with the following content, filling in real values:
+
+```toml
+GEMINI_API_KEY = "..."
+REPLICATE_API_TOKEN = "..."
+HF_ACCESS_TOKEN = "..."
+# PROXY = "..."  # optional — remove the leading # and set a value only if needed
+```
+
+**Prompt the user for each value.** Do not generate, guess, or skip any key. If the user does not have a key yet, direct them to the relevant page:
+
+- `GEMINI_API_KEY` — https://ai.google.dev/
+- `REPLICATE_API_TOKEN` — https://replicate.com/account/api-tokens
+- `HF_ACCESS_TOKEN` — https://huggingface.co/settings/tokens
+  - After obtaining the token, the user must also accept the model conditions at:
+    - https://hf.co/pyannote/segmentation-3.0
+    - https://hf.co/pyannote/speaker-diarization-3.1
+
+Do **not** write API key values into any issue, log, or output.
+
+---
+
+## 4. Run the app
+
+```
+pixi run start
+```
+
+This installs all dependencies (including Python and ffmpeg) on first run, then starts the Streamlit server. When you see output like `You can now view your Streamlit app in your browser`, open:
+
+```
+http://localhost:8501
+```
+
+---
+
+## 5. Troubleshooting
+
+If any step fails, open an issue at:
+
+https://github.com/vasiliadi/transcriber/issues/new
+
+Include the following details in the issue — **never include API key values**:
+
+- OS and architecture (e.g. output of `uname -a` on macOS/Linux, or `ver` on Windows)
+- Pixi version (`pixi --version`)
+- Which step failed (clone / secrets / `pixi run start`)
+- Last ~30 lines of terminal output from the failing command
+- Confirmation that `.streamlit/secrets.toml` exists and contains all three required keys (names only, not values)
