@@ -4,6 +4,8 @@ This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audi
 
 **Run:** `pixi run start` — use `pixi` instead of bare `python` or `streamlit` for all commands
 
+**Type-check:** `pyrefly check` — pyrefly is expected to be installed system-wide; if missing, install with `uv tool install pyrefly`.
+
 **Stack:** Python, Streamlit, Replicate (transcription models), Google Gemini (post-processing/translation/speaker ID), yt-dlp (YouTube download), ffmpeg (audio compression)
 
 **Transcription models (via Replicate):**
