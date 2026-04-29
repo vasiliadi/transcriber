@@ -4,7 +4,10 @@ import subprocess
 import time
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 import httpx
 import replicate
@@ -191,9 +194,10 @@ def detected_num_speakers(
     transcription: Any,
     model: str = st.session_state.model_name,
 ) -> int:
+    speakers: list[Any] = []
     if model == INCREDIBLY_FAST_WHISPER:  # for incredibly-fast-whisper only
         speakers = [i["speaker"] for i in transcription[0:-1]]
-    if model == WHISPERX:
+    elif model == WHISPERX:
         speakers = [i["speaker"] for i in transcription["segments"][0:-1]]
     return len(set(speakers))
 
@@ -491,6 +495,7 @@ st.radio(
     key="mode",
 )
 
+data_input: UploadedFile | str | None = None
 if st.session_state.mode == "Uploaded file":
     data_input = st.file_uploader(
         "Choose a file:",
