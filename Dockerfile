@@ -1,22 +1,14 @@
-FROM python:3.14-slim
-ENV PATH="/app/.venv/bin:$PATH"
+FROM ghcr.io/prefix-dev/pixi:latest AS build
+WORKDIR /app
+COPY pyproject.toml pixi.lock ./
+COPY src/ src/
+RUN pixi install --locked -e docker && pixi clean cache -y
+
+FROM ubuntu:noble AS production
+ENV PATH="/app/.pixi/envs/docker/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
-COPY /src pyproject.toml uv.lock ./
-RUN uv sync \
-    --frozen \
-    --compile-bytecode \
-    --no-managed-python \
-    --no-cache \
-    && rm -f pyproject.toml uv.lock
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    ffmpeg \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-# RUN useradd -r -u 999 app --shell /bin/false \
-#     && chown -R app:app /app
-# USER app
+COPY --from=build /app/.pixi/envs/docker /app/.pixi/envs/docker
+COPY src/ ./
 HEALTHCHECK CMD curl --fail http://localhost:8080/_stcore/health
 ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]

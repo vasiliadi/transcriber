@@ -30,3 +30,5 @@ src/.streamlit/secrets.toml
 .venv/**/*
 .venv/
 **/.envrc
+.pixi/
+.pixi/**/*
