@@ -4,7 +4,7 @@ COPY pyproject.toml pixi.lock ./
 COPY src/ src/
 RUN pixi install --locked -e docker && pixi clean cache -y
 
-FROM ubuntu:noble AS production
+FROM ubuntu:resolute AS production
 ENV PATH="/app/.pixi/envs/docker/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
