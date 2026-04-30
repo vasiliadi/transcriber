@@ -45,6 +45,34 @@ Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.
 Read https://raw.githubusercontent.com/vasiliadi/transcriber/main/llms.txt and follow the instructions to run transcriber locally.
 ```
 
+**Docker Compose:**
+
+```sh
+docker compose up --build
+```
+
+App will be available at `http://localhost:80`. Secrets are loaded from `src/.streamlit/secrets.toml` if it exists (see [Config](#config)).
+
+To stop:
+
+```sh
+docker compose down
+```
+
+**Docker (pre-built image from Docker Hub):**
+
+```sh
+docker run -p 8080:8080 \
+  -e REPLICATE_API_TOKEN=your_token \
+  -e GEMINI_API_KEY=your_key \
+  -e HF_ACCESS_TOKEN=your_token \
+  vasiliadi/transcriber:latest
+```
+
+App will be available at `http://localhost:8080`.
+
+To stop: press `Ctrl+C`.
+
 **Manual setup:**
 
 Install [pixi](https://pixi.sh/latest/#installation):
