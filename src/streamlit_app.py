@@ -68,6 +68,7 @@ class SpeakerMapping(BaseModel):
     original_speaker: str
     detected_speaker: str
 
+
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
 headers = {
@@ -173,7 +174,9 @@ def correct_transcription(
                 system_instruction=None,
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH),
+                thinking_config=types.ThinkingConfig(
+                    thinking_level=types.ThinkingLevel.HIGH,
+                ),
             ),
         )
         if response.text is not None:
@@ -387,7 +390,9 @@ def translate(
                     """).strip(),
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH),
+                thinking_config=types.ThinkingConfig(
+                    thinking_level=types.ThinkingLevel.HIGH,
+                ),
             ),
         )
         if chunks:
@@ -422,7 +427,9 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
             safety_settings=SAFETY_SETTINGS,
             response_mime_type="application/json",
             response_schema=list[SpeakerMapping],
-            thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH),
+            thinking_config=types.ThinkingConfig(
+                thinking_level=types.ThinkingLevel.HIGH,
+            ),
         ),
     )
     parsed = cast("list[SpeakerMapping] | None", names.parsed)
