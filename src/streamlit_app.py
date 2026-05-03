@@ -432,11 +432,13 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
             ),
         ),
     )
+    segments = cast("list[dict[str, Any]]", transcription["segments"])
+    defaults = {seg["speaker"]: seg["speaker"] for seg in segments}
     parsed = cast("list[SpeakerMapping] | None", names.parsed)
     if not parsed:
         st.error("Can't identify speakers 🙈", icon="🚨")
         st.stop()
-    return {m.original_speaker: m.detected_speaker for m in parsed}
+    return {**defaults, **{m.original_speaker: m.detected_speaker for m in parsed}}
 
 
 @st.cache_data(show_spinner=False)
@@ -480,7 +482,7 @@ def process_transcription() -> None:
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}",
+                    f"**{convert_to_minutes(segment['start'])} - {names.get(segment['speaker'], segment['speaker'])}:** {translate(text, chunks=True, sleep_time=5)}",
                 )
         if st.session_state.raw_json:
             last_prediction_id = replicate_client.predictions.list().results[0].id
