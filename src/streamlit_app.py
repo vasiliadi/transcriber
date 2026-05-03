@@ -41,6 +41,7 @@ SAFETY_SETTINGS = [
         threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
 ]
+THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
 
 # Replicate.com config
@@ -174,9 +175,7 @@ def correct_transcription(
                 system_instruction=None,
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(
-                    thinking_level=types.ThinkingLevel.HIGH,
-                ),
+                thinking_config=THINKING_CONFIG,
             ),
         )
         if response.text is not None:
@@ -390,9 +389,7 @@ def translate(
                     """).strip(),
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(
-                    thinking_level=types.ThinkingLevel.HIGH,
-                ),
+                thinking_config=THINKING_CONFIG,
             ),
         )
         if chunks:
