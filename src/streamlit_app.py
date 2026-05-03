@@ -16,12 +16,13 @@ import streamlit as st
 from bs4 import BeautifulSoup
 from google import genai
 from google.genai import types
+from pydantic import BaseModel
 from yt_dlp import YoutubeDL
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3-flash-preview"
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -40,6 +41,7 @@ SAFETY_SETTINGS = [
         threshold=types.HarmBlockThreshold.BLOCK_NONE,
     ),
 ]
+THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
 
 # Replicate.com config
@@ -61,6 +63,12 @@ WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
 OPENAI = "openai/gpt-4o-transcribe"
 WHISPERX = "victor-upmeet/whisperx"
+
+
+class SpeakerMapping(BaseModel):
+    original_speaker: str
+    detected_speaker: str
+
 
 # Headers for requests
 # https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
@@ -167,7 +175,7 @@ def correct_transcription(
                 system_instruction=None,
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                thinking_config=THINKING_CONFIG,
             ),
         )
         if response.text is not None:
@@ -381,7 +389,7 @@ def translate(
                     """).strip(),
                 safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
-                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                thinking_config=THINKING_CONFIG,
             ),
         )
         if chunks:
@@ -404,14 +412,9 @@ def translate(
 @st.cache_data(show_spinner=False)
 def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
     prompt = (
-        f'Identify speakers names and replace "SPEAKER_" with identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
-        """If you didnt identify names return the same name as was provided <example_return_without_identification>{"SPEAKER_00":"SPEAKER_00"}</example_return_without_identification>
-        Return using this JSON schema, include only unique records:
-
-        original_speaker as key: str
-        detected_speaker as value: str
-        Return: dict[str, str]
-        """
+        f'Identify speaker names from context and map each "SPEAKER_XX" label to the identified name in this json <transcribed_json>{transcription}</transcribed_json>. '
+        'If a speaker cannot be identified, return their original label as the detected name (e.g. original_speaker="SPEAKER_00", detected_speaker="SPEAKER_00"). '
+        "Return one entry per unique speaker."
     )
     names = gemini_client.models.generate_content(
         model=GEMINI_MODEL,
@@ -420,13 +423,19 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
             system_instruction=None,
             safety_settings=SAFETY_SETTINGS,
             response_mime_type="application/json",
-            thinking_config=types.ThinkingConfig(thinking_budget=-1),
+            response_schema=list[SpeakerMapping],
+            thinking_config=types.ThinkingConfig(
+                thinking_level=types.ThinkingLevel.HIGH,
+            ),
         ),
     )
-    if names.text is None:
+    segments = cast("list[dict[str, Any]]", transcription["segments"])
+    defaults = {seg["speaker"]: seg["speaker"] for seg in segments}
+    parsed = cast("list[SpeakerMapping] | None", names.parsed)
+    if not parsed:
         st.error("Can't identify speakers 🙈", icon="🚨")
         st.stop()
-    return json.loads(names.text)
+    return {**defaults, **{m.original_speaker: m.detected_speaker for m in parsed}}
 
 
 @st.cache_data(show_spinner=False)
@@ -470,7 +479,7 @@ def process_transcription() -> None:
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])} - {str(segment['speaker']).replace(segment['speaker'], names[segment['speaker']])}:** {translate(text, chunks=True, sleep_time=5)}",
+                    f"**{convert_to_minutes(segment['start'])} - {names.get(segment['speaker'], segment['speaker'])}:** {translate(text, chunks=True, sleep_time=5)}",
                 )
         if st.session_state.raw_json:
             last_prediction_id = replicate_client.predictions.list().results[0].id
