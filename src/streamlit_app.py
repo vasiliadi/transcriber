@@ -6,9 +6,6 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, cast
 
-if TYPE_CHECKING:
-    from streamlit.runtime.uploaded_file_manager import UploadedFile
-
 import httpx
 import replicate
 import requests
@@ -18,6 +15,9 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel
 from yt_dlp import YoutubeDL
+
+if TYPE_CHECKING:
+    from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
