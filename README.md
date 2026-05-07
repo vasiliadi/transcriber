@@ -47,6 +47,8 @@ Read https://raw.githubusercontent.com/vasiliadi/transcriber/main/llms.txt and f
 
 **Docker Compose:**
 
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) first if Docker is not already installed.
+
 ```sh
 docker compose up --build
 ```
