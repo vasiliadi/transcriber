@@ -6,14 +6,14 @@
 [![pyrefly](https://img.shields.io/endpoint?url=https://pyrefly.org/badge.json)](https://github.com/facebook/pyrefly)
 [![Pixi Badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json&style=flat-square)](https://pixi.sh)
 
-Transcriber &amp; translator for audio files. Like Otter.ai but open-source and almost free.
+Transcriber &amp; translator for audio files. Like Otter.ai, but open-source and almost free.
 
 ![Screenshot](screenshot.png)
 
 ## Otter.ai
 
-[Otter.ai](https://otter.ai/pricing) monthly subscription is **\$16.99**/per user. \
-Where you get:
+[Otter.ai](https://otter.ai/pricing) monthly subscription is **\$16.99** per user. \
+You get:
 > 1200 monthly transcription minutes; 90 minutes per conversation
 
 ## The Transcriber app
@@ -23,11 +23,11 @@ Where you get:
 At least three times cheaper with the same or even better quality of transcription, in my opinion. \
 And you pay as you go.
 
-**Translation (summarization is depricated[^1], use [vasiliadi/ai-summarizer-telegram-bot](https://github.com/vasiliadi/ai-summarizer-telegram-bot))**:
-[Gemini Pro/Flash](https://ai.google.dev/pricing) is **free**, if you use Gemini API **from a project that has billing disabled**, without the benefits available in paid plan.
+**Translation (summarization is deprecated[^1]; use [vasiliadi/ai-summarizer-telegram-bot](https://github.com/vasiliadi/ai-summarizer-telegram-bot))**:
+[Gemini Pro/Flash](https://ai.google.dev/pricing) is **free** if you use the Gemini API **from a project that has billing disabled**, without the benefits available in the paid plan.
 
 **Hosting**:
-Free tires or trials of [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Orcale Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any you like.
+Free tiers or trials from [Render](https://render.com/pricing), [Google Cloud](https://cloud.google.com/free), [Oracle Cloud](https://www.oracle.com/cloud/free/), [AWS](https://aws.amazon.com/free/), [Azure](https://azure.microsoft.com/en-us/pricing/free-services), [IBM Cloud](https://www.ibm.com/cloud/free), or low-cost [DigitalOcean](https://www.digitalocean.com/), or any provider you like.
 
 **Total**:[^2] \
 Pay as you go for 10 hours audio. \
@@ -35,7 +35,7 @@ Replicate with `whisper-diarization` + free Gemini API + DigitalOcean = \$2.00 +
 Replicate with `incredibly-fast-whisper` + free Gemini API + DigitalOcean = \$0.70 + \$0.00 + \$0.10 = **\$0.80**
 
 > [!NOTE]
-> Prices are subject to change without notice
+> Prices are subject to change without notice.
 
 ## How to start
 
@@ -53,7 +53,7 @@ Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) first 
 docker compose up --build
 ```
 
-App will be available at `http://localhost:80`. Secrets are loaded from `src/.streamlit/secrets.toml` if it exists (see [Config](#config)).
+The app will be available at `http://localhost:80`. Secrets are loaded from `src/.streamlit/secrets.toml` if it exists (see [Config](#config)).
 
 To stop:
 
@@ -71,7 +71,7 @@ docker run -p 8080:8080 \
   vasiliadi/transcriber:latest
 ```
 
-App will be available at `http://localhost:8080`.
+The app will be available at `http://localhost:8080`.
 
 To stop: press `Ctrl+C`.
 
@@ -87,7 +87,7 @@ brew install pixi
 curl -fsSL https://pixi.sh/install.sh | sh
 ```
 
-Clone the repo, copy `.env.example` to `.streamlit/secrets.toml` and fill in your API keys (see [Config](#config)), then run:
+Clone the repo, copy `.env.example` to `.streamlit/secrets.toml`, and fill in your API keys (see [Config](#config)), then run:
 
 ```sh
 pixi run start
@@ -95,16 +95,16 @@ pixi run start
 
 ## Technical details
 
-[Run Whisper model on Replicate](https://replicate.com/openai/whisper) much cheaper than using [OpenAI API for Whisper](https://openai.com/pricing).
+[Running the Whisper model on Replicate](https://replicate.com/openai/whisper) is much cheaper than using the [OpenAI API for Whisper](https://openai.com/pricing).
 
 I use four models:
 
 [vaibhavs10/incredibly-fast-whisper](https://replicate.com/vaibhavs10/incredibly-fast-whisper) best for speed \
 [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) best for dialogs \
-[openai/gpt-4o-transcribe](https://replicate.com/openai/gpt-4o-transcribe) best in accuracy \
+[openai/gpt-4o-transcribe](https://replicate.com/openai/gpt-4o-transcribe) best for accuracy \
 [victor-upmeet/whisperx](https://replicate.com/victor-upmeet/whisperx) best overall
 
-Same audio 45 minutes (6 speakers) comparison by model (example)
+Comparison of the same 45-minute audio file (6 speakers) by model (example)
 ![Comparison of processing times by model](model-comparison.png)
 
 ### Limitations
@@ -115,19 +115,19 @@ Same audio 45 minutes (6 speakers) comparison by model (example)
 
 > File uploads are currently limited to 25 MB.
 
-To avoid this limitation, I use compression (Even though I know the models I'm using use compression, too. In practice, I've encountered a limit when relying on compression in a model). The file size without compression is 63 MB for 45 minutes of audio. However, after compression, the file size reduces to 4 MB for the same duration. Therefore, using compression, we can avoid splitting audio into chunks, and we can increase the limit to approximately 3 hours and 45 minutes of audio without losing transcription quality.
+To avoid this limitation, I use compression (even though I know the models I'm using apply compression too. In practice, I've encountered a limit when relying on a model's built-in compression). The file size without compression is 63 MB for 45 minutes of audio. However, after compression, the file size is reduced to 4 MB for the same duration. Therefore, by using compression, we can avoid splitting audio into chunks and increase the limit to approximately 3 hours and 45 minutes of audio without losing transcription quality.
 
-But if you still need to transcript more you can split file using [pydub's](https://github.com/jiaaro/pydub/blob/master/API.markdown) `silence.split_on_silence()` or `silence.detect_silence()` or `silence.detect_nonsilent()`. This function's speed is hardware-dependent, but it is about 10 times faster than listening to the entire file.
+But if you still need to transcribe more, you can split the file using [pydub's](https://github.com/jiaaro/pydub/blob/master/API.markdown) `silence.split_on_silence()`, `silence.detect_silence()`, or `silence.detect_nonsilent()`. These functions are hardware-dependent, but they are about 10 times faster than listening to the entire file.
 
 In my tests, I face three main problems:
 
 1. These functions are not working as I expect.
-2. If split just by time, you can cut in the middle of a word.
-3. Post-processing becomes a challenge. It's hard to identify the speaker smoothly. Loss of timestamps.
+2. If you split only by time, you can cut in the middle of a word.
+3. Post-processing becomes a challenge. It's hard to identify the speaker smoothly, and timestamps may be lost.
 
-All this beloongs to very long audio only.
+All this applies only to very long audio.
 
-#### Gemini Pro/Flash
+#### Gemini Pro/Flash (no longer actual[^3])
 
 [Gemini Pro/Flash model names and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
 
@@ -135,9 +135,9 @@ All this beloongs to very long audio only.
 
 0.75 words per token = ~6,144 words or about 35 minutes of speaking. But for [non-English languages](https://mor10.com/openai-token-tax/), most words are counted as two or more tokens.
 
-The maximum number of tokens for output is currently 8,192. Audio post-processing, which includes correction and translation, can only be done for files that are approximately 35 minutes long. Other models have a maximum output of 4,096 or less. If you need to process more than 8,192 tokens, you may need to do it in batches, but this will significantly increase the processing time.
+The maximum number of output tokens is currently 8,192. Audio post-processing, which includes correction and translation, can only be done for files that are approximately 35 minutes long. Other models have a maximum output of 4,096 tokens or fewer. If you need to process more than 8,192 tokens, you may need to do it in batches, but this will significantly increase the processing time.
 
-Translation by chunks still works, but the quality little bit lower.
+Translation in chunks still works, but the quality is a little lower.
 
 > Max audio length: approximately 8.4 hours
 
@@ -151,15 +151,15 @@ Translation by chunks still works, but the quality little bit lower.
 
 #### HuggingFace.co
 
-For diarization, all models rely on [pyannote.audio](https://huggingface.co/pyannote) solutions. As a developer, you must agree to the user conditions for accessing the models offered by pyannote. Therefore, it is necessary to accept the user conditions for [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) and obtain the [HuggingFace API token](https://huggingface.co/settings/tokens).
+For diarization, all models rely on [pyannote.audio](https://huggingface.co/pyannote) solutions. As a user, you must agree to the terms for accessing the models offered by pyannote. Therefore, it is necessary to accept the terms for [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) and obtain a [HuggingFace API token](https://huggingface.co/settings/tokens).
 
 The [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) model also uses the same models for diarization, but the developer uses his own HuggingFace API token. This means that an additional token is not required.
 
-#### Text to Speach (depricated[^1])
+#### Text to Speech (deprecated[^1])
 
 By default, I use the [ElevenLabs](https://elevenlabs.io/) `eleven_turbo_v2_5` model to generate high-quality audio for summaries in various languages. It's very fast and 50% cheaper than the `eleven_multilingual_v2` model. You get 10,000 credits per month for free, which is about 15 generated audios. If you need more, you'll need to purchase a [plan](https://elevenlabs.io/pricing) or use [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech/).
 
-[OpenAI TTS](https://openai.com/api/pricing/) is pay as you go service, which costs $0.015 / 1K characters. \
+[OpenAI TTS](https://openai.com/api/pricing/) is a pay-as-you-go service that costs $0.015 / 1K characters. \
 OpenAI's **input is limited** to a maximum of 4096 characters. To overcome this limitation, I split the text into chunks using [semantic_text_splitter](https://github.com/benbrandt/text-splitter) and [pydub](https://github.com/jiaaro/pydub/).
 
 Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is another high-quality multilanguage model, but [Coqui](https://coqui.ai/), the developer of this model, is shutting down. As a result, I use ElevenLabs or OpenAI.
@@ -175,20 +175,20 @@ HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper and whisperx m
 PROXY="" # only if you need to use proxy
 ```
 
-**All keys are mandatory**, but you can fill some of them with the wrong key to complete the function. Using functions that require a specific key filled with the incorrect key will result in an error.
+**All keys are mandatory**, but you can fill some of them with placeholder or incorrect values to complete the setup. Using features that require a specific key with an incorrect value will result in an error.
 
-You need to replace the path to the env_file in `compose.yaml`
+You need to replace the path to the `env_file` in `compose.yaml`.
 
 [Get Gemini API key](https://ai.google.dev/) \
 [Get Replicate API token](https://replicate.com/account/api-tokens) \
-[Get HF API tokens](https://huggingface.co/settings/tokens) and don't forget to accept [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) user conditions. Needed only for `incredibly-fast-whisper` model with enabled diarization.
+[Get HF API tokens](https://huggingface.co/settings/tokens), and don't forget to accept the terms for [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1). This is needed only for the `incredibly-fast-whisper` model with diarization enabled.
 
 [Streamlit Secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management)
 
 ## PS
 
-Your transcription and [Google NotebookLM](https://notebooklm.google.com/) is very powerfull tool. \
-Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quickstarts/Caching.ipynb), you can ask ton of questions about the topic.
+Your transcription and [Google NotebookLM](https://notebooklm.google.com/) are a very powerful combination. \
+Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quickstarts/Caching.ipynb), you can ask a ton of questions about the topic.
 
 ### Docs
 
@@ -217,3 +217,4 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
+[^3]: For May 2026
