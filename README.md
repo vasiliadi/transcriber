@@ -202,6 +202,7 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | pixi | [pixi](https://pixi.prefix.dev/latest/) |
 | direnv | [direnv](https://direnv.net/) |
 | AI | [codesight](https://github.com/Houseofmvps/codesight) |
+| Speech to Text AI Model Leaderboard | [Artificial Analysis](https://artificialanalysis.ai/speech-to-text) |
 
 ### Deploy
 
