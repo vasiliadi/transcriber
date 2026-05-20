@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_MODEL = "gemini-3.5-flash"
 SAFETY_SETTINGS = [
     types.SafetySetting(
         category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
