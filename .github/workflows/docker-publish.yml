@@ -10,6 +10,13 @@ on:
   #   - cron: '43 23 * * *'
   push:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "Dockerfile"
+      - ".dockerignore"
+      - "pixi.lock"
+      - "pyproject.toml"
+      - ".github/workflows/docker-publish.yml"
   #   Publish semver tags as releases.
   #   tags: [ 'v*.*.*' ]
   # pull_request:
