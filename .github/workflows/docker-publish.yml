@@ -13,6 +13,7 @@ on:
     paths:
       - "src/**"
       - "Dockerfile"
+      - ".dockerignore"
       - "pixi.lock"
       - "pyproject.toml"
       - ".github/workflows/docker-publish.yml"
