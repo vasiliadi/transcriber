@@ -3,6 +3,13 @@
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "schedule": ["on sunday"],
   "lockFileMaintenance": { "enabled": true, "automerge": true },
+  "prHourlyLimit": 0,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "minimumReleaseAge": "0 days",
+    "schedule": ["at any time"]
+  },
   "packageRules": [
     {
       "matchDepNames": ["python"],
