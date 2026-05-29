@@ -182,3 +182,8 @@ speech.mp3
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# Skills
+skills-lock.json
+.claude/skills/
+.agents/skills/

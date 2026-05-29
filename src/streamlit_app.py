@@ -8,9 +8,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 import httpx
 import replicate
-import requests
 import streamlit as st
 from bs4 import BeautifulSoup
+from curl_cffi import requests
+from curl_cffi.requests.utils import requote_uri
 from google import genai
 from google.genai import types
 from pydantic import BaseModel
@@ -70,12 +71,6 @@ class SpeakerMapping(BaseModel):
     detected_speaker: str
 
 
-# Headers for requests
-# https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
-headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
-}
-
 # Initialization
 if "mode" not in st.session_state:
     st.session_state.mode = "YouTube or link to an audio file"
@@ -112,18 +107,22 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                 if url.startswith("https://castro.fm/episode/"):
                     source = BeautifulSoup(
                         requests.get(
-                            requests.utils.requote_uri(url),
-                            headers=headers,
+                            requote_uri(url),
+                            impersonate="chrome",
                             verify=True,
                             timeout=120,
                         ).content,
                         "html.parser",
                     ).source
                     if source is not None:
-                        url = source.get("src")
+                        src = source.get("src")
+                        if not isinstance(src, str):
+                            st.error("Could not extract audio URL from castro.fm page", icon="🚨")
+                            st.stop()
+                        url = src
                 downloaded_file = requests.get(
-                    requests.utils.requote_uri(url),
-                    headers=headers,
+                    requote_uri(url),
+                    impersonate="chrome",
                     verify=True,
                     timeout=120,
                 )
