@@ -115,7 +115,11 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                         "html.parser",
                     ).source
                     if source is not None:
-                        url = cast("str", source.get("src"))
+                        src = source.get("src")
+                        if not isinstance(src, str):
+                            st.error("Could not extract audio URL from castro.fm page", icon="🚨")
+                            st.stop()
+                        url = src
                 downloaded_file = requests.get(
                     requote_uri(url),
                     impersonate="chrome",
