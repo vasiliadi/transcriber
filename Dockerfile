@@ -9,5 +9,6 @@ EXPOSE 8080
 WORKDIR /app
 COPY --from=build /app/.pixi/envs/docker /app/.pixi/envs/docker
 COPY src/ ./
+COPY THIRD_PARTY_NOTICES.md LICENSE ./
 HEALTHCHECK CMD ["curl", "--fail", "http://localhost:8080/_stcore/health"]
 ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
