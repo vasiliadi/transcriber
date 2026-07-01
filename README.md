@@ -1,6 +1,7 @@
 # The Transcriber
 
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](LICENSE)
 [![DeepSource](https://app.deepsource.com/gh/vasiliadi/transcriber.svg/?label=active+issues&show_trend=true&token=_odPCADfGsWvgHGN0FcW1SpO)](https://app.deepsource.com/gh/vasiliadi/transcriber/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pyrefly](https://img.shields.io/endpoint?url=https://pyrefly.org/badge.json)](https://github.com/facebook/pyrefly)
@@ -215,6 +216,17 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | AWS | [AWS App Runner](https://aws.amazon.com/apprunner/) |
 | Azure | [Web App for Containers](https://learn.microsoft.com/en-us/azure/app-service/)<br>[Deploy a containerized app to Azure](https://code.visualstudio.com/docs/containers/app-service) |
 | Digital Ocean | [How to Deploy from Container Images](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/) |
+
+## License
+
+This project is released into the public domain under the [Unlicense](LICENSE).
+
+The published Docker image bundles third-party dependencies. Most are permissive
+(MIT/BSD/Apache-2.0), but two carry copyleft terms that are preserved in the
+image and listed in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md):
+
+- **mutagen** — GPL-2.0-or-later (pulled in transitively by `yt-dlp[default]`)
+- **certifi** — MPL-2.0
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024

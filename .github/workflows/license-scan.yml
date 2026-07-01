@@ -1,0 +1,49 @@
+name: License scan
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "pyproject.toml"
+      - "pixi.lock"
+      - ".github/workflows/license-scan.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "pyproject.toml"
+      - "pixi.lock"
+      - ".github/workflows/license-scan.yml"
+
+jobs:
+  scan:
+    name: Fail on incompatible dependency licenses
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          environments: default
+
+      # Fail only on network-copyleft / source-available / unknown licenses.
+      # GPL-2.0-or-later (mutagen, via yt-dlp) is intentionally allowed: it is
+      # compatible with the project's Unlicense and documented in
+      # THIRD_PARTY_NOTICES.md. This guardrail catches a NEW incompatible dep.
+      #
+      # NOTE: pip-licenses --fail-on matches its own *display names* (derived
+      # verbatim from trove classifiers), NOT SPDX identifiers. The AGPL strings
+      # below are the exact classifier names. SSPL / BUSL / Elastic / Commons
+      # Clause carry no OSI classifier, so pip-licenses reports them as UNKNOWN,
+      # which is caught by the UNKNOWN token.
+      - name: Check dependency licenses
+        run: |
+          pixi exec --spec pip-licenses -- pip-licenses \
+            --python .pixi/envs/default/bin/python \
+            --ignore-packages transcriber \
+            --fail-on "GNU Affero General Public License v3;GNU Affero General Public License v3 or later (AGPLv3+);UNKNOWN"

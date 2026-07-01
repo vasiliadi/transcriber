@@ -3,6 +3,8 @@ name = "transcriber"
 version = "1.1.0"
 description = "Transcriber & translator for audio files. Like Otter.ai but free and build with Gemini AI"
 readme = "README.md"
+license = "Unlicense"
+license-files = ["LICENSE"]
 requires-python = ">=3.14"
 dependencies = [
     "beautifulsoup4>=4.14.3,<5",
