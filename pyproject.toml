@@ -1,6 +1,6 @@
 [project]
 name = "transcriber"
-version = "1.1.0"
+version = "1.1.1"
 description = "Transcriber & translator for audio files. Like Otter.ai but free and build with Gemini AI"
 readme = "README.md"
 license = "Unlicense"
