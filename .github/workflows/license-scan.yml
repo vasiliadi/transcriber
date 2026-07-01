@@ -16,12 +16,12 @@ on:
       - "pyproject.toml"
       - "pixi.lock"
       - ".github/workflows/license-scan.yml"
+  # No paths filter here: this job is a REQUIRED status check, so it must run
+  # (and report a status) on every PR. Path filtering happens inside the job via
+  # the "changes" step, so PRs that don't touch dependency files still report a
+  # green status instead of blocking the merge forever.
   pull_request:
     branches: ["main"]
-    paths:
-      - "pyproject.toml"
-      - "pixi.lock"
-      - ".github/workflows/license-scan.yml"
 
 jobs:
   scan:
@@ -31,7 +31,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
+      - name: Detect dependency changes
+        id: changes
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          filters: |
+            deps:
+              - "pyproject.toml"
+              - "pixi.lock"
+              - ".github/workflows/license-scan.yml"
+
       - name: Set up pixi
+        if: steps.changes.outputs.deps == 'true'
         uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
           environments: license-scan
@@ -47,4 +58,5 @@ jobs:
       # names. SSPL / BUSL / Elastic / Commons Clause carry no OSI classifier, so
       # pip-licenses reports them as UNKNOWN, which is caught by the UNKNOWN token.
       - name: Check dependency licenses
+        if: steps.changes.outputs.deps == 'true'
         run: pixi run license-scan
