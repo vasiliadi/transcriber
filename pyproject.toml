@@ -123,5 +123,12 @@ platforms = ["linux-64", "linux-aarch64"]
 [tool.pixi.feature.docker.dependencies]
 curl = ">=8,<9"
 
+[tool.pixi.feature.license-scan.dependencies]
+pip-licenses = ">=5,<6"
+
+[tool.pixi.feature.license-scan.tasks]
+license-scan = "pip-licenses --ignore-packages transcriber --fail-on \"GNU Affero General Public License v3;GNU Affero General Public License v3 or later (AGPLv3+);UNKNOWN\""
+
 [tool.pixi.environments]
 docker = ["docker"]
+license-scan = ["license-scan"]

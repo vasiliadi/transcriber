@@ -1,3 +1,8 @@
+# Scope: Python (pip) dependencies only, via pip-licenses. Does NOT cover the
+# conda/system packages layered in by the pixi `docker` environment (see
+# THIRD_PARTY_NOTICES.md "Conda / system packages" section for that inventory,
+# e.g. ffmpeg's GPL build) — those must be reviewed manually if the conda deps
+# in pyproject.toml change.
 name: License scan
 
 permissions:
@@ -29,7 +34,7 @@ jobs:
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          environments: default
+          environments: license-scan
 
       # Fail only on network-copyleft / source-available / unknown licenses.
       # GPL-2.0-or-later (mutagen, via yt-dlp) is intentionally allowed: it is
@@ -38,12 +43,8 @@ jobs:
       #
       # NOTE: pip-licenses --fail-on matches its own *display names* (derived
       # verbatim from trove classifiers), NOT SPDX identifiers. The AGPL strings
-      # below are the exact classifier names. SSPL / BUSL / Elastic / Commons
-      # Clause carry no OSI classifier, so pip-licenses reports them as UNKNOWN,
-      # which is caught by the UNKNOWN token.
+      # in the `license-scan` pixi task (pyproject.toml) are the exact classifier
+      # names. SSPL / BUSL / Elastic / Commons Clause carry no OSI classifier, so
+      # pip-licenses reports them as UNKNOWN, which is caught by the UNKNOWN token.
       - name: Check dependency licenses
-        run: |
-          pixi exec --spec pip-licenses -- pip-licenses \
-            --python .pixi/envs/default/bin/python \
-            --ignore-packages transcriber \
-            --fail-on "GNU Affero General Public License v3;GNU Affero General Public License v3 or later (AGPLv3+);UNKNOWN"
+        run: pixi run license-scan

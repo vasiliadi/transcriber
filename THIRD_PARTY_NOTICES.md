@@ -1,8 +1,19 @@
 # Third-Party Notices
 
 This project (`transcriber`) is released into the public domain under the
-[Unlicense](LICENSE). The distributed Docker image bundles the third-party
-Python packages listed below. Notable non-permissive components:
+[Unlicense](LICENSE). The distributed Docker image bundles third-party
+components from **two** package ecosystems, inventoried separately below
+because they come from different tools:
+
+- **Python packages** (pip/PyPI) — this section, generated with `pip-licenses`.
+- **Conda / system packages** (the pixi `docker` environment, e.g. `ffmpeg`) —
+  see [Conda / system packages](#conda--system-packages-docker-image) near the
+  end of this file. `pip-licenses` does not see these; they are a separate,
+  material source of non-permissive licenses in the shipped image.
+
+## Python packages
+
+Notable non-permissive Python components:
 
 - **mutagen** — GPL-2.0-or-later (pulled in by `yt-dlp[default]`)
 - **certifi** — MPL-2.0
@@ -9884,4 +9895,178 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more information, please refer to <https://unlicense.org/>
 
 
+
+## Conda / system packages (Docker image)
+
+The published Docker image is built from the pixi `docker` environment (`pyproject.toml` `[tool.pixi.feature.docker]`), which layers native/system libraries on top of the Python packages above via conda-forge. `pip-licenses` cannot see these — they are inventoried here separately, generated with `pixi list` (fields: name, version, license), which reads license metadata straight from the conda-forge package index via `pixi.lock`.
+
+Of 153 conda/system packages in the `docker` environment, **32** carry a GPL-family or MPL license:
+
+- **ffmpeg** (`GPL-2.0-or-later`) — built with the `-gpl` variant (`pyproject.toml` doesn't pin this explicitly; it's what conda-forge resolves for the `docker` feature). This build also pulls in GPL-licensed encoders **x264** and **x265** (both `GPL-2.0-or-later`), which is *why* the GPL variant is selected over a permissively-licensed ffmpeg build.
+- **libgcc / libgcc-ng / libgomp / libstdcxx / libstdcxx-ng / ld_impl_linux-\*** — `GPL-3.0-only WITH GCC-exception-3.1` or plain `GPL-3.0-only`. These are the standard GCC toolchain runtime/linker present in essentially any Linux conda environment; the GCC Runtime Library Exception is designed to permit linking against them without imposing GPL on the linked program. Listed for completeness, not flagged as a compliance concern.
+- The remainder are `LGPL-2.0/2.1`-family system libraries pulled in transitively by `ffmpeg`/GTK-stack dependencies (audio/codec/rendering libs such as `alsa-lib`, `cairo`, `fribidi`, `gdk-pixbuf`, `lame`, `libsndfile`, `mpg123`, `pango`), plus `dbus` and `gmp`, which are dual-licensed with a GPL option. LGPL's copyleft applies to the library itself, not this application, as long as the library isn't statically linked into project code (it isn't — these are dynamically linked conda packages).
+
+Full inventory of the 153 conda/system packages in the `docker` environment:
+
+| Name | Version | License |
+| --- | --- | --- |
+| _openmp_mutex | 4.5 | BSD-3-Clause |
+| alsa-lib | 1.2.16.1 | LGPL-2.1-or-later |
+| aom | 3.14.1 | BSD-2-Clause |
+| bzip2 | 1.0.8 | bzip2-1.0.6 |
+| c-ares | 1.34.6 | MIT |
+| ca-certificates | 2026.6.17 | ISC |
+| cairo | 1.18.4 | LGPL-2.1-only or MPL-1.1 |
+| curl | 8.20.0 | curl |
+| dav1d | 1.2.1 | BSD-2-Clause |
+| dbus | 1.16.2 | AFL-2.1 OR GPL-2.0-or-later |
+| ffmpeg | 8.1.2 | GPL-2.0-or-later |
+| font-ttf-dejavu-sans-mono | 2.37 | BSD-3-Clause |
+| font-ttf-inconsolata | 3.000 | OFL-1.1 |
+| font-ttf-source-code-pro | 2.038 | OFL-1.1 |
+| font-ttf-ubuntu | 0.83 | LicenseRef-Ubuntu-Font-Licence-Version-1.0 |
+| fontconfig | 2.18.1 | MIT |
+| fonts-conda-ecosystem | 1 | BSD-3-Clause |
+| fonts-conda-forge | 1 | BSD-3-Clause |
+| fribidi | 1.0.16 | LGPL-2.1-or-later |
+| gdk-pixbuf | 2.44.6 | LGPL-2.1-or-later |
+| glslang | 16.3.0 | BSD-3-Clause |
+| gmp | 6.3.0 | GPL-2.0-or-later OR LGPL-3.0-or-later |
+| graphite2 | 1.3.15 | LGPL-2.0-or-later |
+| harfbuzz | 14.2.1 | MIT |
+| icu | 78.3 | MIT |
+| intel-gmmlib | 22.10.0 | MIT |
+| intel-media-driver | 26.1.6 | MIT |
+| keyutils | 1.6.3 | LGPL-2.1-or-later |
+| krb5 | 1.22.2 | MIT |
+| lame | 3.100 | LGPL-2.0-only |
+| lcms2 | 2.19.1 | MIT |
+| ld_impl_linux-64 | 2.45.1 | GPL-3.0-only |
+| lerc | 4.1.0 | Apache-2.0 |
+| level-zero | 1.29.0 | MIT |
+| libabseil | 20260107.1 | Apache-2.0 |
+| libass | 0.17.4 | ISC |
+| libbrotlicommon | 1.2.0 | MIT |
+| libbrotlidec | 1.2.0 | MIT |
+| libbrotlienc | 1.2.0 | MIT |
+| libcap | 2.78 | BSD-3-Clause |
+| libcurl | 8.20.0 | curl |
+| libdeflate | 1.25 | MIT |
+| libdovi | 3.3.2 | MIT |
+| libdrm | 2.4.127 | MIT |
+| libedit | 3.1.20250104 | BSD-2-Clause |
+| libegl | 1.7.0 | LicenseRef-libglvnd |
+| libev | 4.33 | BSD-2-Clause |
+| libexpat | 2.8.1 | MIT |
+| libffi | 3.5.2 | MIT |
+| libflac | 1.5.0 | BSD-3-Clause |
+| libfreetype | 2.14.3 | GPL-2.0-only OR FTL |
+| libfreetype6 | 2.14.3 | GPL-2.0-only OR FTL |
+| libgcc | 15.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
+| libgcc-ng | 15.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
+| libgl | 1.7.0 | LicenseRef-libglvnd |
+| libglib | 2.88.1 | LGPL-2.1-or-later |
+| libglvnd | 1.7.0 | LicenseRef-libglvnd |
+| libglx | 1.7.0 | LicenseRef-libglvnd |
+| libgomp | 15.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
+| libhwloc | 2.13.0 | BSD-3-Clause |
+| libhwy | 1.4.0 | Apache-2.0 OR BSD-3-Clause |
+| libiconv | 1.18 | LGPL-2.1-only |
+| libjpeg-turbo | 3.1.4.1 | IJG AND BSD-3-Clause AND Zlib |
+| libjxl | 0.11.2 | BSD-3-Clause |
+| liblzma | 5.8.3 | 0BSD |
+| libmpdec | 4.0.0 | BSD-2-Clause |
+| libnghttp2 | 1.68.1 | MIT |
+| libogg | 1.3.5 | BSD-3-Clause |
+| libopenvino | 2026.2.0 | Apache-2.0 |
+| libopenvino-auto-batch-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-auto-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-hetero-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-intel-cpu-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-intel-gpu-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-intel-npu-plugin | 2026.2.0 | Apache-2.0 |
+| libopenvino-ir-frontend | 2026.2.0 | Apache-2.0 |
+| libopenvino-onnx-frontend | 2026.2.0 | Apache-2.0 |
+| libopenvino-paddle-frontend | 2026.2.0 | Apache-2.0 |
+| libopenvino-pytorch-frontend | 2026.2.0 | Apache-2.0 |
+| libopenvino-tensorflow-frontend | 2026.2.0 | Apache-2.0 |
+| libopenvino-tensorflow-lite-frontend | 2026.2.0 | Apache-2.0 |
+| libopus | 1.6.1 | BSD-3-Clause |
+| libpciaccess | 0.19 | MIT |
+| libplacebo | 7.360.1 | LGPL-2.1-or-later |
+| libpng | 1.6.58 | zlib-acknowledgement |
+| libprotobuf | 6.33.5 | BSD-3-Clause |
+| librsvg | 2.62.3 | LGPL-2.1-or-later |
+| libsndfile | 1.2.2 | LGPL-2.1-or-later |
+| libsqlite | 3.53.2 | blessing |
+| libssh2 | 1.11.1 | BSD-3-Clause |
+| libstdcxx | 15.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
+| libstdcxx-ng | 15.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
+| libsystemd0 | 257.13 | LGPL-2.1-or-later |
+| libtiff | 4.7.1 | HPND |
+| libudev1 | 257.13 | LGPL-2.1-or-later |
+| libunwind | 1.8.3 | MIT |
+| liburing | 2.14 | MIT |
+| libusb | 1.0.29 | LGPL-2.1-or-later |
+| libuuid | 2.42.2 | BSD-3-Clause |
+| libva | 2.23.0 | MIT |
+| libvorbis | 1.3.7 | BSD-3-Clause |
+| libvpl | 2.16.0 | MIT |
+| libvpx | 1.15.2 | BSD-3-Clause |
+| libvulkan-loader | 1.4.341.0 | Apache-2.0 |
+| libwebp-base | 1.6.0 | BSD-3-Clause |
+| libxcb | 1.17.0 | MIT |
+| libxkbcommon | 1.13.2 | MIT/X11 Derivative |
+| libxml2 | 2.15.3 | MIT |
+| libxml2-16 | 2.15.3 | MIT |
+| libzlib | 1.3.2 | Zlib |
+| mpg123 | 1.32.9 | LGPL-2.1-only |
+| ncurses | 6.6 | X11 AND BSD-3-Clause |
+| ocl-icd | 2.3.4 | BSD-2-Clause |
+| opencl-headers | 2025.06.13 | Apache-2.0 |
+| openh264 | 2.6.0 | BSD-2-Clause |
+| openssl | 3.6.3 | Apache-2.0 |
+| pango | 1.56.4 | LGPL-2.1-or-later |
+| pcre2 | 10.47 | BSD-3-Clause |
+| pixman | 0.46.4 | MIT |
+| pthread-stubs | 0.4 | MIT |
+| pugixml | 1.15 | MIT |
+| pulseaudio-client | 17.0 | LGPL-2.1-or-later |
+| python | 3.14.6 | Python-2.0 |
+| python_abi | 3.14 | BSD-3-Clause |
+| readline | 8.3 | GPL-3.0-only |
+| sdl2 | 2.32.56 | Zlib |
+| sdl3 | 3.4.10 | Zlib |
+| shaderc | 2026.2 | Apache-2.0 |
+| snappy | 1.2.2 | BSD-3-Clause |
+| spirv-tools | 2026.2 | Apache-2.0 |
+| svt-av1 | 4.0.1 | BSD-2-Clause |
+| tbb | 2023.0.0 | Apache-2.0 |
+| tk | 8.6.13 | TCL |
+| tzdata | 2025c | LicenseRef-Public-Domain |
+| wayland | 1.25.0 | MIT |
+| wayland-protocols | 1.49 | MIT |
+| x264 | 1!164.3095 | GPL-2.0-or-later |
+| x265 | 3.5 | GPL-2.0-or-later |
+| xkeyboard-config | 2.47 | MIT |
+| xorg-libice | 1.1.2 | MIT |
+| xorg-libsm | 1.2.6 | MIT |
+| xorg-libx11 | 1.8.13 | MIT |
+| xorg-libxau | 1.0.12 | MIT |
+| xorg-libxcursor | 1.2.3 | MIT |
+| xorg-libxdmcp | 1.1.5 | MIT |
+| xorg-libxext | 1.3.7 | MIT |
+| xorg-libxfixes | 6.0.2 | MIT |
+| xorg-libxi | 1.8.3 | MIT |
+| xorg-libxrandr | 1.5.5 | MIT |
+| xorg-libxrender | 0.9.12 | MIT |
+| xorg-libxscrnsaver | 1.2.4 | MIT |
+| xorg-libxtst | 1.2.5 | MIT |
+| zstd | 1.5.7 | BSD-3-Clause |
+
+Regenerate this table after any `pixi.lock` change with:
+
+```bash
+pixi list -e docker --platform linux-64 --fields name,version,license
+```
 

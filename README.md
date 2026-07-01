@@ -221,12 +221,25 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 
 This project is released into the public domain under the [Unlicense](LICENSE).
 
-The published Docker image bundles third-party dependencies. Most are permissive
-(MIT/BSD/Apache-2.0), but two carry copyleft terms that are preserved in the
-image and listed in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md):
+The published Docker image bundles third-party dependencies from two package
+ecosystems — Python (pip) and conda/system (via the pixi `docker` environment).
+Most are permissive (MIT/BSD/Apache-2.0), but some carry copyleft terms; full
+details, including regeneration instructions, are in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). The most notable are:
 
-- **mutagen** — GPL-2.0-or-later (pulled in transitively by `yt-dlp[default]`)
-- **certifi** — MPL-2.0
+- **mutagen** (Python) — GPL-2.0-or-later, pulled in transitively by `yt-dlp[default]`
+- **ffmpeg** (conda) — GPL-2.0-or-later; the `-gpl` build variant conda-forge
+  resolves for this project (`ffmpeg` is unpinned to a variant in
+  `pyproject.toml`) also pulls in GPL-licensed encoders `x264`/`x265`
+- **certifi** (Python) — MPL-2.0
+
+The Docker image also bundles ~15 LGPL-licensed native libraries (audio/codec/
+rendering dependencies of `ffmpeg`) and the standard GCC toolchain runtime
+(GPL-3.0 with the GCC Runtime Library Exception) — see `THIRD_PARTY_NOTICES.md`
+for the full inventory. Note the [license-scan CI workflow](.github/workflows/license-scan.yml)
+covers **Python packages only**; conda/system packages are not scanned by
+`pip-licenses` and must be reviewed manually if `pyproject.toml`'s conda
+dependencies change.
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
