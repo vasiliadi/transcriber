@@ -9,6 +9,7 @@ This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audi
 **Stack:** Python, Streamlit, Replicate (transcription models), Google Gemini (post-processing/translation/speaker ID), yt-dlp (YouTube download), ffmpeg (audio compression)
 
 **Transcription models (via Replicate):**
+
 - `thomasmol/whisper-diarization` — best for dialogs (default)
 - `vaibhavs10/incredibly-fast-whisper` — best for speed
 - `openai/gpt-4o-transcribe` — best accuracy
@@ -20,7 +21,10 @@ This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audi
 
 **No database, no routes, no ORM.**
 
+**After any `pixi.lock` change:** regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
+
 Required environment variables:
+
 - `GEMINI_API_KEY` — Google Gemini client
 - `HF_ACCESS_TOKEN` — HuggingFace token passed to diarization models
 - `PROXY` *(optional)* — proxy for yt-dlp/requests; omit to send no proxy
