@@ -1,6 +1,7 @@
 # The Transcriber
 
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](LICENSE)
 [![DeepSource](https://app.deepsource.com/gh/vasiliadi/transcriber.svg/?label=active+issues&show_trend=true&token=_odPCADfGsWvgHGN0FcW1SpO)](https://app.deepsource.com/gh/vasiliadi/transcriber/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pyrefly](https://img.shields.io/endpoint?url=https://pyrefly.org/badge.json)](https://github.com/facebook/pyrefly)
@@ -215,6 +216,30 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 | AWS | [AWS App Runner](https://aws.amazon.com/apprunner/) |
 | Azure | [Web App for Containers](https://learn.microsoft.com/en-us/azure/app-service/)<br>[Deploy a containerized app to Azure](https://code.visualstudio.com/docs/containers/app-service) |
 | Digital Ocean | [How to Deploy from Container Images](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/) |
+
+## License
+
+This project is released into the public domain under the [Unlicense](LICENSE).
+
+The published Docker image bundles third-party dependencies from two package
+ecosystems — Python (pip) and conda/system (via the pixi `docker` environment).
+Most are permissive (MIT/BSD/Apache-2.0), but some carry copyleft terms; full
+details, including regeneration instructions, are in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). The most notable are:
+
+- **mutagen** (Python) — GPL-2.0-or-later, pulled in transitively by `yt-dlp[default]`
+- **ffmpeg** (conda) — GPL-2.0-or-later; the `-gpl` build variant conda-forge
+  resolves for this project (`ffmpeg` is unpinned to a variant in
+  `pyproject.toml`) also pulls in GPL-licensed encoders `x264`/`x265`
+- **certifi** (Python) — MPL-2.0
+
+The Docker image also bundles ~15 LGPL-licensed native libraries (audio/codec/
+rendering dependencies of `ffmpeg`) and the standard GCC toolchain runtime
+(GPL-3.0 with the GCC Runtime Library Exception) — see `THIRD_PARTY_NOTICES.md`
+for the full inventory. Note the [license-scan CI workflow](.github/workflows/license-scan.yml)
+covers **Python packages only**; conda/system packages are not scanned by
+`pip-licenses` and must be reviewed manually if `pyproject.toml`'s conda
+dependencies change.
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
