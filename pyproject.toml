@@ -131,4 +131,4 @@ license-scan = "pip-licenses --ignore-packages transcriber --fail-on \"GNU Affer
 
 [tool.pixi.environments]
 docker = ["docker"]
-license-scan = ["license-scan"]
+license-scan = ["docker", "license-scan"]
