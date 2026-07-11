@@ -1,9 +1,9 @@
-FROM ghcr.io/prefix-dev/pixi:trixie AS build
+FROM ghcr.io/prefix-dev/pixi:trixie@sha256:2d766ae33250d97c9dd03f516475e1e6fa201be8c521353ce1278c5211731352 AS build
 WORKDIR /app
 COPY pyproject.toml pixi.lock ./
 RUN pixi install --locked -e docker
 
-FROM gcr.io/distroless/base-debian13:latest AS production
+FROM gcr.io/distroless/base-debian13:latest@sha256:7c4468db5fea18a1630860619be640c4c0ad158c0d63f12951b96b7d0f5ddd62 AS production
 ENV PATH="/app/.pixi/envs/docker/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
