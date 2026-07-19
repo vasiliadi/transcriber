@@ -3,7 +3,7 @@ WORKDIR /app
 COPY pyproject.toml pixi.lock ./
 RUN pixi install --locked -e docker
 
-FROM gcr.io/distroless/base-debian13:latest@sha256:7c4468db5fea18a1630860619be640c4c0ad158c0d63f12951b96b7d0f5ddd62 AS production
+FROM gcr.io/distroless/base-debian13:latest@sha256:f4a335ca209e1d2ee873102c17c389ad0142e3d5b21aee2817e9cc9c01d87d20 AS production
 ENV PATH="/app/.pixi/envs/docker/bin:$PATH"
 EXPOSE 8080
 WORKDIR /app
