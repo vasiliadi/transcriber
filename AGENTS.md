@@ -4,16 +4,16 @@ Single-file Streamlit app for audio transcription and translation. All logic liv
 
 ## Commands
 
-Run project commands through `pixi`, never bare `python` or `streamlit`.
-
 | Task | Command |
 | --- | --- |
 | Run the app | `pixi run start` |
-| Type-check | `pyrefly check` |
-| Lint | `ruff check` |
-| Format | `ruff format` |
+| Type-check | `uvx pyrefly@latest check` |
+| Lint | `uvx ruff@latest check` |
+| Format | `uvx ruff@latest format` |
 
-`pyrefly` and `ruff` are installed system-wide (uv tools), not in the pixi env. Install a missing one with `uv tool install pyrefly` / `uv tool install ruff`.
+Run the app through `pixi`, never bare `python` or `streamlit`.
+
+Run the checkers through `uvx …@latest`, which fetches the newest release on each invocation — nothing to install, and no stale local copy. Do not substitute a system-wide `ruff` or `pyrefly`, and do not drop the `@latest` suffix; both can leave you on an older version than intended.
 
 ## Stack
 
