@@ -122,7 +122,7 @@ For anything longer you would have to split the file, which brings its own probl
 
 #### Gemini post-processing
 
-Correction and translation are bounded by the model's output token limit, so very long transcripts are translated in chunks — this works, but the quality is slightly lower than a single pass. See [languages supported](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
+Diarized transcripts are translated one segment at a time, so every line keeps its own timestamp and speaker label. The cost is that each segment is translated without the context of its neighbours — slightly lower quality than a single pass — plus a short rate-limit pause between calls, which is what makes long files slow. See [languages supported](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
 
 ### Optional settings
 

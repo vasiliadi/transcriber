@@ -32,13 +32,13 @@ input (upload / URL / YouTube) → `download()` → `compress_audio()` (ffmpeg �
 | `OPENAI` | `openai/gpt-4o-transcribe` | accuracy |
 | `WHISPERX` | `victor-upmeet/whisperx` | dialogs (newer) |
 
-Every `process_*` normalises its result to `{"num_speakers": int, "segments": ...}`:
+`process_transcription()` expects `{"num_speakers": int, "segments": ...}` and branches on `num_speakers`:
 
 - `0` → plain text, no diarization
-- `1` → list of `{start, end, text}`
-- `>1` → list of `{start, end, speaker, text}`
+- `1` → segments, each read for `start` and `text`
+- `>1` → segments, each read for `start`, `text` and `speaker`
 
-Keep this shape when adding a model — `process_transcription()` branches on it.
+`process_openai`, `process_whisperx` and `process_incredibly_fast_whisper` build that dict themselves. `process_whisper_diarization` does not — it is typed `-> Any` and returns the Replicate output unchanged, relying on the upstream model to already have this shape. Build the dict explicitly when adding a model: `transcribe()`'s `-> dict[str, Any] | None` does not enforce it.
 
 ## Gotchas
 
