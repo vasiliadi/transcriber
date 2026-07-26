@@ -1,33 +1,59 @@
 # Project Context
 
-This is a single-file Streamlit app (`src/streamlit_app.py`, 607 lines) for audio transcription and translation.
+Single-file Streamlit app for audio transcription and translation. All logic lives in `src/streamlit_app.py`. No database, no routes, no ORM, no tests.
 
-**Run:** `pixi run start` — use `pixi` instead of bare `python` or `streamlit` for all commands
+## Commands
 
-**Type-check:** `pyrefly check` — pyrefly is expected to be installed system-wide; if missing, install with `uv tool install pyrefly`.
+| Task | Command |
+| --- | --- |
+| Run the app | `pixi run start` |
+| Type-check | `uvx pyrefly@latest check` |
+| Lint | `uvx ruff@latest check` |
+| Format | `uvx ruff@latest format` |
 
-**Stack:** Python, Streamlit, Replicate (transcription models), Google Gemini (post-processing/translation/speaker ID), yt-dlp (YouTube download), ffmpeg (audio compression)
+Run the app through `pixi`, never bare `python` or `streamlit`.
 
-**Transcription models (via Replicate):**
+Run the checkers through `uvx …@latest`, which fetches the newest release on each invocation — nothing to install, and no stale local copy. Do not substitute a system-wide `ruff` or `pyrefly`, and do not drop the `@latest` suffix; both can leave you on an older version than intended.
 
-- `thomasmol/whisper-diarization` — best for dialogs (default)
-- `vaibhavs10/incredibly-fast-whisper` — best for speed
-- `openai/gpt-4o-transcribe` — best accuracy
-- `victor-upmeet/whisperx` — new best for dialogs
+## Stack
 
-**Key flow:** input (upload/URL/YouTube) → `download()` → `compress_audio()` (ffmpeg → mono ogg 16kbps) → `transcribe()` → optional `correct_transcription()` / `translate()` / `identify_speakers()` → display
+Streamlit (UI) · Replicate (transcription) · Google Gemini (correction, translation, speaker ID) · yt-dlp (YouTube) · curl_cffi (HTTP) · ffmpeg (compression)
 
-**Scratch files:** `audio.mp3` and `audio.ogg` written to cwd, deleted in `clean_up()` after each run.
+## Flow
 
-**No database, no routes, no ORM.**
+input (upload / URL / YouTube) → `download()` → `compress_audio()` (ffmpeg → mono ogg 16 kbps) → `transcribe()` → optional `correct_transcription()` / `translate()` / `identify_speakers()` → display → `clean_up()`
 
-**After any `pixi.lock` change:** regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
+`transcribe()` dispatches to one of four Replicate models, each with its own `process_*` function:
 
-Required environment variables:
+| Constant | Model | Best for |
+| --- | --- | --- |
+| `WHISPER_DIARIZATION` | `thomasmol/whisper-diarization` | dialogs (default) |
+| `INCREDIBLY_FAST_WHISPER` | `vaibhavs10/incredibly-fast-whisper` | speed |
+| `OPENAI` | `openai/gpt-4o-transcribe` | accuracy |
+| `WHISPERX` | `victor-upmeet/whisperx` | dialogs (newer) |
 
-- `GEMINI_API_KEY` — Google Gemini client
-- `HF_ACCESS_TOKEN` — HuggingFace token passed to diarization models
-- `PROXY` *(optional)* — proxy for yt-dlp/requests; omit to send no proxy
-- `REPLICATE_API_TOKEN` — Replicate client
+`process_transcription()` expects `{"num_speakers": int, "segments": ...}` and branches on `num_speakers`:
 
-Read `.codesight/libs.md` for a full function index. Read actual source files before implementing.
+- `0` → plain text, no diarization
+- `1` → segments, each read for `start` and `text`
+- `>1` → segments, each read for `start`, `text` and `speaker`
+
+`process_openai`, `process_whisperx` and `process_incredibly_fast_whisper` build that dict themselves. `process_whisper_diarization` does not — it is typed `-> Any` and returns the Replicate output unchanged, relying on the upstream model to already have this shape. Build the dict explicitly when adding a model: `transcribe()`'s `-> dict[str, Any] | None` does not enforce it.
+
+## Gotchas
+
+- Streamlit reruns the whole script on every widget interaction. Add new user settings to the `st.session_state` init block, and keep `@st.cache_data` on Gemini calls.
+- `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker); `clean_up()` deletes them in a `finally`.
+- `PROXY` is read with `os.environ.get`, so an unset value silently sends no proxy instead of failing.
+- After changing `pixi.lock`, regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
+
+## Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | yes | Google Gemini client |
+| `REPLICATE_API_TOKEN` | yes | Replicate client |
+| `HF_ACCESS_TOKEN` | yes | HuggingFace token passed to diarization models |
+| `PROXY` | no | proxy for yt-dlp and curl_cffi |
+
+Read `src/streamlit_app.py` in full before implementing. It is a single file, short enough to read in one pass — do that rather than grepping for fragments.

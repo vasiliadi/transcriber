@@ -88,7 +88,7 @@ brew install pixi
 curl -fsSL https://pixi.sh/install.sh | sh
 ```
 
-Clone the repo, copy `.env.example` to `.streamlit/secrets.toml`, and fill in your API keys (see [Config](#config)), then run:
+Clone the repo, create `.streamlit/secrets.toml` with your API keys (see [Config](#config)), then run:
 
 ```sh
 pixi run start
@@ -116,37 +116,13 @@ Comparison of the same 45-minute audio file (6 speakers) by model (example)
 
 > File uploads are currently limited to 25 MB.
 
-To avoid this limitation, I use compression (even though I know the models I'm using apply compression too. In practice, I've encountered a limit when relying on a model's built-in compression). The file size without compression is 63 MB for 45 minutes of audio. However, after compression, the file size is reduced to 4 MB for the same duration. Therefore, by using compression, we can avoid splitting audio into chunks and increase the limit to approximately 3 hours and 45 minutes of audio without losing transcription quality.
+To avoid this limitation, I compress the audio before uploading (the models apply their own compression, but in practice I still hit the limit when relying on it). 45 minutes of audio is 63 MB raw and 4 MB compressed, which pushes the limit to roughly 3 hours 45 minutes without losing transcription quality — no chunking needed.
 
-But if you still need to transcribe more, you can split the file using [pydub's](https://github.com/jiaaro/pydub/blob/master/API.markdown) `silence.split_on_silence()`, `silence.detect_silence()`, or `silence.detect_nonsilent()`. These functions are hardware-dependent, but they are about 10 times faster than listening to the entire file.
+For anything longer you would have to split the file, which brings its own problems: splitting purely by time cuts words in half, and post-processing gets harder because speaker identity and timestamps don't survive the seams.
 
-In my tests, I face three main problems:
+#### Gemini post-processing
 
-1. These functions are not working as I expect.
-2. If you split only by time, you can cut in the middle of a word.
-3. Post-processing becomes a challenge. It's hard to identify the speaker smoothly, and timestamps may be lost.
-
-All this applies only to very long audio.
-
-#### Gemini Pro/Flash (no longer actual[^3])
-
-[Gemini Pro/Flash model names and properties](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models)
-
-> Max output tokens: 8,192
-
-0.75 words per token = ~6,144 words or about 35 minutes of speaking. But for [non-English languages](https://mor10.com/openai-token-tax/), most words are counted as two or more tokens.
-
-The maximum number of output tokens is currently 8,192. Audio post-processing, which includes correction and translation, can only be done for files that are approximately 35 minutes long. Other models have a maximum output of 4,096 tokens or fewer. If you need to process more than 8,192 tokens, you may need to do it in batches, but this will significantly increase the processing time.
-
-Translation in chunks still works, but the quality is a little lower.
-
-> Max audio length: approximately 8.4 hours
-
-~~It still works well for summarization.~~
-
-> [2 queries per minute and 1000 per day for Gemini-1.5-pro. 15 and 1500 for Gemini-1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)
-
-[Languages support](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
+Diarized transcripts are translated one segment at a time, so every line keeps its own timestamp and speaker label. The cost is that each segment is translated without the context of its neighbours — slightly lower quality than a single pass — plus a short rate-limit pause between calls, which is what makes long files slow. See [languages supported](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#language-support) for translation.
 
 ### Optional settings
 
@@ -155,15 +131,6 @@ Translation in chunks still works, but the quality is a little lower.
 For diarization, all models rely on [pyannote.audio](https://huggingface.co/pyannote) solutions. As a user, you must agree to the terms for accessing the models offered by pyannote. Therefore, it is necessary to accept the terms for [pyannote/segmentation-3.0](https://hf.co/pyannote/segmentation-3.0) and [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) and obtain a [HuggingFace API token](https://huggingface.co/settings/tokens).
 
 The [thomasmol/whisper-diarization](https://replicate.com/thomasmol/whisper-diarization) model also uses the same models for diarization, but the developer uses his own HuggingFace API token. This means that an additional token is not required.
-
-#### Text to Speech (deprecated[^1])
-
-By default, I use the [ElevenLabs](https://elevenlabs.io/) `eleven_turbo_v2_5` model to generate high-quality audio for summaries in various languages. It's very fast and 50% cheaper than the `eleven_multilingual_v2` model. You get 10,000 credits per month for free, which is about 15 generated audios. If you need more, you'll need to purchase a [plan](https://elevenlabs.io/pricing) or use [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech/).
-
-[OpenAI TTS](https://openai.com/api/pricing/) is a pay-as-you-go service that costs $0.015 / 1K characters. \
-OpenAI's **input is limited** to a maximum of 4096 characters. To overcome this limitation, I split the text into chunks using [semantic_text_splitter](https://github.com/benbrandt/text-splitter) and [pydub](https://github.com/jiaaro/pydub/).
-
-Additionally, the [xtts-v2](https://replicate.com/lucataco/xtts-v2) model is another high-quality multilanguage model, but [Coqui](https://coqui.ai/), the developer of this model, is shutting down. As a result, I use ElevenLabs or OpenAI.
 
 ### Config
 
@@ -195,14 +162,13 @@ Using [context caching](https://github.com/google-gemini/cookbook/blob/main/quic
 
 |  | Links |
 | ---|--- |
-| Libraries | [streamlit](https://docs.streamlit.io)<br> [replicate](https://replicate.com/docs/get-started/python)<br>[Google Gen AI SDK](https://github.com/googleapis/python-genai)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>~~[elevenlabs](https://github.com/elevenlabs/elevenlabs-python)~~<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>[curl_cffi](https://github.com/lexiforest/curl_cffi)<br>~~[openai](https://github.com/openai/openai-python)~~<br>~~[pydub](https://github.com/jiaaro/pydub/)~~<br>~~[requests](https://requests.readthedocs.io)~~<br>~~[semantic_text_splitter](https://github.com/benbrandt/text-splitter)~~ |
+| Libraries | [streamlit](https://docs.streamlit.io)<br>[replicate](https://replicate.com/docs/get-started/python)<br>[Google Gen AI SDK](https://github.com/googleapis/python-genai)<br>[yt-dlp](https://github.com/yt-dlp/yt-dlp)<br>[bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)<br>[curl_cffi](https://github.com/lexiforest/curl_cffi) |
 | Docker | [Docker Best Practices](https://testdriven.io/blog/docker-best-practices/)<br><br>[Docker](https://docs.docker.com/language/python/)<br>[Dockerfile reference](https://docs.docker.com/reference/dockerfile/)<br>[Dockerfile Linter](https://hadolint.github.io/hadolint/)<br><br>[.dockerignore](https://docs.docker.com/build/building/context/#dockerignore-files)<br>[.dockerignore validator](https://dockerignore.vw.codes/)<br><br>[Docker Compose](https://docs.docker.com/compose/)<br>[Syntax for environment files in Docker Compose](https://docs.docker.com/compose/environment-variables/env-file/)<br>[Ways to set environment variables with Compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/)<br>[Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)|
 | GitHub Actions | [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)<br>[Publishing images to Docker Hub and GitHub Packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-docker-hub-and-github-packages) |
 | Dev Containers | [An open specification for enriching containers with development specific content and settings](https://containers.dev/)<br>[Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) |
 | uv | [uv pip](https://docs.astral.sh/uv/reference/cli/#uv-pip) |
 | pixi | [pixi](https://pixi.prefix.dev/latest/) |
 | direnv | [direnv](https://direnv.net/) |
-| AI | [codesight](https://github.com/Houseofmvps/codesight) |
 | Speech to Text AI Model Leaderboard | [Artificial Analysis](https://artificialanalysis.ai/speech-to-text) |
 
 ### Deploy
@@ -243,4 +209,3 @@ dependencies change.
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
-[^3]: For May 2026
