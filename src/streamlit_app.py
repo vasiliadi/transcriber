@@ -381,7 +381,6 @@ def translate(
             icon="🚨",
         )
         st.stop()
-        return text
     else:
         if translation.text is not None:
             return translation.text
