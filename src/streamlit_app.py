@@ -23,25 +23,7 @@ if TYPE_CHECKING:
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "gemini-3.5-flash"
-SAFETY_SETTINGS = [
-    types.SafetySetting(
-        category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold=types.HarmBlockThreshold.BLOCK_NONE,
-    ),
-    types.SafetySetting(
-        category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold=types.HarmBlockThreshold.BLOCK_NONE,
-    ),
-    types.SafetySetting(
-        category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold=types.HarmBlockThreshold.BLOCK_NONE,
-    ),
-    types.SafetySetting(
-        category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold=types.HarmBlockThreshold.BLOCK_NONE,
-    ),
-]
+GEMINI_MODEL = "gemini-3.7-flash"
 THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
 
@@ -172,7 +154,6 @@ def correct_transcription(
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction=None,
-                safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
                 thinking_config=THINKING_CONFIG,
             ),
@@ -386,7 +367,6 @@ def translate(
                     Use polite, respectful language, adjusting formality as appropriate for the text type (e.g., legal, business, casual).
                     I want you to only reply the translation, do not write notes or explanations.
                     """).strip(),
-                safety_settings=SAFETY_SETTINGS,
                 response_mime_type="text/plain",
                 thinking_config=THINKING_CONFIG,
             ),
@@ -420,7 +400,6 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=None,
-            safety_settings=SAFETY_SETTINGS,
             response_mime_type="application/json",
             response_schema=list[SpeakerMapping],
             thinking_config=types.ThinkingConfig(

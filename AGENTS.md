@@ -42,6 +42,7 @@ input (upload / URL / YouTube) → `download()` → `compress_audio()` (ffmpeg �
 
 ## Gotchas
 
+- The project targets Python 3.14 (`requires-python`, ruff `target-version`, pyrefly `python-version`), so it uses 3.14-only syntax. `get_latest_prediction_output()` has an unparenthesized `except TypeError, httpx.ReadTimeout:` — valid under [PEP 758](https://peps.python.org/pep-0758/). It is not a mistake; do not "fix" it by adding parentheses. An older interpreter will call it a `SyntaxError`, so check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
 - Streamlit reruns the whole script on every widget interaction. Add new user settings to the `st.session_state` init block, and keep `@st.cache_data` on Gemini calls.
 - `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker); `clean_up()` deletes them in a `finally`.
 - `PROXY` is read with `os.environ.get`, so an unset value silently sends no proxy instead of failing.
