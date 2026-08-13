@@ -6,6 +6,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pyrefly](https://img.shields.io/endpoint?url=https://pyrefly.org/badge.json)](https://github.com/facebook/pyrefly)
 [![Pixi Badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json&style=flat-square)](https://pixi.sh)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvasiliadi%2Ftranscriber.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvasiliadi%2Ftranscriber?ref=badge_shield)
 
 Transcriber &amp; translator for audio files. Like Otter.ai, but open-source and almost free.
 
@@ -209,3 +210,6 @@ dependencies change.
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvasiliadi%2Ftranscriber.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvasiliadi%2Ftranscriber?ref=badge_large)
