@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:trixie@sha256:7048c87239bf8c7872feeacd0c25c9f3788fd3cd89950579b7233143265b8774 AS build
+FROM ghcr.io/prefix-dev/pixi:trixie@sha256:28c03da99074551eaefe8bc7b0865da37bd74c1e52dbec363fb426c4dc9c2693 AS build
 WORKDIR /app
 COPY pyproject.toml pixi.lock ./
 RUN pixi install --locked -e docker
