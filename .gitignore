@@ -172,6 +172,7 @@ temp
 .DS_Store
 start.bat
 stop.bat
+start.sh
 
 # Zed
 .zed/
