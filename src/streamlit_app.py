@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 # Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
-GEMINI_MODEL = "gemini-3.7-flash"
+GEMINI_MODEL = "gemini-3.8-flash"
 THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
 
@@ -99,7 +99,10 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                     if source is not None:
                         src = source.get("src")
                         if not isinstance(src, str):
-                            st.error("Could not extract audio URL from castro.fm page", icon="🚨")
+                            st.error(
+                                "Could not extract audio URL from castro.fm page",
+                                icon="🚨",
+                            )
                             st.stop()
                         url = src
                 downloaded_file = requests.get(
