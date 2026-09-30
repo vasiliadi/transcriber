@@ -98,7 +98,7 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                     ).source
                     if source is not None:
                         src = source.get("src")
-                        if not isinstance(src, str):
+                        if not isinstance(src, str) or not src.strip():
                             st.error(
                                 "Could not extract audio URL from castro.fm page",
                                 icon="🚨",
