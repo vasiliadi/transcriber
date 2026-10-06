@@ -4,13 +4,12 @@ import subprocess
 import time
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
-import httpx
-import replicate
 import streamlit as st
 from bs4 import BeautifulSoup
-from curl_cffi import requests
+from curl_cffi import CurlMime, requests
+from curl_cffi.requests.exceptions import RequestException
 from curl_cffi.requests.utils import requote_uri
 from google import genai
 from google.genai import types
@@ -29,9 +28,8 @@ THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
 # Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
-replicate_client = replicate.Client(
-    api_token=replicate_api_token,
-)
+REPLICATE_API_URL = "https://api.replicate.com/v1"
+RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 
 # HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
@@ -62,6 +60,7 @@ if "mode" not in st.session_state:
     st.session_state.diarization = True
     st.session_state.speaker_identification = True
     st.session_state.raw_json = False
+    st.session_state.raw_output = None
 
 
 # Functions
@@ -166,18 +165,87 @@ def correct_transcription(
     return transcription
 
 
-def get_latest_model_version(model_name: str) -> str:
-    return replicate_client.models.get(model_name).versions.list()[0].id
-
-
-def get_latest_prediction_output(sleep_time: int = 10) -> Any:
-    transcription = None
-    while transcription is None:
+def replicate_request(
+    method: Literal["GET", "POST"],
+    path: str,
+    max_attempts: int = 5,
+    **kwargs: Any,
+) -> Any:
+    # GET is idempotent, so retry it with backoff like the replicate SDK did;
+    # POST is not retried to avoid creating (and paying for) a duplicate prediction
+    attempts = max_attempts if method == "GET" else 1
+    for attempt in range(1, attempts + 1):
+        delay = 2 ** (attempt - 1)
         try:
-            transcription = replicate_client.predictions.list().results[0].output
-        except TypeError, httpx.ReadTimeout:
-            time.sleep(sleep_time)
-    return transcription
+            response = requests.request(
+                method,
+                f"{REPLICATE_API_URL}/{path}",
+                headers={"Authorization": f"Bearer {replicate_api_token}"},
+                verify=True,
+                timeout=120,
+                **kwargs,
+            )
+        except RequestException:  # connection errors and timeouts
+            if attempt == attempts:
+                raise
+        else:
+            if response.status_code not in RETRYABLE_STATUSES or attempt == attempts:
+                response.raise_for_status()
+                return response.json()
+            retry_after = response.headers.get("Retry-After")
+            if retry_after is not None and retry_after.isdigit():
+                delay = int(retry_after)
+        time.sleep(delay)
+    return None  # unreachable: the last attempt returns or raises
+
+
+def upload_file(audio_file_name: str) -> str:
+    multipart = CurlMime()
+    multipart.addpart(
+        name="content",
+        content_type="audio/ogg",
+        filename=Path(audio_file_name).name,
+        local_path=audio_file_name,
+    )
+    try:
+        return replicate_request("POST", "files", multipart=multipart)["urls"]["get"]
+    finally:
+        multipart.close()
+
+
+def get_latest_model_version(model_name: str) -> str:
+    return replicate_request("GET", f"models/{model_name}")["latest_version"]["id"]
+
+
+def run_prediction(
+    model_name: str,
+    model_input: dict[str, Any],
+    official: bool = False,
+    sleep_time: int = 10,
+) -> Any:
+    if official:  # official models run without a version id
+        prediction = replicate_request(
+            "POST",
+            f"models/{model_name}/predictions",
+            json={"input": model_input},
+        )
+    else:
+        prediction = replicate_request(
+            "POST",
+            "predictions",
+            json={
+                "version": get_latest_model_version(model_name),
+                "input": model_input,
+            },
+        )
+    while prediction["status"] in {"starting", "processing"}:
+        time.sleep(sleep_time)
+        prediction = replicate_request("GET", f"predictions/{prediction['id']}")
+    if prediction["status"] != "succeeded":
+        msg = f"Prediction {prediction['status']}: {prediction.get('error')}"
+        raise RuntimeError(msg)
+    st.session_state.raw_output = prediction["output"]
+    return prediction["output"]
 
 
 @st.cache_data(show_spinner=False)
@@ -230,15 +298,13 @@ def process_diarization_for_incredibly_fast_whisper(
 
 
 def process_whisper_diarization(audio_file_name: str = CONVERTED_FILE_NAME) -> Any:
-    with Path(audio_file_name).open("rb") as audio:
-        try:
-            transcription = replicate_client.run(
-                f"{WHISPER_DIARIZATION}:{get_latest_model_version(WHISPER_DIARIZATION)}",
-                input={"file": audio, "transcript_output_format": "segments_only"},
-            )
-        except httpx.ReadTimeout:
-            transcription = get_latest_prediction_output()
-        return transcription
+    return run_prediction(
+        WHISPER_DIARIZATION,
+        {
+            "file": upload_file(audio_file_name),
+            "transcript_output_format": "segments_only",
+        },
+    )
 
 
 def process_incredibly_fast_whisper(
@@ -246,89 +312,79 @@ def process_incredibly_fast_whisper(
     diarization: bool = st.session_state.diarization,
     post_processing: bool = st.session_state.post_processing,
 ) -> dict[str, Any]:
-    with Path(audio_file_name).open("rb") as audio:
-        try:
-            transcription: Any = replicate_client.run(
-                f"{INCREDIBLY_FAST_WHISPER}:{get_latest_model_version(INCREDIBLY_FAST_WHISPER)}",
-                input={
-                    "audio": audio,
-                    "hf_token": hf_access_token,
-                    "diarise_audio": diarization,
-                },
-                use_file_output=False,
-            )
-        except httpx.ReadTimeout:
-            transcription = get_latest_prediction_output()
-        except:  # noqa: E722
-            st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-            st.stop()
+    try:
+        transcription: Any = run_prediction(
+            INCREDIBLY_FAST_WHISPER,
+            {
+                "audio": upload_file(audio_file_name),
+                "hf_token": hf_access_token,
+                "diarise_audio": diarization,
+            },
+        )
+    except:  # noqa: E722
+        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
+        st.stop()
 
-        transcription = {
-            "num_speakers": detected_num_speakers(
-                transcription,
-                model=INCREDIBLY_FAST_WHISPER,
+    transcription = {
+        "num_speakers": detected_num_speakers(
+            transcription,
+            model=INCREDIBLY_FAST_WHISPER,
+        )
+        if diarization
+        else 0,
+        "segments": (
+            process_diarization_for_incredibly_fast_whisper(
+                cast("list[dict[str, Any]]", transcription),
             )
             if diarization
-            else 0,
-            "segments": (
-                process_diarization_for_incredibly_fast_whisper(
-                    cast("list[dict[str, Any]]", transcription),
-                )
-                if diarization
-                else correct_transcription(
-                    cast("dict[str, Any]", transcription)["text"],
-                    post_processing=post_processing,
-                )
-            ),
-        }
-        return transcription  # noqa: RET504
+            else correct_transcription(
+                cast("dict[str, Any]", transcription)["text"],
+                post_processing=post_processing,
+            )
+        ),
+    }
+    return transcription  # noqa: RET504
 
 
 def process_openai(audio_file_name: str = CONVERTED_FILE_NAME) -> dict[str, Any]:
-    with Path(audio_file_name).open("rb") as audio:
-        try:
-            transcription = replicate_client.run(
-                f"{OPENAI}",
-                input={"audio_file": audio},
-            )
-        except httpx.ReadTimeout:
-            transcription = get_latest_prediction_output()
+    transcription = run_prediction(
+        OPENAI,
+        {"audio_file": upload_file(audio_file_name)},
+        official=True,
+    )
 
-        transcription = {
-            "num_speakers": 0,
-            "segments": correct_transcription("".join(transcription)),
-        }
+    transcription = {
+        "num_speakers": 0,
+        "segments": correct_transcription("".join(transcription)),
+    }
 
-        return transcription  # noqa: RET504
+    return transcription  # noqa: RET504
 
 
 def process_whisperx(
     audio_file_name: str = CONVERTED_FILE_NAME,
     diarization: bool = st.session_state.diarization,
 ) -> dict[str, Any]:
-    with Path(audio_file_name).open("rb") as audio:
-        try:
-            transcription: Any = replicate_client.run(
-                f"{WHISPERX}:{get_latest_model_version(WHISPERX)}",
-                input={
-                    "audio_file": audio,
-                    "diarization": diarization,
-                    "huggingface_access_token": hf_access_token,
-                },
-            )
-        except httpx.ReadTimeout:
-            transcription = get_latest_prediction_output()
-        except:  # noqa: E722
-            st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-            st.stop()
+    try:
+        transcription: Any = run_prediction(
+            WHISPERX,
+            {
+                "audio_file": upload_file(audio_file_name),
+                "diarization": diarization,
+                "huggingface_access_token": hf_access_token,
+            },
+        )
+    except:  # noqa: E722
+        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
+        st.stop()
 
-        transcription = {
-            "num_speakers": detected_num_speakers(transcription, model=WHISPERX)
-            if diarization
-            else 1,
-            "segments": cast("dict[str, Any]", transcription)["segments"],
-        }
-        return transcription  # noqa: RET504
+    transcription = {
+        "num_speakers": detected_num_speakers(transcription, model=WHISPERX)
+        if diarization
+        else 1,
+        "segments": cast("dict[str, Any]", transcription)["segments"],
+    }
+    return transcription  # noqa: RET504
 
 
 def transcribe(model_name: str = st.session_state.model_name) -> dict[str, Any] | None:
@@ -462,10 +518,7 @@ def process_transcription() -> None:
                     f"**{convert_to_minutes(segment['start'])} - {names.get(segment['speaker'], segment['speaker'])}:** {translate(text, chunks=True, sleep_time=5)}",
                 )
         if st.session_state.raw_json:
-            last_prediction_id = replicate_client.predictions.list().results[0].id
-            data = json.dumps(
-                replicate_client.predictions.get(last_prediction_id).output,
-            )
+            data = json.dumps(st.session_state.raw_output)
             st.download_button(
                 label="Download JSON",
                 data=data,
