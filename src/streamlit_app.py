@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 import streamlit as st
 from bs4 import BeautifulSoup
 from curl_cffi import CurlMime, requests
+from curl_cffi.requests.exceptions import RequestException
 from curl_cffi.requests.utils import requote_uri
 from google import genai
 from google.genai import types
@@ -203,6 +204,7 @@ def run_prediction(
     model_input: dict[str, Any],
     official: bool = False,
     sleep_time: int = 10,
+    max_poll_retries: int = 5,
 ) -> Any:
     if official:  # official models run without a version id
         prediction = replicate_request(
@@ -219,9 +221,16 @@ def run_prediction(
                 "input": model_input,
             },
         )
-    while prediction["status"] not in {"succeeded", "failed", "canceled"}:
+    retries = 0
+    while prediction["status"] in {"starting", "processing"}:
         time.sleep(sleep_time)
-        prediction = replicate_request("GET", f"predictions/{prediction['id']}")
+        try:
+            prediction = replicate_request("GET", f"predictions/{prediction['id']}")
+            retries = 0
+        except RequestException:
+            retries += 1
+            if retries >= max_poll_retries:
+                raise
     if prediction["status"] != "succeeded":
         msg = f"Prediction {prediction['status']}: {prediction.get('error')}"
         raise RuntimeError(msg)
