@@ -29,6 +29,7 @@ THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 # Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 REPLICATE_API_URL = "https://api.replicate.com/v1"
+RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 
 # HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
@@ -167,18 +168,35 @@ def correct_transcription(
 def replicate_request(
     method: Literal["GET", "POST"],
     path: str,
+    max_attempts: int = 5,
     **kwargs: Any,
 ) -> Any:
-    response = requests.request(
-        method,
-        f"{REPLICATE_API_URL}/{path}",
-        headers={"Authorization": f"Bearer {replicate_api_token}"},
-        verify=True,
-        timeout=120,
-        **kwargs,
-    )
-    response.raise_for_status()
-    return response.json()
+    # GET is idempotent, so retry it with backoff like the replicate SDK did;
+    # POST is not retried to avoid creating (and paying for) a duplicate prediction
+    attempts = max_attempts if method == "GET" else 1
+    for attempt in range(1, attempts + 1):
+        delay = 2 ** (attempt - 1)
+        try:
+            response = requests.request(
+                method,
+                f"{REPLICATE_API_URL}/{path}",
+                headers={"Authorization": f"Bearer {replicate_api_token}"},
+                verify=True,
+                timeout=120,
+                **kwargs,
+            )
+        except RequestException:  # connection errors and timeouts
+            if attempt == attempts:
+                raise
+        else:
+            if response.status_code not in RETRYABLE_STATUSES or attempt == attempts:
+                response.raise_for_status()
+                return response.json()
+            retry_after = response.headers.get("Retry-After")
+            if retry_after is not None and retry_after.isdigit():
+                delay = int(retry_after)
+        time.sleep(delay)
+    return None  # unreachable: the last attempt returns or raises
 
 
 def upload_file(audio_file_name: str) -> str:
@@ -204,7 +222,6 @@ def run_prediction(
     model_input: dict[str, Any],
     official: bool = False,
     sleep_time: int = 10,
-    max_poll_retries: int = 5,
 ) -> Any:
     if official:  # official models run without a version id
         prediction = replicate_request(
@@ -221,16 +238,9 @@ def run_prediction(
                 "input": model_input,
             },
         )
-    retries = 0
     while prediction["status"] in {"starting", "processing"}:
         time.sleep(sleep_time)
-        try:
-            prediction = replicate_request("GET", f"predictions/{prediction['id']}")
-            retries = 0
-        except RequestException:
-            retries += 1
-            if retries >= max_poll_retries:
-                raise
+        prediction = replicate_request("GET", f"predictions/{prediction['id']}")
     if prediction["status"] != "succeeded":
         msg = f"Prediction {prediction['status']}: {prediction.get('error')}"
         raise RuntimeError(msg)
