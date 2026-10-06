@@ -17,7 +17,7 @@ Run the app through `pixi`, never bare `python` or `streamlit`. Run the checkers
 
 input (upload / URL / YouTube via yt-dlp) → `download()` → `compress_audio()` (ffmpeg → mono Opus/ogg, 16 kbps) → `transcribe()` → `process_transcription()` renders it → `clean_up()` (in a `finally`)
 
-`transcribe()` dispatches to one of four Replicate models, each with its own `process_*` function:
+`transcribe()` dispatches to one of four Replicate models, each with its own `process_*` function. There is no Replicate SDK: `run_prediction()` calls the [HTTP API](https://replicate.com/docs/reference/http) with `curl_cffi` — `upload_file()` posts the audio to `/files`, then it creates a prediction (pinned to the model's `latest_version`, or via `/models/{name}/predictions` with `official=True` for official models such as `OPENAI`) and polls it until it finishes:
 
 | Constant | Model | Best for |
 | --- | --- | --- |
@@ -41,7 +41,8 @@ Every `process_*` builds that dict except `process_whisper_diarization()`, which
 
 ## Gotchas
 
-- Python 3.14 only. `get_latest_prediction_output()` has an unparenthesized `except TypeError, httpx.ReadTimeout:` — valid under [PEP 758](https://peps.python.org/pep-0758/); do not add parentheses. Check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
+- Python 3.14 only. Check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
+- The Raw JSON download reads `st.session_state.raw_output`, which `run_prediction()` sets to the last prediction's output.
 - Streamlit reruns the whole script on every widget interaction. Add new user settings to the `st.session_state` init block, and keep `@st.cache_data` on Gemini calls.
 - `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker).
 - After changing `pixi.lock`, regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
@@ -53,6 +54,6 @@ Required variables are read with `os.environ[...]` and fail at startup when miss
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `GEMINI_API_KEY` | yes | Google Gemini client |
-| `REPLICATE_API_TOKEN` | yes | Replicate client |
+| `REPLICATE_API_TOKEN` | yes | Replicate HTTP API (bearer token) |
 | `HF_ACCESS_TOKEN` | yes | HuggingFace token passed to diarization models |
 | `PROXY` | no | proxy for yt-dlp and curl_cffi |
