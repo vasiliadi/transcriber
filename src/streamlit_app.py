@@ -52,15 +52,21 @@ class SpeakerMapping(BaseModel):
 
 
 # Initialization
-if "mode" not in st.session_state:
-    st.session_state.mode = "YouTube or link to an audio file"
-    st.session_state.language = None
-    st.session_state.model_name = WHISPER_DIARIZATION
-    st.session_state.post_processing = True
-    st.session_state.diarization = True
-    st.session_state.speaker_identification = True
-    st.session_state.raw_json = False
-    st.session_state.raw_output = None
+DEFAULTS = {
+    "mode": "YouTube or link to an audio file",
+    "language": None,
+    "model_name": WHISPER_DIARIZATION,
+    "post_processing": True,
+    "diarization": True,
+    "speaker_identification": True,
+    "raw_json": False,
+    "raw_output": None,
+}
+# Streamlit deletes a widget's key after a run in which the widget is not rendered
+# (e.g. another model selected, advanced settings off). Re-assigning every key on
+# each run keeps the user's choice through such runs and seeds missing defaults.
+for key, value in DEFAULTS.items():
+    st.session_state[key] = st.session_state.get(key, value)
 
 
 # Functions
@@ -239,38 +245,37 @@ def run_prediction(
     return prediction["output"]
 
 
+def count_speakers(segments: list[dict[str, Any]]) -> int:
+    # at least 1, so diarized segments are never rendered as plain text (0)
+    return max(1, len({s["speaker"] for s in segments}))
+
+
 def process_diarization_for_incredibly_fast_whisper(
     transcription: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:  # for incredibly-fast-whisper only
+    # merge consecutive chunks of the same speaker separated by at most 2 seconds
     output: list[dict[str, Any]] = []
-    current_group: dict[str, Any] = {
-        "start": str(transcription[0]["timestamp"][0]),
-        "end": str(transcription[0]["timestamp"][1]),
-        "speaker": transcription[0]["speaker"],
-        "text": transcription[0]["text"],
-    }
-
-    for i in range(1, len(transcription[0:-1])):
-        time_gap = (
-            transcription[i]["timestamp"][0] - transcription[i - 1]["timestamp"][1]
-        )
+    prev_end: float | None = None
+    for chunk in transcription:
+        start, end = chunk["timestamp"]  # end can be None on the last chunk
         if (
-            transcription[i]["speaker"] == transcription[i - 1]["speaker"]
-            and time_gap <= 2  # noqa: PLR2004
+            output
+            and chunk["speaker"] == output[-1]["speaker"]
+            and prev_end is not None
+            and start - prev_end <= 2  # noqa: PLR2004
         ):
-            current_group["end"] = str(transcription[i]["timestamp"][1])
-            current_group["text"] += " " + transcription[i]["text"]
+            output[-1]["end"] = str(end)
+            output[-1]["text"] += " " + chunk["text"]
         else:
-            output.append(current_group)
-
-            current_group = {
-                "start": str(transcription[i]["timestamp"][0]),
-                "end": str(transcription[i]["timestamp"][1]),
-                "speaker": transcription[i]["speaker"],
-                "text": transcription[i]["text"],
-            }
-
-    output.append(current_group)
+            output.append(
+                {
+                    "start": str(start),
+                    "end": str(end),
+                    "speaker": chunk["speaker"],
+                    "text": chunk["text"],
+                },
+            )
+        prev_end = end
     return output
 
 
@@ -288,23 +293,16 @@ def process_incredibly_fast_whisper(
     diarization: bool = st.session_state.diarization,
     post_processing: bool = st.session_state.post_processing,
 ) -> dict[str, Any]:
-    try:
-        transcription: Any = run_prediction(
-            INCREDIBLY_FAST_WHISPER,
-            {
-                "audio": upload_file(CONVERTED_FILE_NAME),
-                "hf_token": hf_access_token,
-                "diarise_audio": diarization,
-            },
-        )
-    except:  # noqa: E722
-        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-        st.stop()
-
+    transcription: Any = run_prediction(
+        INCREDIBLY_FAST_WHISPER,
+        {
+            "audio": upload_file(CONVERTED_FILE_NAME),
+            "hf_token": hf_access_token,
+            "diarise_audio": diarization,
+        },
+    )
     return {
-        "num_speakers": len({s["speaker"] for s in transcription[0:-1]})
-        if diarization
-        else 0,
+        "num_speakers": count_speakers(transcription) if diarization else 0,
         "segments": (
             process_diarization_for_incredibly_fast_whisper(
                 cast("list[dict[str, Any]]", transcription),
@@ -333,36 +331,30 @@ def process_openai() -> dict[str, Any]:
 def process_whisperx(
     diarization: bool = st.session_state.diarization,
 ) -> dict[str, Any]:
-    try:
-        transcription: Any = run_prediction(
-            WHISPERX,
-            {
-                "audio_file": upload_file(CONVERTED_FILE_NAME),
-                "diarization": diarization,
-                "huggingface_access_token": hf_access_token,
-            },
-        )
-    except:  # noqa: E722
-        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-        st.stop()
-
-    segments = cast("dict[str, Any]", transcription)["segments"]
+    segments = run_prediction(
+        WHISPERX,
+        {
+            "audio_file": upload_file(CONVERTED_FILE_NAME),
+            "diarization": diarization,
+            "huggingface_access_token": hf_access_token,
+        },
+    )["segments"]
     return {
-        "num_speakers": len({s["speaker"] for s in segments[0:-1]})
-        if diarization
-        else 1,
+        "num_speakers": count_speakers(segments) if diarization else 1,
         "segments": segments,
     }
 
 
-def transcribe(model_name: str = st.session_state.model_name) -> dict[str, Any]:
-    process = {
-        WHISPER_DIARIZATION: process_whisper_diarization,
-        INCREDIBLY_FAST_WHISPER: process_incredibly_fast_whisper,
-        OPENAI: process_openai,
-        WHISPERX: process_whisperx,
-    }
-    return process[model_name]()
+TRANSCRIBERS = {
+    WHISPER_DIARIZATION: process_whisper_diarization,
+    INCREDIBLY_FAST_WHISPER: process_incredibly_fast_whisper,
+    OPENAI: process_openai,
+    WHISPERX: process_whisperx,
+}
+
+
+def transcribe() -> dict[str, Any]:
+    return TRANSCRIBERS[st.session_state.model_name]()
 
 
 @st.cache_data(show_spinner=False)
