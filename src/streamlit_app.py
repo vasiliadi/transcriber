@@ -19,25 +19,19 @@ from yt_dlp import YoutubeDL
 if TYPE_CHECKING:
     from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-# Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
 GEMINI_MODEL = "gemini-3.8-flash"
 THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
-
-# Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 REPLICATE_API_URL = "https://api.replicate.com/v1"
 RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 
-# HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
-# Proxy config
 proxy = os.environ.get("PROXY")
 
-# Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
@@ -51,7 +45,6 @@ class SpeakerMapping(BaseModel):
     detected_speaker: str
 
 
-# Initialization
 DEFAULTS = {
     "mode": "YouTube or link to an audio file",
     "language": None,
@@ -62,9 +55,8 @@ DEFAULTS = {
     "raw_json": False,
     "raw_output": None,
 }
-# Streamlit deletes a widget's key after a run in which the widget is not rendered
-# (e.g. another model selected, advanced settings off). Re-assigning every key on
-# each run keeps the user's choice through such runs and seeds missing defaults.
+# Streamlit deletes the key of a widget not rendered in a run; re-assigning every
+# key each run keeps the user's choice and seeds missing defaults.
 for key, value in DEFAULTS.items():
     st.session_state[key] = st.session_state.get(key, value)
 
@@ -82,7 +74,7 @@ def download(url: Any) -> None:
                     "outtmpl": "audio",
                     "proxy": proxy,
                     "postprocessors": [
-                        {  # Extract audio using ffmpeg
+                        {
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
                         },
@@ -124,7 +116,7 @@ def compress_audio() -> None:
     try:
         subprocess.run(
             [
-                "ffmpeg",  # /usr/bin/ffmpeg
+                "ffmpeg",
                 "-y",
                 "-i",
                 AUDIO_FILE_NAME,
@@ -169,8 +161,7 @@ def replicate_request(
     path: str,
     **kwargs: Any,
 ) -> Any:
-    # GET is idempotent, so retry it with backoff like the replicate SDK did;
-    # POST is not retried to avoid creating (and paying for) a duplicate prediction
+    # Only GET is retried: a retried POST could create (and bill) a duplicate prediction
     attempts = 5 if method == "GET" else 1
     for attempt in range(1, attempts + 1):
         delay = 2 ** (attempt - 1)
@@ -246,13 +237,13 @@ def run_prediction(
 
 
 def count_speakers(segments: list[dict[str, Any]]) -> int:
-    # at least 1, so diarized segments are never rendered as plain text (0)
+    # never 0, which would render the segments as plain text
     return max(1, len({s["speaker"] for s in segments}))
 
 
 def process_diarization_for_incredibly_fast_whisper(
     transcription: list[dict[str, Any]],
-) -> list[dict[str, Any]]:  # for incredibly-fast-whisper only
+) -> list[dict[str, Any]]:
     # merge consecutive chunks of the same speaker separated by at most 2 seconds
     output: list[dict[str, Any]] = []
     prev_end: float | None = None
@@ -301,9 +292,8 @@ def process_incredibly_fast_whisper(
             "diarise_audio": diarization,
         },
     )
-    # Diarized output is a list of segments with the full transcript appended as the
-    # last item (no speaker/timestamp). A dict means no diarization: either it was
-    # off or the pyannote pipeline failed to load.
+    # Diarized output is a list of segments plus the full transcript as the last item;
+    # a dict means no diarization (disabled, or pyannote failed to load)
     if isinstance(transcription, dict):
         return {
             "num_speakers": 0,
@@ -390,7 +380,7 @@ def translate(
         ),
     )
     if chunks:
-        # Stay under the Gemini Flash requests-per-minute limit https://ai.google.dev/gemini-api/docs/rate-limits
+        # Gemini Flash rate limit https://ai.google.dev/gemini-api/docs/rate-limits
         time.sleep(5)
     if translation.text is not None:
         return translation.text
@@ -444,9 +434,7 @@ def process_transcription() -> None:
                 st.markdown(
                     f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True)}",
                 )
-        elif (
-            transcription["num_speakers"] == 0
-        ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
+        elif transcription["num_speakers"] == 0:  # plain text
             st.markdown(translate(transcription["segments"]).replace("$", r"\$"))
         else:
             names = (
