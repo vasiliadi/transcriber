@@ -375,8 +375,7 @@ def translate(
             system_instruction=dedent("""
                 You are a language model specializing in accurate, context-sensitive translations.
                 Translate each text with precise meaning and maintain the original tone and style.
-                Adapt idioms, cultural references, and metaphors for naturalness in the target language,
-                while providing brief explanations directly in the text, if necessary.
+                Adapt idioms, cultural references, and metaphors for naturalness in the target language.
                 Avoid literal translations unless they are essential.
                 When terms have multiple meanings, use the context to select the best fit.
                 Do not translate proper nouns or technical terms unless widely recognized equivalents exist.
