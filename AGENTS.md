@@ -17,14 +17,7 @@ Run the app through `pixi`, never bare `python` or `streamlit`. Run the checkers
 
 input (upload / URL / YouTube via yt-dlp) → `download()` → `compress_audio()` (ffmpeg → mono Opus/ogg, 16 kbps) → `transcribe()` → `process_transcription()` renders it → `clean_up()` (in a `finally`)
 
-`transcribe()` dispatches to one of four Replicate models, each with its own `process_*` function. There is no Replicate SDK: `run_prediction()` calls the [HTTP API](https://replicate.com/docs/reference/http) with `curl_cffi` — `upload_file()` posts the audio to `/files`, then it creates a prediction (pinned to the model's `latest_version`, or via `/models/{name}/predictions` with `official=True` for official models such as `OPENAI`) and polls it until it finishes:
-
-| Constant | Model | Best for |
-| --- | --- | --- |
-| `WHISPER_DIARIZATION` | `thomasmol/whisper-diarization` | dialogs (default) |
-| `INCREDIBLY_FAST_WHISPER` | `vaibhavs10/incredibly-fast-whisper` | speed |
-| `OPENAI` | `openai/gpt-4o-transcribe` | accuracy |
-| `WHISPERX` | `victor-upmeet/whisperx` | dialogs (newer) |
+`transcribe()` dispatches to one of four Replicate models, each with its own `process_*` function. There is no Replicate SDK: `run_prediction()` calls the [HTTP API](https://replicate.com/docs/reference/http) with `curl_cffi` — `upload_file()` posts the audio to `/files`, then it creates a prediction (pinned to the model's `latest_version`, or via `/models/{name}/predictions` with `official=True` for official models such as `OPENAI`) and polls it until it finishes.
 
 Gemini (`GEMINI_MODEL`) handles the post-processing, at two points:
 
@@ -49,11 +42,4 @@ Every `process_*` builds that dict except `process_whisper_diarization()`, which
 
 ## Environment variables
 
-Required variables are read with `os.environ[...]` and fail at startup when missing; `PROXY` uses `os.environ.get`, so an unset value silently means no proxy.
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `GEMINI_API_KEY` | yes | Google Gemini client |
-| `REPLICATE_API_TOKEN` | yes | Replicate HTTP API (bearer token) |
-| `HF_ACCESS_TOKEN` | yes | HuggingFace token passed to diarization models |
-| `PROXY` | no | proxy for yt-dlp and curl_cffi |
+`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (yt-dlp and curl_cffi) uses `os.environ.get`, so an unset value silently means no proxy.
