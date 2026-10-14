@@ -42,4 +42,4 @@ Every `process_*` builds that dict except `process_whisper_diarization()`, which
 
 ## Environment variables
 
-`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (yt-dlp and curl_cffi) uses `os.environ.get`, so an unset value silently means no proxy.
+`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (media downloads in `download()`: yt-dlp and the curl_cffi link fetches; Replicate API calls go direct) uses `os.environ.get`, so an unset value silently means no proxy.
