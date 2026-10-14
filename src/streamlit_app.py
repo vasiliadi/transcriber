@@ -301,18 +301,21 @@ def process_incredibly_fast_whisper(
             "diarise_audio": diarization,
         },
     )
-    return {
-        "num_speakers": count_speakers(transcription) if diarization else 0,
-        "segments": (
-            process_diarization_for_incredibly_fast_whisper(
-                cast("list[dict[str, Any]]", transcription),
-            )
-            if diarization
-            else correct_transcription(
-                cast("dict[str, Any]", transcription)["text"],
+    # Diarized output is a list of segments with the full transcript appended as the
+    # last item (no speaker/timestamp). A dict means no diarization: either it was
+    # off or the pyannote pipeline failed to load.
+    if isinstance(transcription, dict):
+        return {
+            "num_speakers": 0,
+            "segments": correct_transcription(
+                transcription["text"],
                 post_processing=post_processing,
-            )
-        ),
+            ),
+        }
+    segments = transcription[:-1]
+    return {
+        "num_speakers": count_speakers(segments),
+        "segments": process_diarization_for_incredibly_fast_whisper(segments),
     }
 
 
