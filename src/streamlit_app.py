@@ -19,19 +19,25 @@ from yt_dlp import YoutubeDL
 if TYPE_CHECKING:
     from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+# Google Gemini config
 gemini_api_key = os.environ["GEMINI_API_KEY"]
 gemini_client = genai.Client(api_key=gemini_api_key)
 GEMINI_MODEL = "gemini-3.8-flash"
 THINKING_CONFIG = types.ThinkingConfig(thinking_level=types.ThinkingLevel.HIGH)
 
+
+# Replicate.com config
 replicate_api_token = os.environ["REPLICATE_API_TOKEN"]
 REPLICATE_API_URL = "https://api.replicate.com/v1"
 RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 
+# HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
+# Proxy config
 proxy = os.environ.get("PROXY")
 
+# Constants
 AUDIO_FILE_NAME = "audio.mp3"
 CONVERTED_FILE_NAME = "audio.ogg"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
@@ -45,6 +51,7 @@ class SpeakerMapping(BaseModel):
     detected_speaker: str
 
 
+# Initialization
 DEFAULTS = {
     "mode": "YouTube or link to an audio file",
     "language": None,
@@ -116,7 +123,7 @@ def compress_audio() -> None:
     try:
         subprocess.run(
             [
-                "ffmpeg",
+                "ffmpeg",  # /usr/bin/ffmpeg
                 "-y",
                 "-i",
                 AUDIO_FILE_NAME,
