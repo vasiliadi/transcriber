@@ -2,11 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests", "docker:pinDigests"],
   "schedule": ["on sunday"],
+  "minimumReleaseAge": "3 days",
   "prHourlyLimit": 0,
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "labels": ["security"],
-    "minimumReleaseAge": "0 days",
+    "minimumReleaseAge": "3 days",
     "schedule": ["at any time"]
   },
   "packageRules": [

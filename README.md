@@ -204,7 +204,9 @@ The Docker image also bundles ~15 LGPL-licensed native libraries (audio/codec/
 rendering dependencies of `ffmpeg`) and the standard GCC toolchain runtime
 (GPL-3.0 with the GCC Runtime Library Exception) — see `THIRD_PARTY_NOTICES.md`
 for the full inventory. License compliance is monitored with
-[FOSSA](https://fossa.com).
+[FOSSA](https://app.fossa.com/projects/git%2Bgithub.com%2Fvasiliadi%2Ftranscriber?ref=badge_shield&issueType=license),
+which may not cover conda/system packages; review them manually if
+`pyproject.toml`'s conda dependencies change.
 
 [^1]: Last supported version is [0.1.0](https://github.com/vasiliadi/transcriber/releases/tag/0.1.0)
 [^2]: For August 2024
