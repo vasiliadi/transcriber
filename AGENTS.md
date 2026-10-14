@@ -30,7 +30,7 @@ Gemini (`GEMINI_MODEL`) handles the post-processing, at two points:
 - `1` → segments, each read for `start` and `text`
 - `>1` → segments, each read for `start`, `text` and `speaker`
 
-Every `process_*` builds that dict except `process_whisper_diarization()`, which returns the Replicate output unchanged (typed `-> Any`) and relies on the model already having this shape. Build the dict explicitly when adding a model — `transcribe()`'s `-> dict[str, Any] | None` does not enforce it.
+Every `process_*` builds that dict except `process_whisper_diarization()`, which returns the Replicate output unchanged (typed `-> Any`) and relies on the model already having this shape. Build the dict explicitly when adding a model, and register it in `transcribe()`'s dispatch dict — its `-> dict[str, Any]` does not enforce the shape.
 
 ## Gotchas
 
