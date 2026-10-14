@@ -106,8 +106,8 @@ python-interpreter = ".pixi/envs/default/bin/python"
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 requires-pixi = ">=0.67.0"
-# Keep in sync with minimumReleaseAge in .github/renovate.json (security fixes
-# wait too). To ship an urgent fix sooner, exempt that package from exclude-newer.
+# Keep in sync with minimumReleaseAge in .github/renovate.json. Renovate security
+# updates skip that delay; if one can't lock a fresh fix, exempt that package here.
 exclude-newer = "3d"
 
 [tool.pixi.pypi-dependencies]

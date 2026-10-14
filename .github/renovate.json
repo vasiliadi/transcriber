@@ -7,7 +7,7 @@
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "labels": ["security"],
-    "minimumReleaseAge": "3 days",
+    "minimumReleaseAge": "0 days",
     "schedule": ["at any time"]
   },
   "packageRules": [
