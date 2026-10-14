@@ -105,6 +105,10 @@ python-interpreter = ".pixi/envs/default/bin/python"
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
+requires-pixi = ">=0.67.0"
+# Keep in sync with minimumReleaseAge in .github/renovate.json. Renovate security
+# updates skip that delay; if one can't lock a fresh fix, exempt that package here.
+exclude-newer = "3d"
 
 [tool.pixi.pypi-dependencies]
 transcriber = { path = ".", editable = true }
@@ -122,12 +126,5 @@ platforms = ["linux-64", "linux-aarch64"]
 [tool.pixi.feature.docker.dependencies]
 curl = ">=8,<9"
 
-[tool.pixi.feature.license-scan.dependencies]
-pip-licenses = ">=5,<6"
-
-[tool.pixi.feature.license-scan.tasks]
-license-scan = "pip-licenses --ignore-packages transcriber --fail-on \"GNU Affero General Public License v3;GNU Affero General Public License v3 or later (AGPLv3+);UNKNOWN\""
-
 [tool.pixi.environments]
 docker = ["docker"]
-license-scan = ["docker", "license-scan"]
