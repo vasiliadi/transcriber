@@ -30,16 +30,16 @@ Gemini (`GEMINI_MODEL`) handles the post-processing, at two points:
 - `1` → segments, each read for `start` and `text`
 - `>1` → segments, each read for `start`, `text` and `speaker`
 
-Every `process_*` builds that dict except `process_whisper_diarization()`, which returns the Replicate output unchanged (typed `-> Any`) and relies on the model already having this shape. Build the dict explicitly when adding a model — `transcribe()`'s `-> dict[str, Any] | None` does not enforce it.
+Every `process_*` builds that dict except `process_whisper_diarization()`, which returns the Replicate output unchanged (typed `-> Any`) and relies on the model already having this shape. Build the dict explicitly when adding a model, and register it in `TRANSCRIBERS` — `transcribe()`'s `-> dict[str, Any]` does not enforce the shape.
 
 ## Gotchas
 
 - Python 3.14 only. Check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
 - The Raw JSON download reads `st.session_state.raw_output`, which `run_prediction()` sets to the last prediction's output.
-- Streamlit reruns the whole script on every widget interaction. Add new user settings to the `st.session_state` init block, and keep `@st.cache_data` on Gemini calls.
+- Streamlit reruns the whole script on every widget interaction. Add new user settings to `DEFAULTS` (re-assigned every run, because Streamlit deletes the key of a widget that was not rendered), and keep `@st.cache_data` on Gemini calls.
 - `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker).
 - After changing `pixi.lock`, regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
 
 ## Environment variables
 
-`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (yt-dlp and curl_cffi) uses `os.environ.get`, so an unset value silently means no proxy.
+`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (media downloads in `download()`: yt-dlp and the curl_cffi link fetches; Replicate API calls go direct) uses `os.environ.get`, so an unset value silently means no proxy.

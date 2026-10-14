@@ -52,31 +52,36 @@ class SpeakerMapping(BaseModel):
 
 
 # Initialization
-if "mode" not in st.session_state:
-    st.session_state.mode = "YouTube or link to an audio file"
-    st.session_state.language = None
-    st.session_state.model_name = WHISPER_DIARIZATION
-    st.session_state.post_processing = True
-    st.session_state.diarization = True
-    st.session_state.speaker_identification = True
-    st.session_state.raw_json = False
-    st.session_state.raw_output = None
+DEFAULTS = {
+    "mode": "YouTube or link to an audio file",
+    "language": None,
+    "model_name": WHISPER_DIARIZATION,
+    "post_processing": True,
+    "diarization": True,
+    "speaker_identification": True,
+    "raw_json": False,
+    "raw_output": None,
+}
+# Streamlit deletes the key of a widget not rendered in a run; re-assigning every
+# key each run keeps the user's choice and seeds missing defaults.
+for key, value in DEFAULTS.items():
+    st.session_state[key] = st.session_state.get(key, value)
 
 
 # Functions
-def download(url: Any, mode: str = st.session_state.mode) -> None:
+def download(url: Any) -> None:
     with st.spinner("Uploading the file to the server..."):
-        if mode == "Uploaded file":
+        if st.session_state.mode == "Uploaded file":
             with Path(AUDIO_FILE_NAME).open("wb") as f:
                 f.write(url.getbuffer())
-        if mode == "YouTube or link to an audio file":
+        elif st.session_state.mode == "YouTube or link to an audio file":
             if url.startswith(("https://www.youtube.com/", "https://youtu.be/")):
                 ydl_opts = {
                     "format": "worstaudio",
                     "outtmpl": "audio",
                     "proxy": proxy,
                     "postprocessors": [
-                        {  # Extract audio using ffmpeg
+                        {
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
                         },
@@ -92,6 +97,7 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                             impersonate="chrome",
                             verify=True,
                             timeout=120,
+                            proxy=proxy,
                         ).content,
                         "html.parser",
                     ).source
@@ -109,22 +115,20 @@ def download(url: Any, mode: str = st.session_state.mode) -> None:
                     impersonate="chrome",
                     verify=True,
                     timeout=120,
+                    proxy=proxy,
                 )
                 with Path(AUDIO_FILE_NAME).open("wb") as f:
                     f.write(downloaded_file.content)
 
 
-def compress_audio(
-    audio_file_name: str = AUDIO_FILE_NAME,
-    converted_file_name: str = CONVERTED_FILE_NAME,
-) -> None:
+def compress_audio() -> None:
     try:
         subprocess.run(
             [
                 "ffmpeg",  # /usr/bin/ffmpeg
                 "-y",
                 "-i",
-                audio_file_name,
+                AUDIO_FILE_NAME,
                 "-vn",
                 "-ac",
                 "1",
@@ -132,15 +136,12 @@ def compress_audio(
                 "libopus",
                 "-b:a",
                 "16k",
-                converted_file_name,
+                CONVERTED_FILE_NAME,
             ],
             check=True,
-            capture_output=False,
-            text=True,
         )
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         st.error("Check uploaded file 👀", icon="🚨")
-        st.write(e.stderr)
         st.stop()
 
 
@@ -155,7 +156,6 @@ def correct_transcription(
             model=GEMINI_MODEL,
             contents=prompt,
             config=types.GenerateContentConfig(
-                system_instruction=None,
                 response_mime_type="text/plain",
                 thinking_config=THINKING_CONFIG,
             ),
@@ -168,12 +168,10 @@ def correct_transcription(
 def replicate_request(
     method: Literal["GET", "POST"],
     path: str,
-    max_attempts: int = 5,
     **kwargs: Any,
 ) -> Any:
-    # GET is idempotent, so retry it with backoff like the replicate SDK did;
-    # POST is not retried to avoid creating (and paying for) a duplicate prediction
-    attempts = max_attempts if method == "GET" else 1
+    # Only GET is retried: a retried POST could create (and bill) a duplicate prediction
+    attempts = 5 if method == "GET" else 1
     for attempt in range(1, attempts + 1):
         delay = 2 ** (attempt - 1)
         try:
@@ -221,7 +219,6 @@ def run_prediction(
     model_name: str,
     model_input: dict[str, Any],
     official: bool = False,
-    sleep_time: int = 10,
 ) -> Any:
     if official:  # official models run without a version id
         prediction = replicate_request(
@@ -239,7 +236,7 @@ def run_prediction(
             },
         )
     while prediction["status"] in {"starting", "processing"}:
-        time.sleep(sleep_time)
+        time.sleep(10)
         prediction = replicate_request("GET", f"predictions/{prediction['id']}")
     if prediction["status"] != "succeeded":
         msg = f"Prediction {prediction['status']}: {prediction.get('error')}"
@@ -248,155 +245,118 @@ def run_prediction(
     return prediction["output"]
 
 
-@st.cache_data(show_spinner=False)
-def detected_num_speakers(
-    transcription: Any,
-    model: str = st.session_state.model_name,
-) -> int:
-    speakers: list[Any] = []
-    if model == INCREDIBLY_FAST_WHISPER:  # for incredibly-fast-whisper only
-        speakers = [i["speaker"] for i in transcription[0:-1]]
-    elif model == WHISPERX:
-        speakers = [i["speaker"] for i in transcription["segments"][0:-1]]
-    return len(set(speakers))
+def count_speakers(segments: list[dict[str, Any]]) -> int:
+    # never 0, which would render the segments as plain text
+    return max(1, len({s["speaker"] for s in segments}))
 
 
-@st.cache_data(show_spinner=False)
 def process_diarization_for_incredibly_fast_whisper(
     transcription: list[dict[str, Any]],
-) -> list[dict[str, Any]]:  # for incredibly-fast-whisper only
+) -> list[dict[str, Any]]:
+    # merge consecutive chunks of the same speaker separated by at most 2 seconds
     output: list[dict[str, Any]] = []
-    current_group: dict[str, Any] = {
-        "start": str(transcription[0]["timestamp"][0]),
-        "end": str(transcription[0]["timestamp"][1]),
-        "speaker": transcription[0]["speaker"],
-        "text": transcription[0]["text"],
-    }
-
-    for i in range(1, len(transcription[0:-1])):
-        time_gap = (
-            transcription[i]["timestamp"][0] - transcription[i - 1]["timestamp"][1]
-        )
+    prev_end: float | None = None
+    for chunk in transcription:
+        start, end = chunk["timestamp"]  # end can be None on the last chunk
         if (
-            transcription[i]["speaker"] == transcription[i - 1]["speaker"]
-            and time_gap <= 2  # noqa: PLR2004
+            output
+            and chunk["speaker"] == output[-1]["speaker"]
+            and prev_end is not None
+            and start - prev_end <= 2  # noqa: PLR2004
         ):
-            current_group["end"] = str(transcription[i]["timestamp"][1])
-            current_group["text"] += " " + transcription[i]["text"]
+            output[-1]["end"] = str(end)
+            output[-1]["text"] += " " + chunk["text"]
         else:
-            output.append(current_group)
-
-            current_group = {
-                "start": str(transcription[i]["timestamp"][0]),
-                "end": str(transcription[i]["timestamp"][1]),
-                "speaker": transcription[i]["speaker"],
-                "text": transcription[i]["text"],
-            }
-
-    output.append(current_group)
+            output.append(
+                {
+                    "start": str(start),
+                    "end": str(end),
+                    "speaker": chunk["speaker"],
+                    "text": chunk["text"],
+                },
+            )
+        prev_end = end
     return output
 
 
-def process_whisper_diarization(audio_file_name: str = CONVERTED_FILE_NAME) -> Any:
+def process_whisper_diarization() -> Any:
     return run_prediction(
         WHISPER_DIARIZATION,
         {
-            "file": upload_file(audio_file_name),
+            "file": upload_file(CONVERTED_FILE_NAME),
             "transcript_output_format": "segments_only",
         },
     )
 
 
 def process_incredibly_fast_whisper(
-    audio_file_name: str = CONVERTED_FILE_NAME,
     diarization: bool = st.session_state.diarization,
     post_processing: bool = st.session_state.post_processing,
 ) -> dict[str, Any]:
-    try:
-        transcription: Any = run_prediction(
-            INCREDIBLY_FAST_WHISPER,
-            {
-                "audio": upload_file(audio_file_name),
-                "hf_token": hf_access_token,
-                "diarise_audio": diarization,
-            },
-        )
-    except:  # noqa: E722
-        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-        st.stop()
-
-    transcription = {
-        "num_speakers": detected_num_speakers(
-            transcription,
-            model=INCREDIBLY_FAST_WHISPER,
-        )
-        if diarization
-        else 0,
-        "segments": (
-            process_diarization_for_incredibly_fast_whisper(
-                cast("list[dict[str, Any]]", transcription),
-            )
-            if diarization
-            else correct_transcription(
-                cast("dict[str, Any]", transcription)["text"],
+    transcription: Any = run_prediction(
+        INCREDIBLY_FAST_WHISPER,
+        {
+            "audio": upload_file(CONVERTED_FILE_NAME),
+            "hf_token": hf_access_token,
+            "diarise_audio": diarization,
+        },
+    )
+    # Diarized output is a list of segments plus the full transcript as the last item;
+    # a dict means no diarization (disabled, or pyannote failed to load)
+    if isinstance(transcription, dict):
+        return {
+            "num_speakers": 0,
+            "segments": correct_transcription(
+                transcription["text"],
                 post_processing=post_processing,
-            )
-        ),
+            ),
+        }
+    segments = transcription[:-1]
+    return {
+        "num_speakers": count_speakers(segments),
+        "segments": process_diarization_for_incredibly_fast_whisper(segments),
     }
-    return transcription  # noqa: RET504
 
 
-def process_openai(audio_file_name: str = CONVERTED_FILE_NAME) -> dict[str, Any]:
+def process_openai() -> dict[str, Any]:
     transcription = run_prediction(
         OPENAI,
-        {"audio_file": upload_file(audio_file_name)},
+        {"audio_file": upload_file(CONVERTED_FILE_NAME)},
         official=True,
     )
-
-    transcription = {
+    return {
         "num_speakers": 0,
         "segments": correct_transcription("".join(transcription)),
     }
 
-    return transcription  # noqa: RET504
-
 
 def process_whisperx(
-    audio_file_name: str = CONVERTED_FILE_NAME,
     diarization: bool = st.session_state.diarization,
 ) -> dict[str, Any]:
-    try:
-        transcription: Any = run_prediction(
-            WHISPERX,
-            {
-                "audio_file": upload_file(audio_file_name),
-                "diarization": diarization,
-                "huggingface_access_token": hf_access_token,
-            },
-        )
-    except:  # noqa: E722
-        st.error("Model error 😫 Try to switch the model 👍", icon="🚨")
-        st.stop()
-
-    transcription = {
-        "num_speakers": detected_num_speakers(transcription, model=WHISPERX)
-        if diarization
-        else 1,
-        "segments": cast("dict[str, Any]", transcription)["segments"],
+    segments = run_prediction(
+        WHISPERX,
+        {
+            "audio_file": upload_file(CONVERTED_FILE_NAME),
+            "diarization": diarization,
+            "huggingface_access_token": hf_access_token,
+        },
+    )["segments"]
+    return {
+        "num_speakers": count_speakers(segments) if diarization else 1,
+        "segments": segments,
     }
-    return transcription  # noqa: RET504
 
 
-def transcribe(model_name: str = st.session_state.model_name) -> dict[str, Any] | None:
-    if model_name == WHISPER_DIARIZATION:
-        return process_whisper_diarization()
-    if model_name == INCREDIBLY_FAST_WHISPER:
-        return process_incredibly_fast_whisper()
-    if model_name == OPENAI:
-        return process_openai()
-    if model_name == WHISPERX:
-        return process_whisperx()
-    return None
+TRANSCRIBERS = {
+    WHISPER_DIARIZATION: process_whisper_diarization,
+    INCREDIBLY_FAST_WHISPER: process_incredibly_fast_whisper,
+    OPENAI: process_openai,
+    WHISPERX: process_whisperx,
+}
+
+
+def transcribe() -> dict[str, Any]:
+    return TRANSCRIBERS[st.session_state.model_name]()
 
 
 @st.cache_data(show_spinner=False)
@@ -404,46 +364,35 @@ def translate(
     text: str,
     target_language: str | None = st.session_state.language,
     chunks: bool = False,
-    sleep_time: int = 30,
 ) -> str:
     if target_language is None:
         return text
     prompt = f"Translate input text to {target_language}. Return only translated text: <input_text>{text}</input_text>"
-    try:
-        translation = gemini_client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=dedent("""
-                    You are a language model specializing in accurate, context-sensitive translations.
-                    Translate each text with precise meaning and maintain the original tone and style.
-                    Adapt idioms, cultural references, and metaphors for naturalness in the target language,
-                    while providing brief explanations directly in the text, if necessary.
-                    Avoid literal translations unless they are essential.
-                    When terms have multiple meanings, use the context to select the best fit.
-                    Do not translate proper nouns or technical terms unless widely recognized equivalents exist.
-                    Ensure consistent terminology, especially for technical or specialized language.
-                    Use polite, respectful language, adjusting formality as appropriate for the text type (e.g., legal, business, casual).
-                    I want you to only reply the translation, do not write notes or explanations.
-                    """).strip(),
-                response_mime_type="text/plain",
-                thinking_config=THINKING_CONFIG,
-            ),
-        )
-        if chunks:
-            time.sleep(
-                sleep_time,
-            )  # 2 queries per minute for Gemini-1.5-pro and 15 for Gemini-1.5-flash https://ai.google.dev/gemini-api/docs/models/gemini#model-variations
-    except ValueError:
-        st.error(
-            "The translator thinks the content is unsafe and can't return the translation 🙈",
-            icon="🚨",
-        )
-        st.stop()
-    else:
-        if translation.text is not None:
-            return translation.text
-        return text
+    translation = gemini_client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=dedent("""
+                You are a language model specializing in accurate, context-sensitive translations.
+                Translate each text with precise meaning and maintain the original tone and style.
+                Adapt idioms, cultural references, and metaphors for naturalness in the target language.
+                Avoid literal translations unless they are essential.
+                When terms have multiple meanings, use the context to select the best fit.
+                Do not translate proper nouns or technical terms unless widely recognized equivalents exist.
+                Ensure consistent terminology, especially for technical or specialized language.
+                Use polite, respectful language, adjusting formality as appropriate for the text type (e.g., legal, business, casual).
+                I want you to only reply the translation, do not write notes or explanations.
+                """).strip(),
+            response_mime_type="text/plain",
+            thinking_config=THINKING_CONFIG,
+        ),
+    )
+    if chunks:
+        # Gemini Flash rate limit https://ai.google.dev/gemini-api/docs/rate-limits
+        time.sleep(5)
+    if translation.text is not None:
+        return translation.text
+    return text
 
 
 @st.cache_data(show_spinner=False)
@@ -457,24 +406,18 @@ def identify_speakers(transcription: dict[str, Any]) -> dict[str, str]:
         model=GEMINI_MODEL,
         contents=prompt,
         config=types.GenerateContentConfig(
-            system_instruction=None,
             response_mime_type="application/json",
             response_schema=list[SpeakerMapping],
-            thinking_config=types.ThinkingConfig(
-                thinking_level=types.ThinkingLevel.HIGH,
-            ),
+            thinking_config=THINKING_CONFIG,
         ),
     )
-    segments = cast("list[dict[str, Any]]", transcription["segments"])
-    defaults = {seg["speaker"]: seg["speaker"] for seg in segments}
     parsed = cast("list[SpeakerMapping] | None", names.parsed)
     if not parsed:
         st.error("Can't identify speakers 🙈", icon="🚨")
         st.stop()
-    return {**defaults, **{m.original_speaker: m.detected_speaker for m in parsed}}
+    return {m.original_speaker: m.detected_speaker for m in parsed}
 
 
-@st.cache_data(show_spinner=False)
 def convert_to_minutes(seconds: float | str) -> str:
     minutes, seconds = divmod(float(seconds), 60)
     return f"{int(minutes)}:{int(seconds):02d}"
@@ -492,30 +435,25 @@ def process_transcription() -> None:
         compress_audio()
     st.audio(CONVERTED_FILE_NAME)
     with st.spinner("Transcribing..."):
-        transcription = transcribe(model_name=st.session_state.model_name)
-        if transcription is None:
-            return
+        transcription = transcribe()
         if transcription["num_speakers"] == 1:
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True, sleep_time=5)}",
+                    f"**{convert_to_minutes(segment['start'])}:** {translate(text, chunks=True)}",
                 )
-        elif (
-            transcription["num_speakers"] == 0
-        ):  # for incredibly-fast-whisper (without diarization) and openai/whisper
+        elif transcription["num_speakers"] == 0:  # plain text
             st.markdown(translate(transcription["segments"]).replace("$", r"\$"))
         else:
-            if st.session_state.speaker_identification:
-                names = identify_speakers(transcription)
-            else:
-                names = {}
-                for speaker in transcription["segments"]:
-                    names[speaker["speaker"]] = speaker["speaker"]
+            names = (
+                identify_speakers(transcription)
+                if st.session_state.speaker_identification
+                else {}
+            )
             for segment in transcription["segments"]:
                 text = str(segment["text"]).replace("$", r"\$")
                 st.markdown(
-                    f"**{convert_to_minutes(segment['start'])} - {names.get(segment['speaker'], segment['speaker'])}:** {translate(text, chunks=True, sleep_time=5)}",
+                    f"**{convert_to_minutes(segment['start'])} - {names.get(segment['speaker'], segment['speaker'])}:** {translate(text, chunks=True)}",
                 )
         if st.session_state.raw_json:
             data = json.dumps(st.session_state.raw_output)
@@ -575,69 +513,38 @@ if advanced:
                 "best in accuracy",
                 "new best for dialogs",
             ],
-            index=0,  # change if default value (st.session_state.model_name) has changed
             key="model_name",
             horizontal=False,
         )
     with col2_model_settings:
+        if st.session_state.model_name in {INCREDIBLY_FAST_WHISPER, WHISPERX}:
+            if st.session_state.diarization:
+                st.session_state.post_processing = False
+            else:
+                st.session_state.speaker_identification = False
         if st.session_state.model_name == WHISPER_DIARIZATION:
             st.checkbox(
                 "Enable speaker identification",
-                value=False,
-                disabled=False,
                 key="speaker_identification",
             )
         if st.session_state.model_name == INCREDIBLY_FAST_WHISPER:
-
-            def change_state_for_ifw() -> None:
-                if not st.session_state.diarization:
-                    st.session_state.speaker_identification = False
-                if st.session_state.diarization:
-                    st.session_state.post_processing = False
-
-            st.checkbox(
-                "Enable diarization",
-                value=True,
-                disabled=False,
-                key="diarization",
-                on_change=change_state_for_ifw(),
-            )
+            st.checkbox("Enable diarization", key="diarization")
             st.checkbox(
                 "Enable speaker identification",
-                value=False,
                 disabled=not st.session_state.diarization,
                 key="speaker_identification",
             )
             st.checkbox(
                 "Enable post-processing",
-                value=False,
                 disabled=st.session_state.diarization,
                 key="post_processing",
             )
         if st.session_state.model_name == OPENAI:
-            st.checkbox(
-                "Enable post-processing",
-                value=True,
-                key="post_processing",
-            )
+            st.checkbox("Enable post-processing", key="post_processing")
         if st.session_state.model_name == WHISPERX:
-
-            def change_state_for_wx() -> None:
-                if not st.session_state.diarization:
-                    st.session_state.speaker_identification = False
-                if st.session_state.diarization:
-                    st.session_state.post_processing = False
-
-            st.checkbox(
-                "Enable diarization",
-                value=True,
-                disabled=False,
-                key="diarization",
-                on_change=change_state_for_wx(),
-            )
+            st.checkbox("Enable diarization", key="diarization")
             st.checkbox(
                 "Enable speaker identification",
-                value=False,
                 disabled=not st.session_state.diarization,
                 key="speaker_identification",
             )
