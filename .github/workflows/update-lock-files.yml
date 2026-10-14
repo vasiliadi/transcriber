@@ -1,13 +1,13 @@
 name: Update lock files
 
-permissions: 
+permissions:
   contents: write
   pull-requests: write
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: 0 5 1 * * 
+    - cron: 0 5 1 * * # At 05:00 on day-of-month 1.
 
 jobs:
   pixi-update:
