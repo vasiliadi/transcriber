@@ -85,6 +85,9 @@ select = [
 ]
 ignore = ["S603", "S607", "E501", "FBT002", "BLE001", "FBT001"]
 
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 88  # W505: comments and docstrings
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"

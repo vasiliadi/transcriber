@@ -124,7 +124,8 @@ def download(url: Any) -> None:
                         )
                         st.stop()
                     url = src
-                # stream to disk; with stream=True the timeout limits stalls, not the whole transfer
+                # stream to disk; with stream=True the timeout limits stalls,
+                # not the whole transfer
                 downloaded_file = fetch(url, stream=True)
                 try:
                     with Path(AUDIO_FILE_NAME).open("wb") as f:
