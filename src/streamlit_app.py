@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Literal, cast
+from urllib.parse import urlparse
 
 import streamlit as st
 from bs4 import BeautifulSoup
@@ -34,8 +35,15 @@ RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 # HuggingFace.co config
 hf_access_token = os.environ["HF_ACCESS_TOKEN"]
 
-# Proxy config
+# Proxy for YouTube (yt-dlp) downloads only
 proxy = os.environ.get("PROXY")
+YOUTUBE_HOSTS = {
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "music.youtube.com",
+    "youtu.be",
+}
 
 # Constants
 AUDIO_FILE_NAME = "audio.mp3"
@@ -69,13 +77,29 @@ for key, value in DEFAULTS.items():
 
 
 # Functions
+def fetch(url: str, stream: bool = False) -> requests.Response:
+    response = requests.get(
+        requote_uri(url),
+        impersonate="chrome",
+        verify=True,
+        timeout=120,
+        stream=stream,
+    )
+    try:
+        response.raise_for_status()
+    except RequestException:
+        response.close()
+        raise
+    return response
+
+
 def download(url: Any) -> None:
     with st.spinner("Uploading the file to the server..."):
         if st.session_state.mode == "Uploaded file":
             with Path(AUDIO_FILE_NAME).open("wb") as f:
                 f.write(url.getbuffer())
         elif st.session_state.mode == "YouTube or link to an audio file":
-            if url.startswith(("https://www.youtube.com/", "https://youtu.be/")):
+            if urlparse(url).hostname in YOUTUBE_HOSTS:
                 ydl_opts = {
                     "format": "worstaudio",
                     "outtmpl": "audio",
@@ -91,32 +115,22 @@ def download(url: Any) -> None:
                     ydl.download(url)
             else:
                 if url.startswith("https://castro.fm/episode/"):
-                    source = BeautifulSoup(
-                        requests.get(
-                            requote_uri(url),
-                            impersonate="chrome",
-                            verify=True,
-                            timeout=120,
-                        ).content,
-                        "html.parser",
-                    ).source
-                    if source is not None:
-                        src = source.get("src")
-                        if not isinstance(src, str) or not src.strip():
-                            st.error(
-                                "Could not extract audio URL from castro.fm page",
-                                icon="🚨",
-                            )
-                            st.stop()
-                        url = src
-                downloaded_file = requests.get(
-                    requote_uri(url),
-                    impersonate="chrome",
-                    verify=True,
-                    timeout=120,
-                )
-                with Path(AUDIO_FILE_NAME).open("wb") as f:
-                    f.write(downloaded_file.content)
+                    source = BeautifulSoup(fetch(url).content, "html.parser").source
+                    src = source.get("src") if source is not None else None
+                    if not isinstance(src, str) or not src.strip():
+                        st.error(
+                            "Could not extract audio URL from castro.fm page",
+                            icon="🚨",
+                        )
+                        st.stop()
+                    url = src
+                # stream to disk; with stream=True the timeout limits stalls, not the whole transfer
+                downloaded_file = fetch(url, stream=True)
+                try:
+                    with Path(AUDIO_FILE_NAME).open("wb") as f:
+                        f.writelines(downloaded_file.iter_content())
+                finally:
+                    downloaded_file.close()
 
 
 def compress_audio() -> None:
