@@ -141,7 +141,7 @@ Example of `.env` file:
 GEMINI_API_KEY="your_api_key"
 REPLICATE_API_TOKEN="your_api_key"
 HF_ACCESS_TOKEN="your_api_key" # only for incredibly-fast-whisper and whisperx models with enabled diarization
-PROXY="" # only if you need to use proxy
+PROXY="" # only if you need a proxy for YouTube downloads
 ```
 
 **All keys are mandatory**, but you can fill some of them with placeholder or incorrect values to complete the setup. Using features that require a specific key with an incorrect value will result in an error.

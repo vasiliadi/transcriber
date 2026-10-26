@@ -52,7 +52,7 @@ Then create `.streamlit/secrets.toml` with the following content, filling in rea
 GEMINI_API_KEY = "..."
 REPLICATE_API_TOKEN = "..."
 HF_ACCESS_TOKEN = "..."
-# PROXY = "..."  # optional — remove the leading # and set a value only if needed
+# PROXY = "..."  # optional, YouTube downloads only — remove the leading # and set a value only if needed
 ```
 
 **Prompt the user for each value.** Do not generate, guess, or skip any key. If the user does not have a key yet, direct them to the relevant page:

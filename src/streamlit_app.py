@@ -97,7 +97,6 @@ def download(url: Any) -> None:
                             impersonate="chrome",
                             verify=True,
                             timeout=120,
-                            proxy=proxy,
                         ).content,
                         "html.parser",
                     ).source
@@ -115,7 +114,6 @@ def download(url: Any) -> None:
                     impersonate="chrome",
                     verify=True,
                     timeout=120,
-                    proxy=proxy,
                 )
                 with Path(AUDIO_FILE_NAME).open("wb") as f:
                     f.write(downloaded_file.content)
