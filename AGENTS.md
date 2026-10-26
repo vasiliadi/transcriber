@@ -37,7 +37,7 @@ Every `process_*` builds that dict except `process_whisper_diarization()`, which
 - Python 3.14 only. Check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
 - The Raw JSON download reads `st.session_state.raw_output`, which `run_prediction()` sets to the last prediction's output.
 - Streamlit reruns the whole script on every widget interaction. Add new user settings to `DEFAULTS` (re-assigned every run, because Streamlit deletes the key of a widget that was not rendered), and keep `@st.cache_data` on Gemini calls.
-- `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker).
+- `download()` and `compress_audio()` write `audio-<RUN_ID>.mp3` / `.ogg` to the process cwd (`/app` in Docker). `RUN_ID` is a fresh uuid per script run, so concurrent sessions never share files; keep paths derived from `AUDIO_FILE_NAME` / `CONVERTED_FILE_NAME`.
 - After changing `pixi.lock`, regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
 
 ## Environment variables

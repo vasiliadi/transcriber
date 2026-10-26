@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import time
+import uuid
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Literal, cast
@@ -46,8 +47,11 @@ YOUTUBE_HOSTS = {
 }
 
 # Constants
-AUDIO_FILE_NAME = "audio.mp3"
-CONVERTED_FILE_NAME = "audio.ogg"
+# Unique per script run, so concurrent sessions never share or delete each
+# other's files (Streamlit re-executes this module for every run)
+RUN_ID = uuid.uuid4().hex
+AUDIO_FILE_NAME = f"audio-{RUN_ID}.mp3"
+CONVERTED_FILE_NAME = f"audio-{RUN_ID}.ogg"
 WHISPER_DIARIZATION = "thomasmol/whisper-diarization"
 INCREDIBLY_FAST_WHISPER = "vaibhavs10/incredibly-fast-whisper"
 OPENAI = "openai/gpt-4o-transcribe"
@@ -102,7 +106,7 @@ def download(url: Any) -> None:
             if urlparse(url).hostname in YOUTUBE_HOSTS:
                 ydl_opts = {
                     "format": "worstaudio",
-                    "outtmpl": "audio",
+                    "outtmpl": Path(AUDIO_FILE_NAME).stem,
                     "proxy": proxy,
                     "postprocessors": [
                         {
