@@ -37,9 +37,9 @@ Every `process_*` builds that dict except `process_whisper_diarization()`, which
 - Python 3.14 only. Check syntax with `.pixi/envs/default/bin/python`, never a system `python3`.
 - The Raw JSON download reads `st.session_state.raw_output`, which `run_prediction()` sets to the last prediction's output.
 - Streamlit reruns the whole script on every widget interaction. Add new user settings to `DEFAULTS` (re-assigned every run, because Streamlit deletes the key of a widget that was not rendered), and keep `@st.cache_data` on Gemini calls.
-- `download()` and `compress_audio()` write `audio.mp3` / `audio.ogg` to the process cwd (`/app` in Docker).
+- `download()` and `compress_audio()` write `audio-<RUN_ID>.mp3` / `.ogg` to the process cwd (`/app` in Docker). `RUN_ID` is a fresh uuid per script run, so concurrent sessions never share files; keep paths derived from `AUDIO_FILE_NAME` / `CONVERTED_FILE_NAME`.
 - After changing `pixi.lock`, regenerate the conda/system package table in `THIRD_PARTY_NOTICES.md` with `pixi list -e docker --platform linux-64 --fields name,version,license`.
 
 ## Environment variables
 
-`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` (media downloads in `download()`: yt-dlp and the curl_cffi link fetches; Replicate API calls go direct) uses `os.environ.get`, so an unset value silently means no proxy.
+`GEMINI_API_KEY`, `REPLICATE_API_TOKEN` and `HF_ACCESS_TOKEN` are required: read with `os.environ[...]`, they fail at startup when missing. `PROXY` is applied only to YouTube downloads (yt-dlp in `download()`), by design: castro.fm, direct audio links and Replicate API calls go direct, so don't pass the proxy to the `curl_cffi` fetches. It uses `os.environ.get`, so an unset value silently means no proxy.

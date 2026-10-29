@@ -178,8 +178,8 @@ start.sh
 .zed/
 
 # Constants
-audio.mp3
-audio.ogg
+audio*.mp3
+audio*.ogg
 speech.mp3
 
 # pixi environments
