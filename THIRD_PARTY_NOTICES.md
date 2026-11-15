@@ -8069,7 +8069,7 @@ For more information, please refer to <https://unlicense.org/>
 
 ## Conda / system packages (Docker image)
 
-The published Docker image is built from the pixi `docker` environment (`pyproject.toml` `[tool.pixi.feature.docker]`), which layers native/system libraries on top of the Python packages above via conda-forge. `pip-licenses` cannot see these — they are inventoried here separately, generated with `pixi list` (fields: name, license), which reads license metadata straight from the conda-forge package index via `pixi.lock`.
+The published Docker image is built from the pixi `docker` environment (`pyproject.toml` `[tool.pixi.feature.docker]`), which layers native/system libraries on top of the Python packages above via conda-forge. `pip-licenses` cannot see these — they are inventoried here separately, generated with `pixi list` (fields: name, license) for both image platforms, which reads license metadata straight from the conda-forge package index via `pixi.lock`.
 
 These conda/system packages in the `docker` environment carry a GPL-family or MPL license:
 
@@ -8077,172 +8077,177 @@ These conda/system packages in the `docker` environment carry a GPL-family or MP
 - **libgcc / libgomp / libstdcxx / ld_impl_linux-\*** — `GPL-3.0-only WITH GCC-exception-3.1` or plain `GPL-3.0-only`. These are the standard GCC toolchain runtime/linker present in essentially any Linux conda environment; the GCC Runtime Library Exception is designed to permit linking against them without imposing GPL on the linked program. Listed for completeness, not flagged as a compliance concern.
 - The remainder are `LGPL-2.0/2.1`-family system libraries pulled in transitively by `ffmpeg`/GTK-stack dependencies (audio/codec/rendering libs such as `alsa-lib`, `cairo`, `fribidi`, `gdk-pixbuf`, `lame`, `libsndfile`, `mpg123`, `pango`), plus `dbus`, `freetype`, `gmp` and `libev`, which are dual-licensed with a GPL option. LGPL's copyleft applies to the library itself, not this application, as long as the library isn't statically linked into project code (it isn't — these are dynamically linked conda packages).
 
-Full inventory of the conda/system packages in the `docker` environment:
+Full inventory of the conda/system packages in the `docker` environment. The image is published for `linux/amd64` and `linux/arm64`, so the table merges both platforms (`linux-64` and `linux-aarch64` in pixi) and marks packages that ship on only one of them:
 
-| Name | License |
-| --- | --- |
-| _openmp_mutex | BSD-3-Clause |
-| alsa-lib | LGPL-2.1-or-later |
-| aom | BSD-2-Clause |
-| bzip2 | bzip2-1.0.6 |
-| c-ares | MIT |
-| ca-certificates | ISC |
-| cairo | LGPL-2.1-only or MPL-1.1 |
-| curl | curl |
-| dbus | AFL-2.1 OR GPL-2.0-or-later |
-| ffmpeg | GPL-2.0-or-later |
-| font-ttf-dejavu-sans-mono | BSD-3-Clause |
-| font-ttf-inconsolata | OFL-1.1 |
-| font-ttf-source-code-pro | OFL-1.1 |
-| font-ttf-ubuntu | Ubuntu-font-1.0 |
-| fontconfig | MIT |
-| fonts-conda-ecosystem | BSD-3-Clause |
-| fonts-conda-forge | BSD-3-Clause |
-| freetype | GPL-2.0-only OR FTL |
-| fribidi | LGPL-2.1-or-later |
-| gdk-pixbuf | LGPL-2.1-or-later |
-| glslang | BSD-3-Clause |
-| gmp | GPL-2.0-or-later OR LGPL-3.0-or-later |
-| graphite2 | LGPL-2.0-or-later |
-| icu | MIT |
-| intel-gmmlib | MIT |
-| intel-media-driver | MIT |
-| keyutils | LGPL-2.1-or-later |
-| krb5 | MIT |
-| lame | LGPL-2.0-only |
-| lcms2 | MIT |
-| ld_impl_linux-64 | GPL-3.0-only |
-| lerc | Apache-2.0 |
-| level-zero | MIT |
-| libabseil | Apache-2.0 |
-| libass | ISC |
-| libbrotlicommon | MIT |
-| libbrotlidec | MIT |
-| libbrotlienc | MIT |
-| libcap | BSD-3-Clause |
-| libcurl | curl |
-| libdav1d7 | BSD-2-Clause |
-| libdeflate | MIT |
-| libdovi | MIT |
-| libdrm | MIT |
-| libedit | BSD-2-Clause |
-| libegl | LicenseRef-libglvnd |
-| libev | BSD-2-Clause OR GPL-2.0-or-later |
-| libexpat | MIT |
-| libffi | MIT |
-| libflac | BSD-3-Clause |
-| libfreetype | GPL-2.0-only OR FTL |
-| libfreetype6 | GPL-2.0-only OR FTL |
-| libgcc | GPL-3.0-only WITH GCC-exception-3.1 |
-| libgl | LicenseRef-libglvnd |
-| libglib | LGPL-2.1-or-later |
-| libglvnd | LicenseRef-libglvnd |
-| libglx | LicenseRef-libglvnd |
-| libgomp | GPL-3.0-only WITH GCC-exception-3.1 |
-| libharfbuzz | MIT |
-| libharfbuzz-devel | MIT |
-| libhwloc | BSD-3-Clause |
-| libhwy | Apache-2.0 OR BSD-3-Clause |
-| libiconv | LGPL-2.1-only |
-| libjpeg-turbo | IJG AND BSD-3-Clause AND Zlib |
-| libjxl | BSD-3-Clause |
-| liblzma | 0BSD |
-| libmpdec | BSD-2-Clause |
-| libnghttp2 | MIT |
-| libogg | BSD-3-Clause |
-| libopenvino | Apache-2.0 |
-| libopenvino-auto-batch-plugin | Apache-2.0 |
-| libopenvino-auto-plugin | Apache-2.0 |
-| libopenvino-gguf-frontend | Apache-2.0 |
-| libopenvino-hetero-plugin | Apache-2.0 |
-| libopenvino-intel-cpu-plugin | Apache-2.0 |
-| libopenvino-intel-gpu-plugin | Apache-2.0 |
-| libopenvino-intel-npu-plugin | Apache-2.0 |
-| libopenvino-ir-frontend | Apache-2.0 |
-| libopenvino-onnx-frontend | Apache-2.0 |
-| libopenvino-paddle-frontend | Apache-2.0 |
-| libopenvino-pytorch-frontend | Apache-2.0 |
-| libopenvino-tensorflow-frontend | Apache-2.0 |
-| libopenvino-tensorflow-lite-frontend | Apache-2.0 |
-| libopus | BSD-3-Clause |
-| libpango | LGPL-2.1-or-later |
-| libpango-devel | LGPL-2.1-or-later |
-| libpciaccess | MIT |
-| libplacebo | LGPL-2.1-or-later |
-| libpng | zlib-acknowledgement |
-| libprotobuf | BSD-3-Clause |
-| libpsl | MIT |
-| libpython | Python-2.0 |
-| librsvg | LGPL-2.1-or-later |
-| libsndfile | LGPL-2.1-or-later |
-| libsqlite | blessing |
-| libssh2 | BSD-3-Clause |
-| libstdcxx | GPL-3.0-only WITH GCC-exception-3.1 |
-| libsystemd0 | LGPL-2.1-or-later |
-| libtiff | HPND |
-| libudev1 | LGPL-2.1-or-later |
-| libunwind | MIT |
-| liburing | MIT |
-| libusb | LGPL-2.1-or-later |
-| libuuid | BSD-3-Clause |
-| libva | MIT |
-| libvorbis | BSD-3-Clause |
-| libvpl | MIT |
-| libvpx | BSD-3-Clause |
-| libvulkan-loader | Apache-2.0 |
-| libwebp-base | BSD-3-Clause |
-| libxcb | MIT |
-| libxkbcommon | MIT AND MIT-open-group AND HPND AND HPND-sell-variant AND ISC |
-| libxml2 | MIT |
-| libxml2-16 | MIT |
-| libzlib | Zlib |
-| mpg123 | LGPL-2.1-only |
-| ncurses | X11 AND BSD-3-Clause |
-| ocl-icd | BSD-2-Clause |
-| opencl-headers | Apache-2.0 |
-| openh264 | BSD-2-Clause |
-| openssl | Apache-2.0 |
-| pango | LGPL-2.1-or-later |
-| pcre2 | BSD-3-Clause |
-| pixman | MIT |
-| pthread-stubs | MIT |
-| pugixml | MIT |
-| pulseaudio-client | LGPL-2.1-or-later |
-| python | Python-2.0 |
-| python_abi | BSD-3-Clause |
-| readline | GPL-3.0-only |
-| sdl2 | Zlib |
-| sdl3 | Zlib |
-| shaderc | Apache-2.0 |
-| snappy | BSD-3-Clause |
-| spirv-tools | Apache-2.0 |
-| svt-av1 | BSD-2-Clause |
-| tbb | Apache-2.0 |
-| tk | TCL |
-| tzdata | LicenseRef-Public-Domain |
-| wayland | MIT |
-| wayland-protocols | MIT |
-| x264 | GPL-2.0-or-later |
-| x265 | GPL-2.0-or-later |
-| xkeyboard-config | MIT |
-| xorg-libice | MIT |
-| xorg-libsm | MIT |
-| xorg-libx11 | MIT |
-| xorg-libxau | MIT |
-| xorg-libxcursor | MIT |
-| xorg-libxdmcp | MIT |
-| xorg-libxext | MIT |
-| xorg-libxfixes | MIT |
-| xorg-libxi | MIT |
-| xorg-libxrandr | MIT |
-| xorg-libxrender | MIT |
-| xorg-libxscrnsaver | MIT |
-| xorg-libxtst | MIT |
-| zstd | BSD-3-Clause |
+| Name | License | Platforms |
+| --- | --- | --- |
+| _openmp_mutex | BSD-3-Clause | both |
+| alsa-lib | LGPL-2.1-or-later | both |
+| aom | BSD-2-Clause | both |
+| bzip2 | bzip2-1.0.6 | both |
+| c-ares | MIT | both |
+| ca-certificates | ISC | both |
+| cairo | LGPL-2.1-only or MPL-1.1 | both |
+| curl | curl | both |
+| dbus | AFL-2.1 OR GPL-2.0-or-later | both |
+| ffmpeg | GPL-2.0-or-later | both |
+| font-ttf-dejavu-sans-mono | BSD-3-Clause | both |
+| font-ttf-inconsolata | OFL-1.1 | both |
+| font-ttf-source-code-pro | OFL-1.1 | both |
+| font-ttf-ubuntu | Ubuntu-font-1.0 | both |
+| fontconfig | MIT | both |
+| fonts-conda-ecosystem | BSD-3-Clause | both |
+| fonts-conda-forge | BSD-3-Clause | both |
+| freetype | GPL-2.0-only OR FTL | both |
+| fribidi | LGPL-2.1-or-later | both |
+| gdk-pixbuf | LGPL-2.1-or-later | both |
+| glslang | BSD-3-Clause | both |
+| gmp | GPL-2.0-or-later OR LGPL-3.0-or-later | both |
+| graphite2 | LGPL-2.0-or-later | both |
+| icu | MIT | both |
+| intel-gmmlib | MIT | amd64 only |
+| intel-media-driver | MIT | amd64 only |
+| keyutils | LGPL-2.1-or-later | both |
+| krb5 | MIT | both |
+| lame | LGPL-2.0-only | both |
+| lcms2 | MIT | both |
+| ld_impl_linux-64 | GPL-3.0-only | amd64 only |
+| ld_impl_linux-aarch64 | GPL-3.0-only | arm64 only |
+| lerc | Apache-2.0 | both |
+| level-zero | MIT | amd64 only |
+| libabseil | Apache-2.0 | both |
+| libass | ISC | both |
+| libbrotlicommon | MIT | both |
+| libbrotlidec | MIT | both |
+| libbrotlienc | MIT | both |
+| libcap | BSD-3-Clause | both |
+| libcurl | curl | both |
+| libdav1d7 | BSD-2-Clause | both |
+| libdeflate | MIT | both |
+| libdovi | MIT | both |
+| libdrm | MIT | both |
+| libedit | BSD-2-Clause | both |
+| libegl | LicenseRef-libglvnd | both |
+| libev | BSD-2-Clause OR GPL-2.0-or-later | both |
+| libexpat | MIT | both |
+| libffi | MIT | both |
+| libflac | BSD-3-Clause | both |
+| libfreetype | GPL-2.0-only OR FTL | both |
+| libfreetype6 | GPL-2.0-only OR FTL | both |
+| libgcc | GPL-3.0-only WITH GCC-exception-3.1 | both |
+| libgl | LicenseRef-libglvnd | both |
+| libglib | LGPL-2.1-or-later | both |
+| libglvnd | LicenseRef-libglvnd | both |
+| libglx | LicenseRef-libglvnd | both |
+| libgomp | GPL-3.0-only WITH GCC-exception-3.1 | both |
+| libharfbuzz | MIT | both |
+| libharfbuzz-devel | MIT | both |
+| libhwloc | BSD-3-Clause | both |
+| libhwy | Apache-2.0 OR BSD-3-Clause | both |
+| libiconv | LGPL-2.1-only | both |
+| libjpeg-turbo | IJG AND BSD-3-Clause AND Zlib | both |
+| libjxl | BSD-3-Clause | both |
+| liblzma | 0BSD | both |
+| libmpdec | BSD-2-Clause | both |
+| libnghttp2 | MIT | both |
+| libogg | BSD-3-Clause | both |
+| libopenvino | Apache-2.0 | both |
+| libopenvino-arm-cpu-plugin | Apache-2.0 | arm64 only |
+| libopenvino-auto-batch-plugin | Apache-2.0 | both |
+| libopenvino-auto-plugin | Apache-2.0 | both |
+| libopenvino-gguf-frontend | Apache-2.0 | both |
+| libopenvino-hetero-plugin | Apache-2.0 | both |
+| libopenvino-intel-cpu-plugin | Apache-2.0 | amd64 only |
+| libopenvino-intel-gpu-plugin | Apache-2.0 | amd64 only |
+| libopenvino-intel-npu-plugin | Apache-2.0 | amd64 only |
+| libopenvino-ir-frontend | Apache-2.0 | both |
+| libopenvino-onnx-frontend | Apache-2.0 | both |
+| libopenvino-paddle-frontend | Apache-2.0 | both |
+| libopenvino-pytorch-frontend | Apache-2.0 | both |
+| libopenvino-tensorflow-frontend | Apache-2.0 | both |
+| libopenvino-tensorflow-lite-frontend | Apache-2.0 | both |
+| libopus | BSD-3-Clause | both |
+| libpango | LGPL-2.1-or-later | both |
+| libpango-devel | LGPL-2.1-or-later | both |
+| libpciaccess | MIT | both |
+| libplacebo | LGPL-2.1-or-later | both |
+| libpng | zlib-acknowledgement | both |
+| libprotobuf | BSD-3-Clause | both |
+| libpsl | MIT | both |
+| libpython | Python-2.0 | both |
+| librsvg | LGPL-2.1-or-later | both |
+| libsndfile | LGPL-2.1-or-later | both |
+| libsqlite | blessing | both |
+| libssh2 | BSD-3-Clause | both |
+| libstdcxx | GPL-3.0-only WITH GCC-exception-3.1 | both |
+| libsystemd0 | LGPL-2.1-or-later | both |
+| libtiff | HPND | both |
+| libudev1 | LGPL-2.1-or-later | both |
+| libunwind | MIT | both |
+| liburing | MIT | both |
+| libusb | LGPL-2.1-or-later | both |
+| libuuid | BSD-3-Clause | both |
+| libva | MIT | amd64 only |
+| libvorbis | BSD-3-Clause | both |
+| libvpl | MIT | amd64 only |
+| libvpx | BSD-3-Clause | both |
+| libvulkan-loader | Apache-2.0 | both |
+| libwebp-base | BSD-3-Clause | both |
+| libxcb | MIT | both |
+| libxkbcommon | MIT AND MIT-open-group AND HPND AND HPND-sell-variant AND ISC | both |
+| libxml2 | MIT | both |
+| libxml2-16 | MIT | both |
+| libzlib | Zlib | both |
+| mpg123 | LGPL-2.1-only | both |
+| ncurses | X11 AND BSD-3-Clause | both |
+| ocl-icd | BSD-2-Clause | amd64 only |
+| opencl-headers | Apache-2.0 | amd64 only |
+| openh264 | BSD-2-Clause | both |
+| openssl | Apache-2.0 | both |
+| pango | LGPL-2.1-or-later | both |
+| pcre2 | BSD-3-Clause | both |
+| pixman | MIT | both |
+| pthread-stubs | MIT | both |
+| pugixml | MIT | both |
+| pulseaudio-client | LGPL-2.1-or-later | both |
+| python | Python-2.0 | both |
+| python_abi | BSD-3-Clause | both |
+| readline | GPL-3.0-only | both |
+| sdl2 | Zlib | both |
+| sdl3 | Zlib | both |
+| shaderc | Apache-2.0 | both |
+| snappy | BSD-3-Clause | both |
+| spirv-tools | Apache-2.0 | both |
+| svt-av1 | BSD-2-Clause | both |
+| tbb | Apache-2.0 | both |
+| tk | TCL | both |
+| tzdata | LicenseRef-Public-Domain | both |
+| wayland | MIT | both |
+| wayland-protocols | MIT | amd64 only |
+| x264 | GPL-2.0-or-later | both |
+| x265 | GPL-2.0-or-later | both |
+| xkeyboard-config | MIT | both |
+| xorg-libice | MIT | both |
+| xorg-libsm | MIT | both |
+| xorg-libx11 | MIT | both |
+| xorg-libxau | MIT | both |
+| xorg-libxcursor | MIT | both |
+| xorg-libxdmcp | MIT | both |
+| xorg-libxext | MIT | both |
+| xorg-libxfixes | MIT | both |
+| xorg-libxi | MIT | both |
+| xorg-libxrandr | MIT | both |
+| xorg-libxrender | MIT | both |
+| xorg-libxscrnsaver | MIT | both |
+| xorg-libxtst | MIT | both |
+| zstd | BSD-3-Clause | both |
 
 Regenerate this table when a package is added or removed, or its license changes, with:
 
 ```bash
 pixi list -e docker --platform linux-64 --fields name,license
+pixi list -e docker --platform linux-aarch64 --fields name,license
 ```
+
+(merge the two lists; mark packages present in only one as `amd64 only` / `arm64 only`)
 
