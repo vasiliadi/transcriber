@@ -11,6 +11,13 @@ because they come from different tools:
   end of this file. `pip-licenses` does not see these; they are a separate,
   material source of non-permissive licenses in the shipped image.
 
+Package versions are deliberately not listed here, so routine version bumps
+don't make this file stale. The exact version of every bundled package is
+pinned in [`pixi.lock`](pixi.lock); a published image's
+`org.opencontainers.image.revision` label names the commit it was built from,
+and that commit's `pixi.lock` is the authoritative inventory, including for
+locating the corresponding source of GPL/LGPL components.
+
 ## Python packages
 
 Notable non-permissive Python components:
@@ -19,12 +26,12 @@ Notable non-permissive Python components:
 - **certifi** — MPL-2.0
 
 Full license texts follow, generated with `pip-licenses` against the resolved
-environment. Regenerate after any dependency change with:
+environment. Regenerate when a dependency is added or removed, or its license changes, with:
 
 ```bash
 pixi exec --spec pip-licenses -- pip-licenses \
   --python .pixi/envs/default/bin/python \
-  --ignore-packages transcriber \
+  --ignore-packages transcriber --no-version \
   --with-license-file --no-license-path \
   --format=plain-vertical --with-authors --with-urls
 ```
@@ -34,7 +41,6 @@ pixi exec --spec pip-licenses -- pip-licenses \
 ---
 
 Jinja2
-3.1.6
 BSD License
 UNKNOWN
 https://github.com/pallets/jinja/
@@ -69,7 +75,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 MarkupSafe
-3.0.4
 BSD-3-Clause
 UNKNOWN
 https://github.com/pallets/markupsafe/
@@ -104,7 +109,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 altair
-6.3.0
 BSD License
 Vega-Altair Contributors
 https://github.com/vega/altair
@@ -139,7 +143,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 annotated-types
-0.8.0
 MIT
 Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, Samuel Colvin <s@muelcolvin.com>, Zac Hatfield-Dodds <zac@zhd.dev>
 https://github.com/annotated-types/annotated-types
@@ -167,7 +170,6 @@ SOFTWARE.
 
 
 anyio
-4.16.0
 MIT
 Alex Grönholm <alex.gronholm@nextday.fi>
 https://anyio.readthedocs.io/en/stable/versionhistory.html
@@ -194,7 +196,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 attrs
-26.1.0
 MIT
 Hynek Schlawack <hs@ox.cx>
 https://www.attrs.org/en/stable/changelog.html
@@ -222,7 +223,6 @@ SOFTWARE.
 
 
 beautifulsoup4
-4.15.0
 MIT License
 Leonard Richardson <leonardr@segfault.org>
 https://www.crummy.com/software/BeautifulSoup/bs4/
@@ -260,7 +260,6 @@ Isaac Muse
 
 
 brotli
-1.2.1
 MIT
 The Brotli Authors
 https://github.com/google/brotli
@@ -286,7 +285,6 @@ THE SOFTWARE.
 
 
 certifi
-2026.10.23
 Mozilla Public License 2.0 (MPL 2.0)
 Kenneth Reitz
 https://github.com/certifi/python-certifi
@@ -313,7 +311,6 @@ one at http://mozilla.org/MPL/2.0/.
 
 
 cffi
-2.1.1
 MIT-0
 Armin Rigo, Maciej Fijalkowski
 https://cffi.readthedocs.io/en/latest/whatsnew.html
@@ -343,7 +340,6 @@ documentation is licensed as follows:
 
 
 charset-normalizer
-3.5.2
 MIT
 "Ahmed R. TAHRI" <tahri.ahmed@proton.me>
 https://github.com/jawah/charset_normalizer/blob/master/CHANGELOG.md
@@ -371,7 +367,6 @@ SOFTWARE.
 
 
 click
-8.5.1
 BSD-3-Clause
 UNKNOWN
 https://github.com/pallets/click/
@@ -406,7 +401,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 cryptography
-50.0.2
 Apache-2.0 OR BSD-3-Clause
 The Python Cryptographic Authority and individual contributors <cryptography-dev@python.org>
 https://github.com/pyca/cryptography
@@ -416,7 +410,6 @@ under the terms of *both* these licenses.
 
 
 curl_cffi
-0.17.0
 MIT
 lexiforest <infinitesheldon@gmail.com>
 https://github.com/lexiforest/curl_cffi
@@ -446,7 +439,6 @@ SOFTWARE.
 
 
 deno
-2.9.8
 MIT
 the Deno authors <support@deno.com>
 https://deno.com
@@ -478,7 +470,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 distro
-1.9.0
 Apache Software License
 Nir Cohen
 https://github.com/python-distro/distro
@@ -687,7 +678,6 @@ Apache License
 
 
 google-auth
-2.62.2
 Apache Software License
 Google Cloud Platform
 https://github.com/googleapis/google-cloud-python/tree/main/packages/google-auth
@@ -895,7 +885,6 @@ https://github.com/googleapis/google-cloud-python/tree/main/packages/google-auth
 
 
 google-genai
-3.2.0
 Apache-2.0
 Google LLC <googleapis-packages@google.com>
 https://github.com/googleapis/python-genai
@@ -1104,7 +1093,6 @@ https://github.com/googleapis/python-genai
 
 
 h11
-0.16.0
 MIT License
 Nathaniel J. Smith
 https://github.com/python-hyper/h11
@@ -1133,7 +1121,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 httpcore2
-2.16.0
 BSD-3-Clause
 Tom Christie <tom@tomchristie.com>
 https://github.com/pydantic/httpx2
@@ -1168,7 +1155,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 httpx2
-2.16.0
 BSD-3-Clause
 Tom Christie <tom@tomchristie.com>
 https://github.com/pydantic/httpx2
@@ -1188,7 +1174,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
 idna
-3.20
 BSD-3-Clause
 Kim Davies <kim+pypi@gumleaf.org>
 https://github.com/kjd/idna
@@ -1226,7 +1211,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 itsdangerous
-2.2.0
 BSD License
 UNKNOWN
 https://github.com/pallets/itsdangerous/
@@ -1261,7 +1245,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 jsonschema
-4.26.0
 MIT
 Julian Berman <Julian+jsonschema@GrayVines.com>
 https://github.com/python-jsonschema/jsonschema
@@ -1287,7 +1270,6 @@ THE SOFTWARE.
 
 
 jsonschema-specifications
-2025.9.1
 MIT
 Julian Berman <Julian+jsonschema-specifications@GrayVines.com>
 https://github.com/python-jsonschema/jsonschema-specifications
@@ -1313,7 +1295,6 @@ THE SOFTWARE.
 
 
 mutagen
-1.48.1
 GPL-2.0-or-later
 Christoph Reiter <reiter.christoph@gmail.com>
 https://mutagen.readthedocs.io
@@ -1659,7 +1640,6 @@ Public License instead of this License.
 
 
 narwhals
-2.28.0
 MIT
 Marco Gorelli
 https://github.com/narwhals-dev/narwhals
@@ -1687,7 +1667,6 @@ SOFTWARE.
 
 
 numpy
-2.5.4
 BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
 Travis E. Oliphant et al.
 https://numpy.org
@@ -2629,7 +2608,6 @@ License: LGPL-2.1-or-later
 
 
 packaging
-26.3
 Apache-2.0 OR BSD-2-Clause
 Donald Stufft <donald@stufft.io>
 https://github.com/pypa/packaging
@@ -2639,7 +2617,6 @@ under the terms of *both* these licenses.
 
 
 pandas
-3.1.1
 BSD-3-Clause
 The Pandas Development Team <pandas-dev@python.org>
 https://pandas.pydata.org
@@ -2677,7 +2654,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 pillow
-13.0.0
 MIT-CMU
 Jeffrey 'Alex' Clark <aclark@aclark.net>
 https://python-pillow.org
@@ -4258,7 +4234,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 protobuf
-7.36.2
 3-Clause BSD License
 protobuf@googlegroups.com
 https://developers.google.com/protocol-buffers/
@@ -4297,7 +4272,6 @@ support library is itself covered by the above license.
 
 
 pyarrow
-26.0.1
 Apache-2.0
 UNKNOWN
 https://arrow.apache.org/
@@ -6569,7 +6543,6 @@ SOFTWARE.
 
 
 pyasn1
-0.6.5
 BSD-2-Clause
 Ilya Etingof <etingof@gmail.com>
 https://github.com/pyasn1/pyasn1
@@ -6600,7 +6573,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 pyasn1_modules
-0.4.2
 BSD License
 Ilya Etingof
 https://github.com/pyasn1/pyasn1-modules
@@ -6631,7 +6603,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 pycparser
-3.12
 BSD-3-Clause
 Eli Bendersky <eliben@gmail.com>
 https://github.com/eliben/pycparser
@@ -6665,7 +6636,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 pycryptodomex
-3.24.2
 BSD License; Public Domain
 Helder Eijs
 https://www.pycryptodome.org
@@ -6733,7 +6703,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 pydantic
-2.14.3
 MIT
 Samuel Colvin <s@muelcolvin.com>, Eric Jolibois <em.jolibois@gmail.com>, Hasan Ramezani <hasan.r67@gmail.com>, Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, Terrence Dorsey <terry@pydantic.dev>, David Montague <david@pydantic.dev>, Serge Matveenko <lig@countzero.co>, Marcelo Trylesinski <marcelotryle@gmail.com>, Sydney Runkle <sydneymarierunkle@gmail.com>, David Hewitt <mail@davidhewitt.dev>, Alex Hall <alex.mojaki@gmail.com>, Victorien Plot <contact@vctrn.dev>
 https://github.com/pydantic/pydantic
@@ -6761,7 +6730,6 @@ SOFTWARE.
 
 
 pydantic_core
-2.50.4
 MIT
 Samuel Colvin <s@muelcolvin.com>, Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, David Montague <david@pydantic.dev>, David Hewitt <mail@davidhewitt.dev>, Sydney Runkle <sydneymarierunkle@gmail.com>, Victorien Plot <contact@vctrn.dev>
 https://github.com/pydantic/pydantic
@@ -6789,7 +6757,6 @@ SOFTWARE.
 
 
 pydeck
-0.9.3
 Apache License 2.0
 Andrew Duberstein
 https://github.com/visgl/deck.gl/tree/master/bindings/pydeck
@@ -6809,7 +6776,6 @@ https://github.com/visgl/deck.gl/tree/master/bindings/pydeck
 
 
 python-dateutil
-4.0.0
 BSD-3-Clause
 Gustavo Niemeyer <gustavo@niemeyer.net>
 https://github.com/dateutil/dateutil
@@ -6869,7 +6835,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The above BSD License Applies to all code, even that also covered by Apache 2.0.
 
 python-multipart
-0.0.33
 Apache-2.0
 Andrew Dunham <andrew@du.nham.ca>
 https://github.com/Kludex/python-multipart
@@ -7078,7 +7043,6 @@ https://github.com/Kludex/python-multipart
 
 
 referencing
-0.37.0
 MIT
 Julian Berman <Julian+referencing@GrayVines.com>
 https://github.com/python-jsonschema/referencing
@@ -7104,7 +7068,6 @@ THE SOFTWARE.
 
 
 requests
-2.34.2
 Apache Software License
 Kenneth Reitz <me@kennethreitz.org>
 https://github.com/psf/requests
@@ -7286,7 +7249,6 @@ https://github.com/psf/requests
 
 
 rpds-py
-2026.9.1
 MIT
 Julian Berman <Julian+rpds@GrayVines.com>
 https://github.com/crate-py/rpds
@@ -7312,7 +7274,6 @@ THE SOFTWARE.
 
 
 sniffio
-1.3.1
 Apache Software License; MIT License
 "Nathaniel J. Smith" <njs@pobox.com>
 https://github.com/python-trio/sniffio
@@ -7322,7 +7283,6 @@ made under the terms of *both* these licenses.
 
 
 soupsieve
-4.1
 MIT
 Isaac Muse <Isaac.Muse@gmail.com>
 https://github.com/facelessuser/soupsieve
@@ -7350,7 +7310,6 @@ SOFTWARE.
 
 
 starlette
-1.10.0
 BSD-3-Clause
 Tom Christie <tom@tomchristie.com>
 https://github.com/Kludex/starlette
@@ -7384,14 +7343,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 streamlit
-1.67.0
 Apache-2.0
 Snowflake Inc <hello@streamlit.io>
 https://streamlit.io
 UNKNOWN
 
 tenacity
-9.1.4
 Apache Software License
 Julien Danjou
 https://github.com/jd/tenacity
@@ -7599,7 +7556,6 @@ https://github.com/jd/tenacity
    limitations under the License.
 
 truststore
-0.10.5
 MIT
 Seth Michael Larson <sethmichaellarson@gmail.com>, David Glick <david@glicksoftware.com>
 https://github.com/sethmlarson/truststore
@@ -7627,7 +7583,6 @@ THE SOFTWARE.
 
 
 typing-inspection
-0.4.5
 MIT
 Victorien Plot <contact@vctrn.dev>
 https://github.com/pydantic/typing-inspection
@@ -7655,7 +7610,6 @@ SOFTWARE.
 
 
 typing_extensions
-4.16.0
 PSF-2.0
 "Guido van Rossum, Jukka Lehtosalo, Łukasz Langa, Michael Lee" <levkivskyi@gmail.com>
 https://github.com/python/typing_extensions
@@ -7941,7 +7895,6 @@ PERFORMANCE OF THIS SOFTWARE.
 
 
 tzdata
-2026.6
 Apache-2.0
 Python Software Foundation
 https://github.com/python/tzdata
@@ -7964,7 +7917,6 @@ limitations under the License.
 
 
 urllib3
-2.8.0
 MIT
 Andrey Petrov <andrey.petrov@shazow.net>
 https://github.com/urllib3/urllib3/blob/main/CHANGES.rst
@@ -7992,7 +7944,6 @@ SOFTWARE.
 
 
 uvicorn
-0.54.0
 BSD-3-Clause
 Tom Christie <tom@tomchristie.com>
 https://uvicorn.dev/
@@ -8026,7 +7977,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 websockets
-17.4
 BSD-3-Clause
 Aymeric Augustin <aymeric.augustin@m4x.org>
 https://github.com/python-websockets/websockets
@@ -8057,7 +8007,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 yt-dlp
-2026.10.26
 Unlicense
 pukkandan <pukkandan.ytdlp@gmail.com>
 https://github.com/yt-dlp/yt-dlp
@@ -8088,7 +8037,6 @@ For more information, please refer to <http://unlicense.org/>
 
 
 yt-dlp-ejs
-0.8.0
 Unlicense AND MIT AND ISC
 Simon Sawicki <contact@grub4k.dev>
 https://github.com/yt-dlp/ejs
@@ -8121,180 +8069,180 @@ For more information, please refer to <https://unlicense.org/>
 
 ## Conda / system packages (Docker image)
 
-The published Docker image is built from the pixi `docker` environment (`pyproject.toml` `[tool.pixi.feature.docker]`), which layers native/system libraries on top of the Python packages above via conda-forge. `pip-licenses` cannot see these — they are inventoried here separately, generated with `pixi list` (fields: name, version, license), which reads license metadata straight from the conda-forge package index via `pixi.lock`.
+The published Docker image is built from the pixi `docker` environment (`pyproject.toml` `[tool.pixi.feature.docker]`), which layers native/system libraries on top of the Python packages above via conda-forge. `pip-licenses` cannot see these — they are inventoried here separately, generated with `pixi list` (fields: name, license), which reads license metadata straight from the conda-forge package index via `pixi.lock`.
 
-Of 158 conda/system packages in the `docker` environment, **34** carry a GPL-family or MPL license:
+These conda/system packages in the `docker` environment carry a GPL-family or MPL license:
 
 - **ffmpeg** (`GPL-2.0-or-later`) — built with the `-gpl` variant (`pyproject.toml` doesn't pin this explicitly; it's what conda-forge resolves for the `docker` feature). This build also pulls in GPL-licensed encoders **x264** and **x265** (both `GPL-2.0-or-later`), which is *why* the GPL variant is selected over a permissively-licensed ffmpeg build.
 - **libgcc / libgomp / libstdcxx / ld_impl_linux-\*** — `GPL-3.0-only WITH GCC-exception-3.1` or plain `GPL-3.0-only`. These are the standard GCC toolchain runtime/linker present in essentially any Linux conda environment; the GCC Runtime Library Exception is designed to permit linking against them without imposing GPL on the linked program. Listed for completeness, not flagged as a compliance concern.
 - The remainder are `LGPL-2.0/2.1`-family system libraries pulled in transitively by `ffmpeg`/GTK-stack dependencies (audio/codec/rendering libs such as `alsa-lib`, `cairo`, `fribidi`, `gdk-pixbuf`, `lame`, `libsndfile`, `mpg123`, `pango`), plus `dbus`, `freetype`, `gmp` and `libev`, which are dual-licensed with a GPL option. LGPL's copyleft applies to the library itself, not this application, as long as the library isn't statically linked into project code (it isn't — these are dynamically linked conda packages).
 
-Full inventory of the 158 conda/system packages in the `docker` environment:
+Full inventory of the conda/system packages in the `docker` environment:
 
-| Name | Version | License |
-| --- | --- | --- |
-| _openmp_mutex | 4.5 | BSD-3-Clause |
-| alsa-lib | 1.2.16.1 | LGPL-2.1-or-later |
-| aom | 3.15.3 | BSD-2-Clause |
-| bzip2 | 1.0.8 | bzip2-1.0.6 |
-| c-ares | 1.34.9 | MIT |
-| ca-certificates | 2026.10.23 | ISC |
-| cairo | 1.18.6 | LGPL-2.1-only or MPL-1.1 |
-| curl | 8.23.0 | curl |
-| dbus | 1.16.2 | AFL-2.1 OR GPL-2.0-or-later |
-| ffmpeg | 9.0.2 | GPL-2.0-or-later |
-| font-ttf-dejavu-sans-mono | 2.37 | BSD-3-Clause |
-| font-ttf-inconsolata | 3.000 | OFL-1.1 |
-| font-ttf-source-code-pro | 2.038 | OFL-1.1 |
-| font-ttf-ubuntu | 0.83 | Ubuntu-font-1.0 |
-| fontconfig | 2.18.3 | MIT |
-| fonts-conda-ecosystem | 1 | BSD-3-Clause |
-| fonts-conda-forge | 1 | BSD-3-Clause |
-| freetype | 2.14.3 | GPL-2.0-only OR FTL |
-| fribidi | 1.0.18 | LGPL-2.1-or-later |
-| gdk-pixbuf | 2.44.8 | LGPL-2.1-or-later |
-| glslang | 16.6.0 | BSD-3-Clause |
-| gmp | 6.3.0 | GPL-2.0-or-later OR LGPL-3.0-or-later |
-| graphite2 | 1.3.15 | LGPL-2.0-or-later |
-| icu | 78.3 | MIT |
-| intel-gmmlib | 22.10.2 | MIT |
-| intel-media-driver | 26.1.6 | MIT |
-| keyutils | 1.6.3 | LGPL-2.1-or-later |
-| krb5 | 1.22.2 | MIT |
-| lame | 4.0 | LGPL-2.0-only |
-| lcms2 | 2.20 | MIT |
-| ld_impl_linux-64 | 2.46.1 | GPL-3.0-only |
-| lerc | 4.3.0 | Apache-2.0 |
-| level-zero | 1.34.0 | MIT |
-| libabseil | 20260817.0 | Apache-2.0 |
-| libass | 0.17.5 | ISC |
-| libbrotlicommon | 1.2.1 | MIT |
-| libbrotlidec | 1.2.1 | MIT |
-| libbrotlienc | 1.2.1 | MIT |
-| libcap | 2.78 | BSD-3-Clause |
-| libcurl | 8.23.0 | curl |
-| libdav1d7 | 1.5.4 | BSD-2-Clause |
-| libdeflate | 1.26 | MIT |
-| libdovi | 3.4.0 | MIT |
-| libdrm | 2.4.129 | MIT |
-| libedit | 3.1.20260512 | BSD-2-Clause |
-| libegl | 1.7.0 | LicenseRef-libglvnd |
-| libev | 4.33 | BSD-2-Clause OR GPL-2.0-or-later |
-| libexpat | 2.9.0 | MIT |
-| libffi | 3.7.0 | MIT |
-| libflac | 1.5.0 | BSD-3-Clause |
-| libfreetype | 2.14.3 | GPL-2.0-only OR FTL |
-| libfreetype6 | 2.14.3 | GPL-2.0-only OR FTL |
-| libgcc | 16.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
-| libgl | 1.7.0 | LicenseRef-libglvnd |
-| libglib | 2.90.1 | LGPL-2.1-or-later |
-| libglvnd | 1.7.0 | LicenseRef-libglvnd |
-| libglx | 1.7.0 | LicenseRef-libglvnd |
-| libgomp | 16.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
-| libharfbuzz | 15.0.0 | MIT |
-| libharfbuzz-devel | 15.0.0 | MIT |
-| libhwloc | 2.15.0 | BSD-3-Clause |
-| libhwy | 1.4.0 | Apache-2.0 OR BSD-3-Clause |
-| libiconv | 1.18 | LGPL-2.1-only |
-| libjpeg-turbo | 3.2.1 | IJG AND BSD-3-Clause AND Zlib |
-| libjxl | 0.12.0 | BSD-3-Clause |
-| liblzma | 5.8.3 | 0BSD |
-| libmpdec | 4.0.0 | BSD-2-Clause |
-| libnghttp2 | 1.71.0 | MIT |
-| libogg | 1.3.5 | BSD-3-Clause |
-| libopenvino | 2026.4.1 | Apache-2.0 |
-| libopenvino-auto-batch-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-auto-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-gguf-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-hetero-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-intel-cpu-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-intel-gpu-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-intel-npu-plugin | 2026.4.1 | Apache-2.0 |
-| libopenvino-ir-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-onnx-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-paddle-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-pytorch-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-tensorflow-frontend | 2026.4.1 | Apache-2.0 |
-| libopenvino-tensorflow-lite-frontend | 2026.4.1 | Apache-2.0 |
-| libopus | 1.6.1 | BSD-3-Clause |
-| libpango | 1.58.2 | LGPL-2.1-or-later |
-| libpango-devel | 1.58.2 | LGPL-2.1-or-later |
-| libpciaccess | 0.19 | MIT |
-| libplacebo | 7.387.0 | LGPL-2.1-or-later |
-| libpng | 1.6.59 | zlib-acknowledgement |
-| libprotobuf | 7.35.1 | BSD-3-Clause |
-| libpsl | 0.23.1 | MIT |
-| libpython | 3.14.10 | Python-2.0 |
-| librsvg | 2.62.4 | LGPL-2.1-or-later |
-| libsndfile | 1.2.2 | LGPL-2.1-or-later |
-| libsqlite | 3.54.1 | blessing |
-| libssh2 | 1.11.1 | BSD-3-Clause |
-| libstdcxx | 16.2.0 | GPL-3.0-only WITH GCC-exception-3.1 |
-| libsystemd0 | 262.2 | LGPL-2.1-or-later |
-| libtiff | 4.7.2 | HPND |
-| libudev1 | 262.2 | LGPL-2.1-or-later |
-| libunwind | 1.8.3 | MIT |
-| liburing | 2.15 | MIT |
-| libusb | 1.0.30 | LGPL-2.1-or-later |
-| libuuid | 2.42.4 | BSD-3-Clause |
-| libva | 2.24.1 | MIT |
-| libvorbis | 1.3.7 | BSD-3-Clause |
-| libvpl | 2.16.0 | MIT |
-| libvpx | 1.17.0 | BSD-3-Clause |
-| libvulkan-loader | 1.4.357.0 | Apache-2.0 |
-| libwebp-base | 1.6.0 | BSD-3-Clause |
-| libxcb | 1.17.0 | MIT |
-| libxkbcommon | 1.13.2 | MIT AND MIT-open-group AND HPND AND HPND-sell-variant AND ISC |
-| libxml2 | 2.15.4 | MIT |
-| libxml2-16 | 2.15.4 | MIT |
-| libzlib | 1.3.2 | Zlib |
-| mpg123 | 1.33.7 | LGPL-2.1-only |
-| ncurses | 6.6 | X11 AND BSD-3-Clause |
-| ocl-icd | 2.3.4 | BSD-2-Clause |
-| opencl-headers | 2025.06.13 | Apache-2.0 |
-| openh264 | 2.7.0 | BSD-2-Clause |
-| openssl | 3.6.5 | Apache-2.0 |
-| pango | 1.58.2 | LGPL-2.1-or-later |
-| pcre2 | 10.47 | BSD-3-Clause |
-| pixman | 0.46.4 | MIT |
-| pthread-stubs | 0.4 | MIT |
-| pugixml | 1.15 | MIT |
-| pulseaudio-client | 17.0 | LGPL-2.1-or-later |
-| python | 3.14.10 | Python-2.0 |
-| python_abi | 3.14 | BSD-3-Clause |
-| readline | 8.3 | GPL-3.0-only |
-| sdl2 | 2.32.56 | Zlib |
-| sdl3 | 3.4.20 | Zlib |
-| shaderc | 2026.4 | Apache-2.0 |
-| snappy | 1.3.1 | BSD-3-Clause |
-| spirv-tools | 2026.4 | Apache-2.0 |
-| svt-av1 | 4.3.0 | BSD-2-Clause |
-| tbb | 2023.1.0 | Apache-2.0 |
-| tk | 8.6.13 | TCL |
-| tzdata | 2026e | LicenseRef-Public-Domain |
-| wayland | 1.26.0 | MIT |
-| wayland-protocols | 1.50 | MIT |
-| x264 | 1!164.3095 | GPL-2.0-or-later |
-| x265 | 3.5 | GPL-2.0-or-later |
-| xkeyboard-config | 2.48 | MIT |
-| xorg-libice | 1.1.2 | MIT |
-| xorg-libsm | 1.2.6 | MIT |
-| xorg-libx11 | 1.8.14 | MIT |
-| xorg-libxau | 1.0.12 | MIT |
-| xorg-libxcursor | 1.2.3 | MIT |
-| xorg-libxdmcp | 1.1.5 | MIT |
-| xorg-libxext | 1.3.7 | MIT |
-| xorg-libxfixes | 6.0.2 | MIT |
-| xorg-libxi | 1.8.4 | MIT |
-| xorg-libxrandr | 1.5.5 | MIT |
-| xorg-libxrender | 0.9.13 | MIT |
-| xorg-libxscrnsaver | 1.2.4 | MIT |
-| xorg-libxtst | 1.2.6 | MIT |
-| zstd | 1.5.7 | BSD-3-Clause |
+| Name | License |
+| --- | --- |
+| _openmp_mutex | BSD-3-Clause |
+| alsa-lib | LGPL-2.1-or-later |
+| aom | BSD-2-Clause |
+| bzip2 | bzip2-1.0.6 |
+| c-ares | MIT |
+| ca-certificates | ISC |
+| cairo | LGPL-2.1-only or MPL-1.1 |
+| curl | curl |
+| dbus | AFL-2.1 OR GPL-2.0-or-later |
+| ffmpeg | GPL-2.0-or-later |
+| font-ttf-dejavu-sans-mono | BSD-3-Clause |
+| font-ttf-inconsolata | OFL-1.1 |
+| font-ttf-source-code-pro | OFL-1.1 |
+| font-ttf-ubuntu | Ubuntu-font-1.0 |
+| fontconfig | MIT |
+| fonts-conda-ecosystem | BSD-3-Clause |
+| fonts-conda-forge | BSD-3-Clause |
+| freetype | GPL-2.0-only OR FTL |
+| fribidi | LGPL-2.1-or-later |
+| gdk-pixbuf | LGPL-2.1-or-later |
+| glslang | BSD-3-Clause |
+| gmp | GPL-2.0-or-later OR LGPL-3.0-or-later |
+| graphite2 | LGPL-2.0-or-later |
+| icu | MIT |
+| intel-gmmlib | MIT |
+| intel-media-driver | MIT |
+| keyutils | LGPL-2.1-or-later |
+| krb5 | MIT |
+| lame | LGPL-2.0-only |
+| lcms2 | MIT |
+| ld_impl_linux-64 | GPL-3.0-only |
+| lerc | Apache-2.0 |
+| level-zero | MIT |
+| libabseil | Apache-2.0 |
+| libass | ISC |
+| libbrotlicommon | MIT |
+| libbrotlidec | MIT |
+| libbrotlienc | MIT |
+| libcap | BSD-3-Clause |
+| libcurl | curl |
+| libdav1d7 | BSD-2-Clause |
+| libdeflate | MIT |
+| libdovi | MIT |
+| libdrm | MIT |
+| libedit | BSD-2-Clause |
+| libegl | LicenseRef-libglvnd |
+| libev | BSD-2-Clause OR GPL-2.0-or-later |
+| libexpat | MIT |
+| libffi | MIT |
+| libflac | BSD-3-Clause |
+| libfreetype | GPL-2.0-only OR FTL |
+| libfreetype6 | GPL-2.0-only OR FTL |
+| libgcc | GPL-3.0-only WITH GCC-exception-3.1 |
+| libgl | LicenseRef-libglvnd |
+| libglib | LGPL-2.1-or-later |
+| libglvnd | LicenseRef-libglvnd |
+| libglx | LicenseRef-libglvnd |
+| libgomp | GPL-3.0-only WITH GCC-exception-3.1 |
+| libharfbuzz | MIT |
+| libharfbuzz-devel | MIT |
+| libhwloc | BSD-3-Clause |
+| libhwy | Apache-2.0 OR BSD-3-Clause |
+| libiconv | LGPL-2.1-only |
+| libjpeg-turbo | IJG AND BSD-3-Clause AND Zlib |
+| libjxl | BSD-3-Clause |
+| liblzma | 0BSD |
+| libmpdec | BSD-2-Clause |
+| libnghttp2 | MIT |
+| libogg | BSD-3-Clause |
+| libopenvino | Apache-2.0 |
+| libopenvino-auto-batch-plugin | Apache-2.0 |
+| libopenvino-auto-plugin | Apache-2.0 |
+| libopenvino-gguf-frontend | Apache-2.0 |
+| libopenvino-hetero-plugin | Apache-2.0 |
+| libopenvino-intel-cpu-plugin | Apache-2.0 |
+| libopenvino-intel-gpu-plugin | Apache-2.0 |
+| libopenvino-intel-npu-plugin | Apache-2.0 |
+| libopenvino-ir-frontend | Apache-2.0 |
+| libopenvino-onnx-frontend | Apache-2.0 |
+| libopenvino-paddle-frontend | Apache-2.0 |
+| libopenvino-pytorch-frontend | Apache-2.0 |
+| libopenvino-tensorflow-frontend | Apache-2.0 |
+| libopenvino-tensorflow-lite-frontend | Apache-2.0 |
+| libopus | BSD-3-Clause |
+| libpango | LGPL-2.1-or-later |
+| libpango-devel | LGPL-2.1-or-later |
+| libpciaccess | MIT |
+| libplacebo | LGPL-2.1-or-later |
+| libpng | zlib-acknowledgement |
+| libprotobuf | BSD-3-Clause |
+| libpsl | MIT |
+| libpython | Python-2.0 |
+| librsvg | LGPL-2.1-or-later |
+| libsndfile | LGPL-2.1-or-later |
+| libsqlite | blessing |
+| libssh2 | BSD-3-Clause |
+| libstdcxx | GPL-3.0-only WITH GCC-exception-3.1 |
+| libsystemd0 | LGPL-2.1-or-later |
+| libtiff | HPND |
+| libudev1 | LGPL-2.1-or-later |
+| libunwind | MIT |
+| liburing | MIT |
+| libusb | LGPL-2.1-or-later |
+| libuuid | BSD-3-Clause |
+| libva | MIT |
+| libvorbis | BSD-3-Clause |
+| libvpl | MIT |
+| libvpx | BSD-3-Clause |
+| libvulkan-loader | Apache-2.0 |
+| libwebp-base | BSD-3-Clause |
+| libxcb | MIT |
+| libxkbcommon | MIT AND MIT-open-group AND HPND AND HPND-sell-variant AND ISC |
+| libxml2 | MIT |
+| libxml2-16 | MIT |
+| libzlib | Zlib |
+| mpg123 | LGPL-2.1-only |
+| ncurses | X11 AND BSD-3-Clause |
+| ocl-icd | BSD-2-Clause |
+| opencl-headers | Apache-2.0 |
+| openh264 | BSD-2-Clause |
+| openssl | Apache-2.0 |
+| pango | LGPL-2.1-or-later |
+| pcre2 | BSD-3-Clause |
+| pixman | MIT |
+| pthread-stubs | MIT |
+| pugixml | MIT |
+| pulseaudio-client | LGPL-2.1-or-later |
+| python | Python-2.0 |
+| python_abi | BSD-3-Clause |
+| readline | GPL-3.0-only |
+| sdl2 | Zlib |
+| sdl3 | Zlib |
+| shaderc | Apache-2.0 |
+| snappy | BSD-3-Clause |
+| spirv-tools | Apache-2.0 |
+| svt-av1 | BSD-2-Clause |
+| tbb | Apache-2.0 |
+| tk | TCL |
+| tzdata | LicenseRef-Public-Domain |
+| wayland | MIT |
+| wayland-protocols | MIT |
+| x264 | GPL-2.0-or-later |
+| x265 | GPL-2.0-or-later |
+| xkeyboard-config | MIT |
+| xorg-libice | MIT |
+| xorg-libsm | MIT |
+| xorg-libx11 | MIT |
+| xorg-libxau | MIT |
+| xorg-libxcursor | MIT |
+| xorg-libxdmcp | MIT |
+| xorg-libxext | MIT |
+| xorg-libxfixes | MIT |
+| xorg-libxi | MIT |
+| xorg-libxrandr | MIT |
+| xorg-libxrender | MIT |
+| xorg-libxscrnsaver | MIT |
+| xorg-libxtst | MIT |
+| zstd | BSD-3-Clause |
 
-Regenerate this table after any `pixi.lock` change with:
+Regenerate this table when a package is added or removed, or its license changes, with:
 
 ```bash
-pixi list -e docker --platform linux-64 --fields name,version,license
+pixi list -e docker --platform linux-64 --fields name,license
 ```
 
